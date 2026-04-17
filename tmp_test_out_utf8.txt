@@ -1,0 +1,41 @@
+﻿
+Running 1 test using 1 worker
+
+  x  1 [chromium] ΓÇ║ e2e\connect-sync-embeddings-chat.smoke.spec.ts:6:7 ΓÇ║ Connect to Chat smoke flow ΓÇ║ runs connect -> sync -> embeddings -> chat in-browser (13.0s)
+
+
+  1) [chromium] ΓÇ║ e2e\connect-sync-embeddings-chat.smoke.spec.ts:6:7 ΓÇ║ Connect to Chat smoke flow ΓÇ║ runs connect -> sync -> embeddings -> chat in-browser 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByPlaceholder('Ask anything about yourself...')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 10000ms[22m
+    [2m  - waiting for getByPlaceholder('Ask anything about yourself...')[22m
+
+
+      38 |
+      39 |     const chatInput = page.getByPlaceholder('Ask anything about yourself...');
+    > 40 |     await expect(chatInput).toBeVisible();
+         |                             ^
+      41 |
+      42 |     await chatInput.fill('What changed in my GitHub activity this week?');
+      43 |     await chatInput.press('Enter');
+        at E:\Projects\The Monitor\the-monitor\e2e\connect-sync-embeddings-chat.smoke.spec.ts:40:29
+
+    Error Context: test-results\connect-sync-embeddings-ch-b17b9-mbeddings---chat-in-browser-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+    test-results\connect-sync-embeddings-ch-b17b9-mbeddings---chat-in-browser-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\connect-sync-embeddings-ch-b17b9-mbeddings---chat-in-browser-chromium\trace.zip
+
+    ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+
+  1 failed
+    [chromium] ΓÇ║ e2e\connect-sync-embeddings-chat.smoke.spec.ts:6:7 ΓÇ║ Connect to Chat smoke flow ΓÇ║ runs connect -> sync -> embeddings -> chat in-browser 

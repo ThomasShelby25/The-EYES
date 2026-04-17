@@ -1,0 +1,248 @@
+.sidebar {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.newSearchBtn {
+  width: 100%;
+  padding: 14px 20px;
+  background-color: var(--accent-purple);
+  color: white;
+  border: none;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 40px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+}
+
+.newSearchBtn:hover {
+  background-color: #9d7dfa;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(124, 105, 227, 0.6);
+}
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-right: -4px;
+}
+
+.scrollArea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollArea::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.sectionTitle {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  margin-bottom: 16px;
+  padding-left: 12px;
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  text-decoration: none;
+  gap: 14px;
+}
+
+.item:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+.itemActive {
+  background-color: rgba(124, 105, 227, 0.1);
+  color: var(--accent-purple);
+}
+
+.itemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+}
+
+.itemIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.itemMain {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 0;
+}
+
+.itemLabel {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.itemCount {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusOnline {
+  background-color: var(--accent-green);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebarLoadingPlaceholder {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pulseBar {
+  height: 12px;
+  background: rgba(124, 105, 227, 0.05);
+  border-radius: 6px;
+  width: 100%;
+  animation: sidebarPulse 1.5s infinite ease-in-out;
+}
+
+.pulseBar80 {
+  width: 80%;
+}
+
+.pulseBar60 {
+  width: 60%;
+}
+
+@keyframes sidebarPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+.gaugeSection {
+  padding: 16px;
+
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gaugeSectionClickable {
+  cursor: pointer;
+}
+
+.gaugeHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.gaugeIcon {
+  color: var(--text-muted);
+  display: flex;
+}
+
+.gaugeTitle {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+.gaugeWrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gaugeMini {
+  width: 50px;
+  height: 50px;
+}
+
+.scoreText {
+  font-size: 22px;
+  font-weight: 800;
+  fill: #fff;
+}
+
+.gaugeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gaugeActiveCount {
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+}
+
+.gaugeReliability {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.highText {
+  color: var(--accent-green);
+  font-weight: 800;
+}
+

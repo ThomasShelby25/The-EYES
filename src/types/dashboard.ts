@@ -1,0 +1,76 @@
+
+export interface FlaggedItem {
+  id: string;
+  severity: "HIGH" | "MEDIUM" | "LOW";
+  platform: string;
+  date: string;
+  content: string;
+  snippet?: string; // Support for short previews
+  reason?: string;  // Support for audit reasons
+}
+
+export interface ComparisonRow {
+  eyes: string;
+  recruiter: string;
+}
+
+export interface AuditSummary {
+  totalMemories: number;
+  overallRisk: "HIGH" | "MEDIUM" | "LOW";
+  riskCounts: {
+    high: number;
+    med: number;
+    low: number;
+  };
+  flaggedItems: FlaggedItem[];
+  comparisonData: ComparisonRow[];
+}
+
+export interface PlatformStatus {
+  id: string;
+  name: string;
+  connected: boolean;
+  status: 'idle' | 'connecting' | 'authenticating' | 'syncing' | 'connected' | 'error';
+  items: number;
+}
+
+export interface FeedItem {
+  id: string;
+  platform: string;
+  title: string | null;
+  content: string | null;
+  timestamp: string | null;
+  author: string | null;
+  is_flagged: boolean;
+  flag_severity: string | null;
+  flag_reason: string | null;
+  event_type: string | null;
+}
+
+
+export interface ChatRequest {
+  prompt: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+}
+
+export interface Citation {
+  sourceId: number;
+  platform: string;
+  title: string | null;
+  snippet: string;
+}
+
+export interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  pending?: boolean;
+  citations?: Citation[];
+  diagnostics?: {
+    confidenceScore: number;
+    latencyMs: number;
+  };
+}
+

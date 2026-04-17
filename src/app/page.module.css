@@ -1,0 +1,139 @@
+.pageRoot {
+  display: grid;
+  grid-template-areas: 
+    "sidebar header"
+    "sidebar main";
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--primary-dark);
+}
+
+.sidebarWrapper {
+  grid-area: sidebar;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.headerWrapper {
+  grid-area: header;
+}
+
+.mainWrapper {
+  grid-area: main;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .pageRoot {
+    grid-template-areas: 
+      "header"
+      "main";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .sidebarWrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 1001;
+    background-color: var(--primary-dark);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .sidebarVisible {
+    transform: translateX(0);
+    box-shadow: 20px 0 60px rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Scrollbar Customization */
+.mainWrapper::-webkit-scrollbar {
+  width: 6px;
+}
+.mainWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+.mainWrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+.mainWrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.globalBootLoader {
+  position: fixed;
+  inset: 0;
+  background-color: var(--primary-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeOut 0.5s ease-out;
+}
+
+.bootText {
+  color: var(--accent-purple);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  font-size: 14px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.bootProgressLine {
+  width: 200px;
+  height: 2px;
+  background: rgba(124, 105, 227, 0.1);
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.bootProgressLine::after {
+  content: '';
+  position: absolute;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--accent-purple);
+  animation: bootProgress 1.5s infinite ease-in-out;
+}
+
+@keyframes bootProgress {
+  0% { left: -100%; }
+  50% { left: 0%; }
+  100% { left: 100%; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.mobileOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
