@@ -4,18 +4,10 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { encryptToken } from '@/utils/tokens';
 
-function appBaseUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-}
+import { getBaseUrl } from '@/utils/url';
 
-function googleRedirectUri(request: Request) {
-  let requestOrigin = appBaseUrl();
-  try {
-    requestOrigin = new URL(request.url).origin;
-  } catch {
-    requestOrigin = appBaseUrl();
-  }
-
+async function googleRedirectUri(request: Request) {
+  const requestOrigin = await getBaseUrl(request);
   const requestDerived = new URL('/api/connect/google/callback', requestOrigin).toString();
   const explicit = process.env.GOOGLE_REDIRECT_URI?.trim();
   if (!explicit) return requestDerived;
@@ -35,6 +27,9 @@ function googleRedirectUri(request: Request) {
     return requestDerived;
   }
 }
+async function appBaseUrl(request: Request) {
+  return getBaseUrl(request);
+}
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -46,7 +41,7 @@ export async function GET(request: Request) {
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=missing_google_env', appBaseUrl()));
+    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=missing_google_env', await appBaseUrl(request)));
   }
 
   const [requestedPlatformFromState] = (state || '').split(':');
@@ -55,19 +50,19 @@ export async function GET(request: Request) {
   if (oauthError) {
     const mappedReason = oauthError === 'access_denied' ? 'google_access_denied_unverified_or_not_tester' : `google_oauth_${oauthError}`;
     return NextResponse.redirect(
-      new URL(`/connect/${platformFromState}?oauth=error&reason=${encodeURIComponent(mappedReason)}`, appBaseUrl())
+      new URL(`/connect/${platformFromState}?oauth=error&reason=${encodeURIComponent(mappedReason)}`, await appBaseUrl(request))
     );
   }
 
   if (!code || !state) {
-    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=missing_code_or_state', appBaseUrl()));
+    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=missing_code_or_state', await appBaseUrl(request)));
   }
 
   const cookieStore = await cookies();
   const expectedState = cookieStore.get('google_oauth_state')?.value;
 
   if (!expectedState || expectedState !== state) {
-    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=invalid_state', appBaseUrl()));
+    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=invalid_state', await appBaseUrl(request)));
   }
 
   cookieStore.delete('google_oauth_state');
@@ -78,7 +73,7 @@ export async function GET(request: Request) {
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   if (!authData.user) {
-    return NextResponse.redirect(new URL('/login', appBaseUrl()));
+    return NextResponse.redirect(new URL('/login', await appBaseUrl(request)));
   }
 
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -90,14 +85,14 @@ export async function GET(request: Request) {
       code,
       client_id: clientId,
       client_secret: clientSecret,
-      redirect_uri: googleRedirectUri(request),
+      redirect_uri: await googleRedirectUri(request),
       grant_type: 'authorization_code',
     }),
     cache: 'no-store',
   });
 
   if (!tokenResponse.ok) {
-    return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=token_exchange_failed`, appBaseUrl()));
+    return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=token_exchange_failed`, await appBaseUrl(request)));
   }
 
   const tokenBody = (await tokenResponse.json()) as {
@@ -110,7 +105,7 @@ export async function GET(request: Request) {
 
   if (!tokenBody.access_token) {
     return NextResponse.redirect(
-      new URL(`/connect/${platform}?oauth=error&reason=${encodeURIComponent(tokenBody.error || 'no_access_token')}`, appBaseUrl())
+      new URL(`/connect/${platform}?oauth=error&reason=${encodeURIComponent(tokenBody.error || 'no_access_token')}`, await appBaseUrl(request))
     );
   }
 
@@ -155,8 +150,8 @@ export async function GET(request: Request) {
   const hasError = results.some((result) => (result as { error?: unknown }).error);
 
   if (hasError) {
-    return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=token_persist_failed`, appBaseUrl()));
+    return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=token_persist_failed`, await appBaseUrl(request)));
   }
 
-  return NextResponse.redirect(new URL(`/connect/${platform}?oauth=success`, appBaseUrl()));
+  return NextResponse.redirect(new URL(`/connect/${platform}?oauth=success`, await appBaseUrl(request)));
 }

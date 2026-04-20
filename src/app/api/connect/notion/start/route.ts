@@ -5,14 +5,7 @@ import { NextResponse } from 'next/server';
 
 import { createClient } from '@/utils/supabase/server';
 
-function getRequestBaseUrl(request: Request) {
-  const host = request.headers.get('host') || 'localhost:3000';
-  let protocol = 'https';
-  if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    protocol = 'http';
-  }
-  return process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
-}
+import { getBaseUrl } from '@/utils/url';
 
 function notionRedirectUri(baseUrl: string) {
   const explicit = process.env.NOTION_REDIRECT_URI?.trim();
@@ -21,7 +14,7 @@ function notionRedirectUri(baseUrl: string) {
 }
 
 export async function GET(request: Request) {
-  const baseUrl = getRequestBaseUrl(request);
+  const baseUrl = await getBaseUrl(request);
   const clientId = process.env.NOTION_CLIENT_ID;
 
   if (!clientId) {

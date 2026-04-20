@@ -3,12 +3,7 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
-function getRequestBaseUrl(request: Request) {
-  const host = request.headers.get('host');
-  if (!host) return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  const protocol = host.includes('localhost') ? 'http' : 'https';
-  return `${protocol}://${host}`;
-}
+import { getBaseUrl } from '@/utils/url';
 
 function slackRedirectUri(baseUrl: string) {
   const explicit = process.env.SLACK_REDIRECT_URI?.trim();
@@ -17,7 +12,7 @@ function slackRedirectUri(baseUrl: string) {
 }
 
 export async function GET(request: Request) {
-  const baseUrl = getRequestBaseUrl(request);
+  const baseUrl = await getBaseUrl(request);
   const clientId = process.env.SLACK_CLIENT_ID;
 
   if (!clientId) {

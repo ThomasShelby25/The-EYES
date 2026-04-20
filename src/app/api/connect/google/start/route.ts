@@ -5,6 +5,8 @@ import { NextResponse } from 'next/server';
 
 import { createClient } from '@/utils/supabase/server';
 
+import { getBaseUrl } from '@/utils/url';
+
 const allowedPlatforms = new Set(['gmail', 'google-calendar']);
 
 const googleSharedScopes = [
@@ -15,41 +17,30 @@ const googleSharedScopes = [
   'https://www.googleapis.com/auth/calendar.readonly',
 ];
 
-function appBaseUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-}
-
-function googleRedirectUri(request: Request) {
+function googleRedirectUri(baseUrl: string) {
   const explicit = process.env.GOOGLE_REDIRECT_URI?.trim();
   if (explicit) return explicit;
-
-  let requestOrigin = appBaseUrl();
-  try {
-    requestOrigin = new URL(request.url).origin;
-  } catch {
-    requestOrigin = appBaseUrl();
-  }
-
-  return new URL('/api/connect/google/callback', requestOrigin).toString();
+  return new URL('/api/connect/google/callback', baseUrl).toString();
 }
 
 export async function GET(request: Request) {
+  const baseUrl = await getBaseUrl(request);
   const url = new URL(request.url);
   const platform = (url.searchParams.get('platform') || 'gmail').toLowerCase();
 
   if (!allowedPlatforms.has(platform)) {
-    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=invalid_platform', appBaseUrl()));
+    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=invalid_platform', baseUrl));
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   if (!clientId) {
-    return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=missing_google_client_id`, appBaseUrl()));
+    return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=missing_google_client_id`, baseUrl));
   }
 
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   if (!authData.user) {
-    return NextResponse.redirect(new URL('/login', appBaseUrl()));
+    return NextResponse.redirect(new URL('/login', baseUrl));
   }
 
   const nonce = crypto.randomUUID();
@@ -64,7 +55,7 @@ export async function GET(request: Request) {
     maxAge: 60 * 10,
   });
 
-  const callbackUrl = googleRedirectUri(request);
+  const callbackUrl = googleRedirectUri(baseUrl);
   const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   authUrl.searchParams.set('client_id', clientId);
   authUrl.searchParams.set('redirect_uri', callbackUrl);

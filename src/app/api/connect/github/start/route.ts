@@ -5,24 +5,17 @@ import { NextResponse } from 'next/server';
 
 import { createClient } from '@/utils/supabase/server';
 
-function getAppBaseUrl(request: Request) {
-  const host = request.headers.get('host') || 'localhost:3000';
-  let protocol = 'https';
-  if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    protocol = 'http';
-  }
-  return process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
-}
+import { getBaseUrl } from '@/utils/url';
 
-function githubRedirectUri(request: Request) {
+function githubRedirectUri(baseUrl: string) {
   const explicit = process.env.GITHUB_REDIRECT_URI?.trim();
   if (explicit) return explicit;
-  return new URL('/api/connect/github/callback', getAppBaseUrl(request)).toString();
+  return new URL('/api/connect/github/callback', baseUrl).toString();
 }
 
 export async function GET(request: Request) {
+  const baseUrl = await getBaseUrl(request);
   const clientId = process.env.GITHUB_CLIENT_ID;
-  const baseUrl = getAppBaseUrl(request);
 
   if (!clientId) {
     return NextResponse.redirect(new URL('/connect/github?oauth=error&reason=missing_client_id', baseUrl));

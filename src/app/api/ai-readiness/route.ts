@@ -15,9 +15,9 @@ type ReadinessPayload = {
   provider: string;
   model: string;
   reason: string;
-checks: {
-    claudeEmbeddings: ReadinessCheck;
-    claudeChat: ReadinessCheck;
+  checks: {
+    openaiEmbeddings: ReadinessCheck;
+    openaiChat: ReadinessCheck;
     supabase: ReadinessCheck;
   };
   lastCheckedAt: string;
@@ -41,28 +41,19 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T
   });
 }
 
-
-
-
-
-
-
-
-
-async function runClaudeEmbeddingProbe(apiKey: string | undefined): Promise<ReadinessCheck> {
+async function runOpenAIEmbeddingProbe(apiKey: string | undefined): Promise<ReadinessCheck> {
   if (!apiKey) {
-    return { status: 'skip', latencyMs: 0, error: 'Missing ANTHROPIC_API_KEY.' };
+    return { status: 'skip', latencyMs: 0, error: 'Missing OPENAI_API_KEY.' };
   }
 
   const started = Date.now();
   try {
     const response = await withTimeout(
-      fetch('https://api.anthropic.com/v1/embeddings', {
+      fetch('https://api.openai.com/v1/embeddings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
+          'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           model: 'text-embedding-3-small',
@@ -77,18 +68,18 @@ async function runClaudeEmbeddingProbe(apiKey: string | undefined): Promise<Read
       return {
         status: 'fail',
         latencyMs: Date.now() - started,
-        error: `Claude embedding probe failed (${response.status}): ${body.slice(0, 160)}`,
+        error: `OpenAI embedding probe failed (${response.status}): ${body.slice(0, 160)}`,
       };
     }
 
     const data = await response.json();
-    if (data.embedding && Array.isArray(data.embedding)) {
+    if (data.data && data.data[0] && data.data[0].embedding) {
       return { status: 'pass', latencyMs: Date.now() - started };
     } else {
       return {
         status: 'fail',
         latencyMs: Date.now() - started,
-        error: 'Claude returned invalid embedding structure',
+        error: 'OpenAI returned invalid embedding structure',
       };
     }
   } catch (error) {
@@ -100,26 +91,24 @@ async function runClaudeEmbeddingProbe(apiKey: string | undefined): Promise<Read
   }
 }
 
-async function runClaudeChatProbe(apiKey: string | undefined): Promise<ReadinessCheck> {
+async function runOpenAIChatProbe(apiKey: string | undefined): Promise<ReadinessCheck> {
   if (!apiKey) {
-    return { status: 'skip', latencyMs: 0, error: 'Missing ANTHROPIC_API_KEY.' };
+    return { status: 'skip', latencyMs: 0, error: 'Missing OPENAI_API_KEY.' };
   }
 
   const started = Date.now();
   try {
     const response = await withTimeout(
-      fetch('https://api.anthropic.com/v1/messages', {
+      fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
+          'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
+          model: 'gpt-4o-mini',
           max_tokens: 4,
-          temperature: 0,
-          messages: [{ role: 'user', content: 'health-check' }],
+          messages: [{ role: 'user', content: 'hi' }],
         }),
       }),
       3500
@@ -130,18 +119,18 @@ async function runClaudeChatProbe(apiKey: string | undefined): Promise<Readiness
       return {
         status: 'fail',
         latencyMs: Date.now() - started,
-        error: `Claude chat probe failed (${response.status}): ${body.slice(0, 160)}`,
+        error: `OpenAI chat probe failed (${response.status}): ${body.slice(0, 160)}`,
       };
     }
 
     const data = await response.json();
-    if (data.content && data.content[0] && data.content[0].text) {
+    if (data.choices && data.choices[0] && data.choices[0].message) {
       return { status: 'pass', latencyMs: Date.now() - started };
     } else {
       return {
         status: 'fail',
         latencyMs: Date.now() - started,
-        error: 'Claude returned empty response',
+        error: 'OpenAI returned empty response',
       };
     }
   } catch (error) {
@@ -171,7 +160,6 @@ async function runSupabaseProbe(url: string | undefined, anonKey: string | undef
       2500
     );
 
-    // 200/401/404 all indicate the service is reachable over network.
     if ([200, 401, 404].includes(response.status)) {
       return { status: 'pass', latencyMs: Date.now() - started };
     }
@@ -196,46 +184,43 @@ export async function GET() {
     return NextResponse.json(cachedResult.payload, { status: 200 });
   }
 
-// Check Claude
-  const claudeEmbeddingCheck = await runClaudeEmbeddingProbe(process.env.ANTHROPIC_API_KEY);
-  const claudeChatCheck = await runClaudeChatProbe(process.env.ANTHROPIC_API_KEY);
+  const openaiEmbeddingCheck = await runOpenAIEmbeddingProbe(process.env.OPENAI_API_KEY);
+  const openaiChatCheck = await runOpenAIChatProbe(process.env.OPENAI_API_KEY);
   const supabaseCheck = await runSupabaseProbe(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
   let status: ReadinessStatus = 'online';
-  let reason = 'AI memory assistant is ready.';
+  let reason = 'Neural AI Core is ready.';
   let provider = '';
   let model = '';
 
-// Determine Claude status
-  const claudeOnline = claudeEmbeddingCheck.status === 'pass' && claudeChatCheck.status === 'pass';
+  const openaiOnline = openaiEmbeddingCheck.status === 'pass' && openaiChatCheck.status === 'pass';
 
-  if (claudeOnline) {
-    provider = 'Anthropic Claude';
-    model = 'claude-3-haiku + text-embedding-3-small';
-    reason = 'AI memory assistant is ready (Claude).';
+  if (openaiOnline) {
+    provider = 'OpenAI';
+    model = 'gpt-4o-mini + text-embedding-3-small';
+    reason = 'Neural AI Core is optimized and ready.';
   } else {
     status = 'offline';
-    provider = 'Claude';
+    provider = 'OpenAI';
     model = 'N/A';
-    reason = 'Claude offline. Verify ANTHROPIC_API_KEY.';
+    reason = 'Neural AI Core offline. Verify OPENAI_API_KEY.';
   }
 
-  // Check Supabase secondary
   if (supabaseCheck.status === 'skip' || supabaseCheck.status === 'fail') {
     if (status !== 'offline') {
       status = 'degraded';
-      reason = (reason || '') + ' [Supabase unavailable]';
+      reason = (reason || '') + ' [Supabase link fragmented]';
     }
   }
 
-const payload: ReadinessPayload = {
+  const payload: ReadinessPayload = {
     status,
     provider,
     model,
     reason,
     checks: {
-      claudeEmbeddings: claudeEmbeddingCheck,
-      claudeChat: claudeChatCheck,
+      openaiEmbeddings: openaiEmbeddingCheck,
+      openaiChat: openaiChatCheck,
       supabase: supabaseCheck,
     },
     lastCheckedAt: new Date().toISOString(),
