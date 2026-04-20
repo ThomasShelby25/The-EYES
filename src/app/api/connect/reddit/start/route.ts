@@ -1,28 +1,18 @@
 import crypto from 'node:crypto';
-
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-
 import { createClient } from '@/utils/supabase/server';
+import { getBaseUrl } from '@/utils/url';
 
-function getAppBaseUrl(request: Request) {
-  const host = request.headers.get('host') || 'localhost:3000';
-  let protocol = 'https';
-  if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    protocol = 'http';
-  }
-  return process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
-}
-
-function redditRedirectUri(request: Request) {
+function redditRedirectUri(baseUrl: string) {
   const explicit = process.env.REDDIT_REDIRECT_URI?.trim();
   if (explicit) return explicit;
-  return new URL('/api/connect/reddit/callback', getAppBaseUrl(request)).toString();
+  return new URL('/api/connect/reddit/callback', baseUrl).toString();
 }
 
 export async function GET(request: Request) {
+  const baseUrl = await getBaseUrl(request);
   const clientId = process.env.REDDIT_CLIENT_ID;
-  const baseUrl = getAppBaseUrl(request);
 
   if (!clientId) {
     return NextResponse.redirect(new URL('/connect/reddit?oauth=error&reason=missing_reddit_client_id', baseUrl));
@@ -45,7 +35,7 @@ export async function GET(request: Request) {
     maxAge: 60 * 10,
   });
 
-  const callbackUrl = redditRedirectUri(request);
+  const callbackUrl = redditRedirectUri(baseUrl);
   const authUrl = new URL('https://www.reddit.com/api/v1/authorize');
   authUrl.searchParams.set('client_id', clientId);
   authUrl.searchParams.set('response_type', 'code');

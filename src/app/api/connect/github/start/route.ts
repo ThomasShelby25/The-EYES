@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     maxAge: 60 * 10,
   });
 
-  const callbackUrl = githubRedirectUri(request);
+  const callbackUrl = githubRedirectUri(baseUrl);
   const authUrl = new URL('https://github.com/login/oauth/authorize');
   authUrl.searchParams.set('client_id', clientId);
   authUrl.searchParams.set('redirect_uri', callbackUrl);

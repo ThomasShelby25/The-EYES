@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     maxAge: 60 * 10,
   });
 
-  const callbackUrl = discordRedirectUri(request);
+  const callbackUrl = discordRedirectUri(baseUrl);
   const authUrl = new URL('https://discord.com/api/oauth2/authorize');
   
   authUrl.searchParams.set('client_id', clientId);
