@@ -142,6 +142,58 @@ async function runOpenAIChatProbe(apiKey: string | undefined): Promise<Readiness
   }
 }
 
+async function runAnthropicChatProbe(apiKey: string | undefined): Promise<ReadinessCheck> {
+  if (!apiKey) {
+    return { status: 'skip', latencyMs: 0, error: 'Missing ANTHROPIC_API_KEY.' };
+  }
+
+  const started = Date.now();
+  try {
+    const response = await withTimeout(
+      fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-haiku-20240307',
+          max_tokens: 4,
+          messages: [{ role: 'user', content: 'hi' }],
+        }),
+      }),
+      3500
+    );
+
+    if (!response.ok) {
+      const body = await response.text();
+      return {
+        status: 'fail',
+        latencyMs: Date.now() - started,
+        error: `Anthropic chat probe failed (${response.status}): ${body.slice(0, 160)}`,
+      };
+    }
+
+    const data = await response.json();
+    if (data.content && data.content[0] && data.content[0].text) {
+      return { status: 'pass', latencyMs: Date.now() - started };
+    } else {
+      return {
+        status: 'fail',
+        latencyMs: Date.now() - started,
+        error: 'Anthropic returned empty response',
+      };
+    }
+  } catch (error) {
+    return {
+      status: 'fail',
+      latencyMs: Date.now() - started,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
 async function runSupabaseProbe(url: string | undefined, anonKey: string | undefined): Promise<ReadinessCheck> {
   if (!url || !anonKey) {
     return { status: 'skip', latencyMs: 0, error: 'Missing Supabase configuration.' };
@@ -185,31 +237,42 @@ export async function GET() {
   }
 
   const openaiEmbeddingCheck = await runOpenAIEmbeddingProbe(process.env.OPENAI_API_KEY);
+  const anthropicChatCheck = await runAnthropicChatProbe(process.env.ANTHROPIC_API_KEY);
   const openaiChatCheck = await runOpenAIChatProbe(process.env.OPENAI_API_KEY);
   const supabaseCheck = await runSupabaseProbe(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
   let status: ReadinessStatus = 'online';
-  let reason = 'Neural AI Core is ready.';
+  let reason = 'AI Neural Core ready.';
   let provider = '';
   let model = '';
 
-  const openaiOnline = openaiEmbeddingCheck.status === 'pass' && openaiChatCheck.status === 'pass';
+  const anthropicActive = anthropicChatCheck.status === 'pass';
+  const openaiActive = openaiChatCheck.status === 'pass' && openaiEmbeddingCheck.status === 'pass';
 
-  if (openaiOnline) {
+  if (anthropicActive && openaiActive) {
+    provider = 'Anthropic + OpenAI';
+    model = 'Claude-3 + text-embedding-3';
+    reason = 'AI Neural Core operating at maximum capacity (Dual-Provider).';
+  } else if (anthropicActive) {
+    provider = 'Anthropic';
+    model = 'Claude-3 (Embeddings Offline)';
+    status = 'degraded';
+    reason = 'AI Neural Core active (Claude only). OpenAI embeddings missing.';
+  } else if (openaiActive) {
     provider = 'OpenAI';
-    model = 'gpt-4o-mini + text-embedding-3-small';
-    reason = 'Neural AI Core is optimized and ready.';
+    model = 'GPT-4o + text-embedding-3';
+    reason = 'AI Neural Core active (OpenAI standard).';
   } else {
     status = 'offline';
-    provider = 'OpenAI';
+    provider = 'None';
     model = 'N/A';
-    reason = 'Neural AI Core offline. Verify OPENAI_API_KEY.';
+    reason = 'AI Neural Core offline. Verify ANTHROPIC_API_KEY or OPENAI_API_KEY.';
   }
 
   if (supabaseCheck.status === 'skip' || supabaseCheck.status === 'fail') {
     if (status !== 'offline') {
       status = 'degraded';
-      reason = (reason || '') + ' [Supabase link fragmented]';
+      reason = (reason || '') + ' [Supabase disconnected]';
     }
   }
 
@@ -221,8 +284,9 @@ export async function GET() {
     checks: {
       openaiEmbeddings: openaiEmbeddingCheck,
       openaiChat: openaiChatCheck,
+      anthropicChat: anthropicChatCheck,
       supabase: supabaseCheck,
-    },
+    } as any,
     lastCheckedAt: new Date().toISOString(),
   };
 
