@@ -1330,7 +1330,7 @@ async function runCronSync(request: Request) {
       if (dispatchCandidates.length > 0 && ESCALATION_WEBHOOK_URL) {
         for (const candidate of dispatchCandidates) {
           const dispatchPayload = {
-            service: 'the-monitor',
+            service: 'the-eyes',
             event: 'sync-escalation',
             emittedAt: new Date().toISOString(),
             runId,

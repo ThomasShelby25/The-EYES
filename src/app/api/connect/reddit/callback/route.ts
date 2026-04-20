@@ -52,7 +52,7 @@ export async function GET(request: Request) {
     headers: {
       Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
       'Content-Type': 'application/x-www-form-urlencoded',
-      'User-Agent': 'the-monitor/1.0',
+      'User-Agent': 'the-eyes/1.0',
     },
     body: new URLSearchParams({
       grant_type: 'authorization_code',

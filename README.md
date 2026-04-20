@@ -1,6 +1,6 @@
-# The Monitor
+# The EYES
 
-The Monitor is a Next.js dashboard for exploring personal digital memory data across connected platforms.
+The EYES is a Next.js dashboard for exploring personal digital memory data across connected platforms. (Everything You Ever Said)
 
 ## Tech Stack
 

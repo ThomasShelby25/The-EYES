@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     const meResponse = await fetch('https://oauth.reddit.com/api/v1/me', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        'User-Agent': 'the-monitor/1.0',
+        'User-Agent': 'the-eyes/1.0',
       },
       cache: 'no-store',
     });
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     const commentsResponse = await fetch(`https://oauth.reddit.com/user/${me.name}/comments?limit=10`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        'User-Agent': 'the-monitor/1.0',
+        'User-Agent': 'the-eyes/1.0',
       },
       cache: 'no-store',
     });

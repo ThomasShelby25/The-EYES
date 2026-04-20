@@ -80,13 +80,13 @@ function installRefreshTokenRejectionGuard(storageKey: string): void {
     return
   }
 
-  window.__THE_MONITOR_SUPABASE_STORAGE_KEY__ = storageKey
+  window.__THE_EYES_SUPABASE_STORAGE_KEY__ = storageKey
 
-  if (window.__THE_MONITOR_SUPABASE_REJECTION_GUARD_INSTALLED__) {
+  if (window.__THE_EYES_SUPABASE_REJECTION_GUARD_INSTALLED__) {
     return
   }
 
-  window.__THE_MONITOR_SUPABASE_REJECTION_GUARD_INSTALLED__ = true
+  window.__THE_EYES_SUPABASE_REJECTION_GUARD_INSTALLED__ = true
   window.addEventListener('unhandledrejection', (event) => {
     const message = extractReasonMessage(event.reason)
 
@@ -96,20 +96,20 @@ function installRefreshTokenRejectionGuard(storageKey: string): void {
 
     event.preventDefault()
 
-    const activeStorageKey = window.__THE_MONITOR_SUPABASE_STORAGE_KEY__ ?? storageKey
+    const activeStorageKey = window.__THE_EYES_SUPABASE_STORAGE_KEY__ ?? storageKey
     purgeSupabaseAuthStorage(activeStorageKey)
 
-    if (window.__THE_MONITOR_SUPABASE_CLIENT__) {
-      void window.__THE_MONITOR_SUPABASE_CLIENT__.auth.signOut({ scope: 'local' }).catch(() => undefined)
+    if (window.__THE_EYES_SUPABASE_CLIENT__) {
+      void window.__THE_EYES_SUPABASE_CLIENT__.auth.signOut({ scope: 'local' }).catch(() => undefined)
     }
   })
 }
 
 declare global {
   interface Window {
-    __THE_MONITOR_SUPABASE_CLIENT__?: BrowserClient
-    __THE_MONITOR_SUPABASE_REJECTION_GUARD_INSTALLED__?: boolean
-    __THE_MONITOR_SUPABASE_STORAGE_KEY__?: string
+    __THE_EYES_SUPABASE_CLIENT__?: BrowserClient
+    __THE_EYES_SUPABASE_REJECTION_GUARD_INSTALLED__?: boolean
+    __THE_EYES_SUPABASE_STORAGE_KEY__?: string
   }
 }
 
@@ -119,8 +119,8 @@ export function createClient() {
 
   if (typeof window !== 'undefined') {
     installRefreshTokenRejectionGuard(storageKey)
-    if (window.__THE_MONITOR_SUPABASE_CLIENT__) {
-      return window.__THE_MONITOR_SUPABASE_CLIENT__
+    if (window.__THE_EYES_SUPABASE_CLIENT__) {
+      return window.__THE_EYES_SUPABASE_CLIENT__
     }
   }
 
@@ -140,7 +140,7 @@ export function createClient() {
   )
 
   if (typeof window !== 'undefined') {
-    window.__THE_MONITOR_SUPABASE_CLIENT__ = client
+    window.__THE_EYES_SUPABASE_CLIENT__ = client
   }
 
   return client

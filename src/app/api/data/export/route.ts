@@ -27,7 +27,7 @@ function exportFileName() {
   const yyyy = d.getUTCFullYear();
   const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
   const dd = String(d.getUTCDate()).padStart(2, '0');
-  return `the-monitor-export-${yyyy}-${mm}-${dd}.json`;
+  return `the-eyes-export-${yyyy}-${mm}-${dd}.json`;
 }
 
 function exportZipFileName() {
@@ -35,7 +35,7 @@ function exportZipFileName() {
   const yyyy = d.getUTCFullYear();
   const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
   const dd = String(d.getUTCDate()).padStart(2, '0');
-  return `the-monitor-export-bundle-${yyyy}-${mm}-${dd}.zip`;
+  return `the-eyes-export-bundle-${yyyy}-${mm}-${dd}.zip`;
 }
 
 function exportCsvFileName(dataset: string) {
@@ -43,7 +43,7 @@ function exportCsvFileName(dataset: string) {
   const yyyy = d.getUTCFullYear();
   const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
   const dd = String(d.getUTCDate()).padStart(2, '0');
-  return `the-monitor-export-${dataset}-${yyyy}-${mm}-${dd}.csv`;
+  return `the-eyes-export-${dataset}-${yyyy}-${mm}-${dd}.csv`;
 }
 
 function escapeCsvValue(value: unknown) {
