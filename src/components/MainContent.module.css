@@ -1385,7 +1385,7 @@ input:checked + .slider:before {
 .statValue {
   font-size: 32px;
   font-weight: 900;
-  color: var(--bg-primary);
+  color: var(--text-primary);
   font-family: var(--font-serif);
 }
 
@@ -1437,7 +1437,7 @@ input:checked + .slider:before {
 .threadTitle {
   font-size: 16px;
   font-weight: 800;
-  color: var(--bg-primary);
+  color: var(--text-primary);
   letter-spacing: 0.5px;
 }
 
@@ -1481,7 +1481,7 @@ input:checked + .slider:before {
 .previewText {
   font-size: 14px;
   font-weight: 600;
-  color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .errorText {
