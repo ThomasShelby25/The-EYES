@@ -15,7 +15,13 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
 
   useEffect(() => {
     // Sync with global theme on load
-    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const savedTheme = localStorage.getItem('eyes-theme');
+    const currentTheme = savedTheme || document.documentElement.getAttribute('data-theme') || 'dark';
+    
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+    
     setIsDarkMode(currentTheme !== 'light');
 
     const checkSyncStatus = async () => {

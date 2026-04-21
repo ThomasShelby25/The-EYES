@@ -24,6 +24,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            try {
+              const savedTheme = localStorage.getItem('eyes-theme');
+              if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+              }
+            } catch (e) {}
+          })();
+        `}} />
+      </head>
       <body suppressHydrationWarning>
         <AuthProvider>
           {children}
