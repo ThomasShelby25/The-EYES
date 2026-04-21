@@ -28,22 +28,22 @@
 }
 
 [data-theme='light'] {
-  /* CLAUDE PALETTE WITH PURPLE ACCENTS */
+  /* CLAUDE PALETTE WITH SIGNATURE PURPLE ACCENTS */
   --bg-primary: #F9F9F8;
   --bg-secondary: #F0F0EE;
   --bg-card: #FFFFFF;
   --bg-card-hover: #F4F4F2;
   
   --text-primary: #1D1C16;
-  --text-secondary: #4A4942;
-  --text-muted: #9E9D97;
+  --text-secondary: #35342F; /* High Contrast */
+  --text-muted: #66655D;    /* High Contrast */
   
-  --accent-primary: #7866ff; /* Reverted to Purple */
-  --accent-primary-soft: #9a8bff;
-  --accent-green: #678A7F;
-  --accent-red: #B54D3F;
+  --accent-primary: #7866ff; /* Signature Royal Purple */
+  --accent-primary-soft: #9182ff;
+  --accent-green: #4D6A5F;
+  --accent-red: #9B3D2F;
   
-  --border-primary: #E6E6E3;
+  --border-primary: #DEDDDA;
   --border-subtle: #EBEBE9;
 }
 
