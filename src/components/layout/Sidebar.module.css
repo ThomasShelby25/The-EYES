@@ -18,32 +18,15 @@
   border-radius: 14px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   gap: 12px;
   font-weight: 700;
   cursor: pointer;
   margin-bottom: 40px;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  flex-shrink: 0;
-  font-size: 14px;
   box-shadow: 0 8px 24px rgba(120, 102, 255, 0.2);
+  transition: transform 0.2s;
 }
 
-.newChatBtn:hover {
-  background-color: var(--accent-primary-soft);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(120, 102, 255, 0.4);
-}
-
-.scrollArea {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.section {
-  margin-bottom: 32px;
-}
+.newChatBtn:hover { transform: translateY(-2px); }
 
 .sectionTitle {
   font-size: 10px;
@@ -55,166 +38,115 @@
   padding-left: 12px;
 }
 
-.itemList {
+/* --- GROUP MERGE EFFECT --- */
+
+.navGroup {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  background-color: #242424; /* Base unified block color */
+  border-radius: 12px;
+  overflow: visible; /* Required so popping items aren't clipped */
 }
 
 .item {
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 12px;
-  border-radius: 12px;
+  padding: 14px 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--text-secondary);
+  color: #a5adc8;
   gap: 14px;
+  background-color: #242424;
+  border-radius: 0; /* Forced merge by default */
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Rounded corners for the block boundaries */
+.item:first-child { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+.item:last-child { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+
+/* HOVER ISOLATION */
 .item:hover {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: #2d2d2d; /* Lighter background on hover */
+  border-radius: 8px !important; /* Visual breakout */
+  transform: scale(1.02);
+  z-index: 10;
   color: #fff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
-.itemActive {
-  background-color: rgba(120, 102, 255, 0.08);
-  color: var(--accent-primary);
-  border: 1px solid rgba(120, 102, 255, 0.1);
+/* NEIGHBOUR RE-ROUNDING */
+/* When an item is hovered, the next item needs to round its top corners to create the 'gap' illusion */
+.item:hover + .item {
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
 }
+
+/* Handling the previous item's bottom corners is harder with CSS-only (+), 
+   so we rely on the hovered item's border-radius overriding the merge. */
 
 .itemIcon {
+  width: 20px;
+  height: 20px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.itemActive .itemIcon {
-  color: var(--accent-primary);
-  background: rgba(120, 102, 255, 0.1);
-  border-color: rgba(120, 102, 255, 0.2);
+/* ICON SWAP LOGIC */
+.itemIcon :global(.icon-stack) {
+  position: relative;
+  width: 20px;
+  height: 20px;
 }
 
-.itemMain {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+.itemIcon :global(.icon-outline),
+.itemIcon :global(.icon-filled) {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.18s ease;
 }
 
-.itemLabel {
-  font-size: 14px;
-  font-weight: 700;
+.itemIcon :global(.icon-filled) {
+  opacity: 0;
 }
 
-.itemDesc {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-weight: 500;
-  margin-top: 1px;
+.item:hover .itemIcon :global(.icon-filled) {
+  opacity: 1;
 }
 
-.footer {
-  margin-top: auto;
-  padding-top: 24px;
+.item:hover .itemIcon :global(.icon-outline) {
+  opacity: 0;
 }
+
+.itemMain { display: flex; flex-direction: column; }
+.itemLabel { font-size: 14px; font-weight: 700; }
+.itemDesc { font-size: 11px; color: #6f7898; font-weight: 500; }
+
+.footer { margin-top: auto; padding-top: 24px; }
 
 .readinessCard {
   background: rgba(255, 255, 255, 0.02);
   border-radius: 16px;
-  border: 1px solid var(--border-primary);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   padding: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.readinessCard:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: var(--accent-primary);
-}
+.readinessCard:hover { background: rgba(255, 255, 255, 0.04); }
 
-.readinessHeader {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-}
+.readinessHeader { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.readinessTitle { font-size: 9px; font-weight: 800; color: #6f7898; letter-spacing: 1.5px; }
 
-.readinessIcon {
-  color: var(--text-muted);
-}
+.readinessContent { display: flex; align-items: center; gap: 16px; }
+.gaugeWrapper { width: 50px; height: 50px; }
+.gaugeBg { fill: none; stroke: rgba(255, 255, 255, 0.05); stroke-width: 8; }
+.gaugeFill { fill: none; stroke: #00d47a; stroke-width: 8; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; }
+.gaugeText { font-size: 22px; font-weight: 800; fill: #fff; }
 
-.readinessTitle {
-  font-size: 9px;
-  font-weight: 800;
-  color: var(--text-muted);
-  letter-spacing: 1.5px;
-}
-
-.readinessContent {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.gaugeWrapper {
-  width: 50px;
-  height: 50px;
-  flex-shrink: 0;
-}
-
-.gaugeSvg {
-  width: 100%;
-  height: 100%;
-}
-
-.gaugeBg {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.05);
-  stroke-width: 8;
-}
-
-.gaugeFill {
-  fill: none;
-  stroke: var(--accent-green);
-  stroke-width: 8;
-  stroke-linecap: round;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
-  transition: stroke-dashoffset 0.8s ease;
-}
-
-.gaugeText {
-  font-size: 22px;
-  font-weight: 800;
-  fill: #fff;
-  font-family: var(--font-mono);
-}
-
-.readinessInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.platformsCount {
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.reliabilityLabel {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.reliabilityHigh {
-  color: var(--accent-green);
-  font-weight: 800;
-}
+.readinessInfo { display: flex; flex-direction: column; gap: 2px; }
+.platformsCount { font-size: 13px; font-weight: 700; color: #fff; }
+.reliabilityLabel { font-size: 11px; color: #6f7898; }
+.reliabilityHigh { color: #00d47a; font-weight: 800; }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   ChatIcon, 
   ConnectorsIcon, 
@@ -22,9 +22,7 @@ export default function Sidebar() {
   const searchParams = useSearchParams();
   const activeView = searchParams.get('view') || 'dashboard';
   const [platforms, setPlatforms] = useState<Platform[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Sync readiness score for the bottom gauge
   useEffect(() => {
     const loadReadiness = async () => {
       try {
@@ -33,11 +31,7 @@ export default function Sidebar() {
           const data = await response.json();
           setPlatforms(data.platforms || []);
         }
-      } catch (err) {
-        console.error('Sidebar readiness sync failed:', err);
-      } finally {
-        setIsLoading(false);
-      }
+      } catch (e) {}
     };
     loadReadiness();
     const interval = setInterval(loadReadiness, 20000);
@@ -60,7 +54,6 @@ export default function Sidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      {/* Brand Header / New Chat */}
       <button className={styles.newChatBtn} onClick={() => navigateToView('dashboard')}>
         <PlusIcon />
         <span>New Chat</span>
@@ -69,8 +62,9 @@ export default function Sidebar() {
       <div className={styles.scrollArea}>
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>WORKSPACE</h3>
-          <div className={styles.itemList}>
-            
+          
+          {/* THE NAV GROUP (Merged Background Container) */}
+          <div className={styles.navGroup}>
             <div 
               className={`${styles.item} ${activeView === 'dashboard' ? styles.itemActive : ''}`} 
               onClick={() => navigateToView('dashboard')}
@@ -103,12 +97,10 @@ export default function Sidebar() {
                 <span className={styles.itemDesc}>Review runs and activity</span>
               </div>
             </div>
-
           </div>
         </div>
       </div>
 
-      {/* Bottom Readiness Gauge (from Screenshot) */}
       <div className={styles.footer}>
         <div className={styles.readinessCard} onClick={() => navigateToView('connectors')}>
           <div className={styles.readinessHeader}>
@@ -124,13 +116,14 @@ export default function Sidebar() {
                   className={styles.gaugeFill}
                   strokeDasharray={circumference}
                   strokeDashoffset={offset}
+                  style={{ transition: 'stroke-dashoffset 0.8s ease' }}
                 />
                 <text x="50" y="58" textAnchor="middle" className={styles.gaugeText}>{coverageScore}%</text>
               </svg>
             </div>
             <div className={styles.readinessInfo}>
                <div className={styles.platformsCount}>
-                 {connectedCount}/{platforms.length || 0} Platforms
+                 {connectedCount}/{platforms.length} Platforms
                </div>
                <div className={styles.reliabilityLabel}>
                  Reliability: <span className={styles.reliabilityHigh}>High</span>
