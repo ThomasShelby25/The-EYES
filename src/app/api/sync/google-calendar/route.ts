@@ -41,8 +41,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Google Calendar session expired and refresh failed.' }, { status: 401 });
     }
 
+    const url = new URL(request.url);
+    const depth = url.searchParams.get('depth') || 'shallow';
+    const maxResults = depth === 'deep' ? 250 : 20;
+    const historyDays = depth === 'deep' ? 365 : 120;
+    const timeMin = new Date(Date.now() - 1000 * 60 * 60 * 24 * historyDays).toISOString();
+
     const eventsResponse = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=10&singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString())}`,
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=${maxResults}&singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(timeMin)}`,
       {
         headers: { Authorization: `Bearer ${accessToken}` },
         cache: 'no-store',

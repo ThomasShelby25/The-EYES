@@ -41,10 +41,15 @@ export async function POST(request: Request) {
     });
     
     const dmChannels = dmResponse.ok ? await dmResponse.json() : [];
-    const activeDMs = dmChannels.slice(0, 5);
+    const url = new URL(request.url);
+    const depth = url.searchParams.get('depth') || 'shallow';
+    const dmLimit = depth === 'deep' ? 15 : 5;
+    const messageLimit = depth === 'deep' ? 100 : 20;
+
+    const activeDMs = dmChannels.slice(0, dmLimit);
 
     const messagePromises = activeDMs.map(async (channel: any) => {
-      const resp = await fetch(`https://discord.com/api/v10/channels/${channel.id}/messages?limit=20`, {
+      const resp = await fetch(`https://discord.com/api/v10/channels/${channel.id}/messages?limit=${messageLimit}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
         cache: 'no-store',
       });

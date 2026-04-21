@@ -59,22 +59,38 @@ export async function POST(request: Request) {
 
     const me = (await meResponse.json()) as RedditMe;
 
-    const commentsResponse = await fetch(`https://oauth.reddit.com/user/${me.name}/comments?limit=10`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'User-Agent': 'the-eyes/1.0',
-      },
-      cache: 'no-store',
-    });
+    const url = new URL(request.url);
+    const depth = url.searchParams.get('depth') || 'shallow';
+    const maxTotalRequests = depth === 'deep' ? 100 : 10;
+    
+    let allChildren: any[] = [];
+    let afterToken: string | undefined = undefined;
 
-    if (!commentsResponse.ok) {
-      return NextResponse.json({ error: `Reddit comments request failed (${commentsResponse.status})` }, { status: 502 });
+    // --- PAGINATION LOOP ---
+    while (allChildren.length < maxTotalRequests) {
+      const fetchUrl = new URL(`https://oauth.reddit.com/user/${me.name}/comments`);
+      fetchUrl.searchParams.set('limit', '50');
+      if (afterToken) fetchUrl.searchParams.set('after', afterToken);
+
+      const commentsResponse = await fetch(fetchUrl.toString(), {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'User-Agent': 'the-eyes/1.0',
+        },
+        cache: 'no-store',
+      });
+
+      if (!commentsResponse.ok) break;
+
+      const body = (await commentsResponse.json()) as { data?: { children?: any[], after?: string | null } };
+      const children = body.data?.children ?? [];
+      allChildren = [...allChildren, ...children];
+      
+      afterToken = body.data?.after || undefined;
+      if (!afterToken) break;
     }
 
-    const commentsBody = (await commentsResponse.json()) as RedditCommentListing;
-    const comments = commentsBody.data?.children ?? [];
-
-    const events = comments.map((entry) => {
+    const events = allChildren.map((entry) => {
       const data = entry.data;
       const content = data.body || '';
       const risk = scoreRedditEvent({
