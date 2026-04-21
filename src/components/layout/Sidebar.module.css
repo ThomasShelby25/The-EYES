@@ -12,7 +12,7 @@
 .newChatBtn {
   width: 100%;
   padding: 14px 24px;
-  background-color: var(--accent-primary);
+  background-color: var(--accent-primary); color: var(--bg-primary) !important;
   color: var(--bg-primary);
   border: none;
   border-radius: 14px;
@@ -38,7 +38,7 @@
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   letter-spacing: 2px;
   margin-bottom: 16px;
   padding-left: 12px;
@@ -109,7 +109,7 @@
 
 .itemMain { display: flex; flex-direction: column; }
 .itemLabel { font-size: 14px; font-weight: 700; }
-.itemDesc { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.itemDesc { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
 
 .footer { margin-top: auto; padding-top: 24px; }
 
@@ -125,7 +125,7 @@
 .readinessCard:hover { background: var(--bg-secondary); border-color: var(--border-primary); }
 
 .readinessHeader { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-.readinessTitle { font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 1.5px; }
+.readinessTitle { font-size: 9px; font-weight: 800; color: var(--text-secondary); letter-spacing: 1.5px; }
 
 .readinessContent { display: flex; align-items: center; gap: 16px; }
 .gaugeWrapper { width: 50px; height: 50px; }
@@ -135,5 +135,5 @@
 
 .readinessInfo { display: flex; flex-direction: column; gap: 2px; }
 .platformsCount { font-size: 13px; font-weight: 700; color: var(--text-primary); }
-.reliabilityLabel { font-size: 11px; color: var(--text-muted); }
+.reliabilityLabel { font-size: 11px; color: var(--text-secondary); }
 .reliabilityHigh { color: var(--accent-green); font-weight: 800; }

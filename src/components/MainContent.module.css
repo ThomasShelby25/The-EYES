@@ -70,7 +70,7 @@
   gap: 12px;
   margin-top: 24px;
   font-size: 18px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-weight: 400;
 }
 
@@ -115,7 +115,7 @@
 .searchIcon {
   position: absolute;
   left: 20px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .commandInput {
@@ -129,7 +129,7 @@
 }
 
 .commandInput::placeholder {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   opacity: 0.5;
 }
 
@@ -152,7 +152,7 @@
 .commandSendBtn {
   width: 48px;
   height: 48px;
-  background: var(--accent-primary);
+  background: var(--accent-primary); color: var(--bg-primary) !important;
   border: none;
   border-radius: 14px;
   color: var(--bg-primary);
@@ -195,7 +195,7 @@
 
 .userMsg {
   align-self: flex-end;
-  background: var(--accent-primary);
+  background: var(--accent-primary); color: var(--bg-primary) !important;
   color: var(--bg-primary);
 }
 
@@ -294,7 +294,7 @@
 .backBtn {
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   margin-bottom: 24px;
   font-size: 14px;
@@ -385,11 +385,11 @@
 
 .meterFillRed { background: #ff4d4d; box-shadow: 0 0 10px rgba(255, 77, 77, 0.4); height: 100%; transition: width 1s ease-out; }
 .meterFillYellow { background: #ffcc00; box-shadow: 0 0 10px rgba(255, 204, 0, 0.4); height: 100%; transition: width 1s ease-out; }
-.meterFillGreen { background: var(--accent-primary); box-shadow: 0 0 12px rgba(0, 0, 0, 0.1); height: 100%; transition: width 1s ease-out; }
+.meterFillGreen { background: var(--accent-primary); color: var(--bg-primary) !important; box-shadow: 0 0 12px rgba(0, 0, 0, 0.1); height: 100%; transition: width 1s ease-out; }
 
 .meterDesc {
   font-size: 10px;
-  color: var(--text-muted); /* High contrast for readability */
+  color: var(--text-secondary); /* High contrast for readability */
   line-height: 1.4;
   font-weight: 500;
 }
@@ -454,7 +454,7 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 3px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   z-index: 5;
   margin-top: 10px;
 }
@@ -510,7 +510,7 @@
 
 .auditMainInfo p {
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -533,7 +533,7 @@
 .riskStatLabel {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -556,7 +556,7 @@
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-bottom: 20px;
   text-transform: uppercase;
 }
@@ -579,7 +579,7 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 2px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-bottom: 5px;
 }
 
@@ -641,7 +641,7 @@
 .emptyState {
   padding: 40px;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 14px;
   font-style: italic;
 }
@@ -666,7 +666,7 @@
 .timelineLabels span {
   position: absolute;
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-family: var(--font-mono);
   text-align: center;
   white-space: nowrap;
@@ -700,7 +700,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-family: var(--font-sans);
   white-space: nowrap;
 }
@@ -712,12 +712,12 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-family: var(--font-sans);
 }
 
 .axisScaleText {
-  fill: var(--text-muted);
+  fill: var(--text-secondary);
   font-size: 11px;
   font-family: var(--font-mono);
   font-weight: 500;
@@ -790,7 +790,7 @@
 
 .eventTime {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-family: var(--font-mono);
 }
 
@@ -828,7 +828,7 @@
 .typeTag {
   font-size: 10px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   letter-spacing: 0.5px;
   background: var(--bg-secondary);
   padding: 3px 8px;
@@ -885,7 +885,7 @@
 
 .riskReasonText {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-style: italic;
 }
 
@@ -896,7 +896,7 @@
 .fallbackIcon {
   font-size: 18px;
   font-weight: 800;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .headerTop {
@@ -922,7 +922,7 @@
   border-radius: 50px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.25s ease;
   white-space: nowrap;
@@ -935,7 +935,7 @@
 }
 
 .filterChipActive {
-  background: var(--accent-primary);
+  background: var(--accent-primary); color: var(--bg-primary) !important;
   color: var(--bg-primary); /* Pure visible text */
   border-color: var(--accent-primary);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -966,13 +966,13 @@
 
 .readinessTitle p {
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   max-width: 500px;
   line-height: 1.6;
 }
 
 .syncAllBtn {
-  background: var(--accent-primary);
+  background: var(--accent-primary); color: var(--bg-primary) !important;
   color: var(--bg-primary);
   border: none;
   padding: 14px 28px;
@@ -1030,7 +1030,7 @@
 .miniSyncBtn {
   background: var(--border-subtle);
   border: 1px solid var(--border-primary);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   padding: 6px 14px;
   border-radius: 8px;
   font-size: 11px;
@@ -1058,7 +1058,7 @@
   border-radius: 6px;
   font-size: 11px;
   font-family: var(--font-mono);
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .cardSyncing {
@@ -1121,7 +1121,7 @@
 
 .deepCrawlDesc {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-top: 2px;
 }
 
@@ -1173,7 +1173,7 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(20px);
-  background-color: var(--accent-primary);
+  background-color: var(--accent-primary); color: var(--bg-primary) !important;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -1222,7 +1222,7 @@ input:checked + .slider:before {
 
 .availStatusText {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-weight: 600;
   letter-spacing: 0.5px;
 }
@@ -1245,7 +1245,7 @@ input:checked + .slider:before {
 .addIndicator {
   margin-left: auto;
   font-size: 20px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-weight: 300;
 }
 
@@ -1256,7 +1256,7 @@ input:checked + .slider:before {
   padding: 12px 24px;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-weight: 500;
   font-size: 14px;
 }
@@ -1377,7 +1377,7 @@ input:checked + .slider:before {
 .statLabel {
   font-size: 10px;
   font-weight: 800;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   letter-spacing: 1.5px;
   text-transform: uppercase;
 }
@@ -1391,7 +1391,7 @@ input:checked + .slider:before {
 
 .statDesc {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
@@ -1404,7 +1404,7 @@ input:checked + .slider:before {
 
 .sectionDesc {
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-bottom: 32px;
 }
 
@@ -1443,7 +1443,7 @@ input:checked + .slider:before {
 
 .turnBadge {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-weight: 600;
   background: var(--bg-secondary);
   padding: 4px 10px;
@@ -1452,7 +1452,7 @@ input:checked + .slider:before {
 
 .threadMeta {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-bottom: 24px;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--border-subtle);
@@ -1503,7 +1503,7 @@ input:checked + .slider:before {
 
 .pageHeroSub {
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   max-width: 650px;
   margin-bottom: 32px;
   line-height: 1.6;
@@ -1529,7 +1529,7 @@ input:checked + .slider:before {
 .kpiLabel {
   font-size: 10px;
   font-weight: 800;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   letter-spacing: 1.5px;
 }
 
@@ -1542,7 +1542,7 @@ input:checked + .slider:before {
 
 .kpiDesc {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
@@ -1576,7 +1576,7 @@ input:checked + .slider:before {
 .connectedLabel {
   font-size: 10px;
   font-weight: 800;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   letter-spacing: 1.5px;
 }
 

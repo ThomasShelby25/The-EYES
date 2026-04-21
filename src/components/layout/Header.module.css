@@ -142,7 +142,7 @@
 .avatarInitial {
   font-weight: 800;
   font-size: 16px;
-  color: #fff;
+  color: var(--text-primary);
   text-transform: uppercase;
 }
 
@@ -189,7 +189,7 @@
 
 .userPlan {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-top: 2px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -254,7 +254,7 @@
 }
 
 .switchActive {
-  background: var(--accent-primary);
+  background: var(--accent-primary); color: var(--bg-primary) !important;
 }
 
 .switchActive::after {

@@ -108,7 +108,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: var(--accent-primary);
+  background: var(--accent-primary); color: var(--bg-primary) !important;
   animation: bootProgress 1.5s infinite ease-in-out;
 }
 
