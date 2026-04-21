@@ -12,8 +12,8 @@
 .newChatBtn {
   width: 100%;
   padding: 14px 24px;
-  background-color: var(--accent-primary); color: var(--text-primary) !important;
-  color: var(--text-primary);
+  background-color: var(--accent-primary); color: var(--bg-primary) !important;
+  color: var(--bg-primary);
   border: none;
   border-radius: 14px;
   display: flex;

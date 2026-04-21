@@ -1198,7 +1198,7 @@
 
 .heroConnectBtn,
 .heroReconnectBtn {
-  background-color: var(--accent-primary); color: var(--text-primary) !important;
+  background-color: var(--accent-primary); color: var(--bg-primary) !important;
   color: var(--text-primary);
   border: none;
   padding: 8px 20px;

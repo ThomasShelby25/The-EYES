@@ -56,7 +56,7 @@
 html, body {
   height: 100%;
   overflow: hidden;
-  background-color: var(--text-primary);
+  background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
