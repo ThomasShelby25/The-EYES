@@ -42,7 +42,7 @@ export function TimelineView({ onBack }: TimelineViewProps) {
   return (
     <div className={styles.soloView}>
       <button className={styles.backBtn} onClick={onBack}>← Back</button>
-      <h2 className={`${styles.soloTitle} ${styles.soloTitleBlue}`}>TIME LINE</h2>
+      <h2 className={styles.soloTitle}>TIME LINE</h2>
       
       {loading ? (
         <div className={styles.timelineLoading}>Neural indexing in progress...</div>
@@ -53,16 +53,15 @@ export function TimelineView({ onBack }: TimelineViewProps) {
           <svg viewBox="0 0 1000 350" className={styles.svgGraph}>
              <defs>
                 <linearGradient id="barG" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--accent-blue)" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="var(--accent-blue)" stopOpacity="0.1" />
+                  <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.6" />
                 </linearGradient>
-                <filter id="barNeon"><feGaussianBlur stdDeviation="4" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
              </defs>
 
              {/* Grid Lines */}
-             <line x1="80" y1="20" x2="980" y2="20" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
-             <line x1="80" y1="120" x2="980" y2="120" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
-             <line x1="80" y1="220" x2="980" y2="220" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+             <line x1="80" y1="20" x2="980" y2="20" stroke="var(--border-subtle)" strokeDasharray="4 4" />
+             <line x1="80" y1="120" x2="980" y2="120" stroke="var(--border-subtle)" strokeDasharray="4 4" />
+             <line x1="80" y1="220" x2="980" y2="220" stroke="var(--border-subtle)" strokeDasharray="4 4" />
 
              {/* Y-Axis Scale */}
              <text x="70" y="25" textAnchor="end" className={styles.axisScaleText}>{formatNumber(maxCount)}</text>
@@ -70,8 +69,8 @@ export function TimelineView({ onBack }: TimelineViewProps) {
              <text x="70" y="225" textAnchor="end" className={styles.axisScaleText}>{formatNumber(maxCount * 0.33)}</text>
              <text x="70" y="325" textAnchor="end" className={styles.axisScaleText}>0</text>
 
-             <line x1="80" y1="20" x2="80" y2="320" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-             <line x1="80" y1="320" x2="980" y2="320" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+             <line x1="80" y1="20" x2="80" y2="320" stroke="var(--border-primary)" strokeWidth="1" />
+             <line x1="80" y1="320" x2="980" y2="320" stroke="var(--border-primary)" strokeWidth="1" />
 
              {/* Dynamic Bar Series */}
              {data.map((d, i) => {
@@ -85,7 +84,6 @@ export function TimelineView({ onBack }: TimelineViewProps) {
                     height={h} 
                     rx="4" 
                     fill="url(#barG)" 
-                    filter="url(#barNeon)" 
                   />
                 )
              })}
