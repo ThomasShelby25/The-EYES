@@ -59,7 +59,7 @@ export function HistoryView({ onBack }: { onBack: () => void }) {
 
         <div className={styles.threadList}>
           {history.map((thread) => (
-            <div key={thread.id} className={styles.threadCard}>
+            <div key={thread.id} className={styles.threadCard} onClick={() => onBack()} style={{ cursor: 'pointer' }}>
               <div className={styles.threadHeader}>
                 <h4 className={styles.threadTitle}>{thread.title}</h4>
                 <span className={styles.turnBadge}>{thread.turns} turns</span>

@@ -1196,7 +1196,7 @@ input:checked + .slider:before {
 
 .readinessInfo strong {
   font-size: 15px;
-  color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .syncStatusText {
