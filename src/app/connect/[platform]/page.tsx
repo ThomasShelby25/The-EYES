@@ -277,7 +277,7 @@ export default function ConnectPlatformPage() {
 
     try {
       await runPlatformAction({
-        url: `/api/sync/${platformId}`,
+        url: `/api/sync/${platformId}?depth=deep`,
         method: 'POST',
       });
     } catch (error) {
