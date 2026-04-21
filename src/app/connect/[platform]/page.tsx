@@ -352,7 +352,7 @@ export default function ConnectPlatformPage() {
 
   return (
     <div className={styles.page}>
-      <button className={styles.backLink} onClick={() => router.push('/')}>← Back to Dashboard</button>
+      <button className={styles.backLink} onClick={() => router.push('/?view=readiness')}>← Back to Dashboard</button>
 
       <div className={styles.hero}>
         <div className={styles.heroIcon}>{meta.icon}</div>

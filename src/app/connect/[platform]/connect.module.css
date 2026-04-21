@@ -472,6 +472,11 @@
   font-family: 'JetBrains Mono', monospace;
   line-height: 1;
   color: var(--platform-color);
+  transition: color 0.3s;
+}
+
+:global([data-theme='light']) .statValue {
+  filter: brightness(0.6);
 }
 
 .statsGrid .statCard:nth-child(1) { animation-delay: 0s; }
