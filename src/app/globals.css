@@ -34,9 +34,9 @@
   --bg-card: #FFFFFF;
   --bg-card-hover: #F4F4F2;
   
-  --text-primary: #1D1C16;    /* Deep Ink */
-  --text-secondary: #3D3C36;  /* Dark Slate */
-  --text-muted: #66655D;      /* Medium Slate */
+  --text-primary: #000000 !important;    /* Deep Ink */
+  --text-secondary: #000000 !important;  /* Dark Slate */
+  --text-muted: #1a1a1a !important;      /* Medium Slate */
   
   --accent-primary: #1D1C16;  /* Neutral Black/Charcoal */
   --accent-primary-soft: #3D3C36;
