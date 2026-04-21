@@ -1491,36 +1491,36 @@ input:checked + .slider:before {
 
 /* CONNECTORS HUB SPECIFIC */
 .pageHeroTitle {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 900;
   color: var(--text-primary);
-  letter-spacing: -1.5px;
-  margin-bottom: 12px;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
   max-width: 800px;
   line-height: 1.1;
   font-family: var(--font-serif);
 }
 
 .pageHeroSub {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text-muted);
   max-width: 650px;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
   line-height: 1.6;
 }
 
 .kpiGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-bottom: 64px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
 }
 
 .kpiCard {
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
-  border-radius: 20px;
-  padding: 32px;
+  border-radius: 16px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -1534,10 +1534,10 @@ input:checked + .slider:before {
 }
 
 .kpiValue {
-  font-size: 40px;
+  font-size: 28px;
   font-weight: 900;
   color: var(--text-primary);
-  margin: 10px 0;
+  margin: 6px 0;
 }
 
 .kpiDesc {
