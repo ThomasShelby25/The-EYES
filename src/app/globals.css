@@ -28,18 +28,18 @@
 }
 
 [data-theme='light'] {
-  /* CLAUDE PALETTE WITH SIGNATURE PURPLE ACCENTS */
+  /* PURE CLAUDE HUMANISTIC PALETTE - ZERO BLUE */
   --bg-primary: #F9F9F8;
   --bg-secondary: #F0F0EE;
   --bg-card: #FFFFFF;
   --bg-card-hover: #F4F4F2;
   
-  --text-primary: #1D1C16;
-  --text-secondary: #35342F; /* High Contrast */
-  --text-muted: #66655D;    /* High Contrast */
+  --text-primary: #1D1C16;    /* Deep Ink */
+  --text-secondary: #3D3C36;  /* Dark Slate */
+  --text-muted: #66655D;      /* Medium Slate */
   
-  --accent-primary: #7866ff; /* Signature Royal Purple */
-  --accent-primary-soft: #9182ff;
+  --accent-primary: #1D1C16;  /* Neutral Black/Charcoal */
+  --accent-primary-soft: #3D3C36;
   --accent-green: #4D6A5F;
   --accent-red: #9B3D2F;
   

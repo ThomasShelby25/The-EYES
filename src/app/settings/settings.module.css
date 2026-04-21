@@ -83,7 +83,7 @@
 }
 
 .tabActive {
-  background: rgba(120, 102, 255, 0.1) !important;
+  background: var(--bg-secondary) !important;
   color: var(--accent-primary) !important;
 }
 
@@ -125,7 +125,7 @@
 
 .saveBtn {
   background: var(--accent-primary);
-  color: #fff;
+  color: var(--text-primary);
   border: none;
   padding: 12px 24px;
   border-radius: 10px;
@@ -156,12 +156,12 @@
 }
 
 .themeCard:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--bg-secondary);
 }
 
 .themeActive {
   border-color: var(--accent-primary);
-  background: rgba(120, 102, 255, 0.05);
+  background: var(--bg-secondary);
 }
 
 .themePreviewDark {

@@ -23,7 +23,7 @@
 .eyeIcon {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, var(--accent-purple), #9d7dfa);
+  background: linear-gradient(135deg, var(--accent-primary), #9d7dfa);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -47,7 +47,7 @@
   gap: 8px;
   margin-left: 20px;
   padding-left: 20px;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid var(--bg-secondary);
 }
 
 .statusDot {
@@ -125,10 +125,10 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: var(--accent-purple);
+  background-color: var(--accent-primary);
   background-size: cover;
   background-position: center;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid var(--bg-secondary);
   position: relative;
   display: flex;
   align-items: center;
@@ -200,7 +200,7 @@
 
 .divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
   margin: 4px 0;
 }
 
@@ -221,7 +221,7 @@
 }
 
 .menuItem:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
   color: var(--text-primary);
 }
 
@@ -238,7 +238,7 @@
 .miniSwitch {
   width: 32px;
   height: 18px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-secondary);
   border-radius: 20px;
   position: relative;
   transition: all 0.3s ease;
