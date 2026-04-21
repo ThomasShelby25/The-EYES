@@ -267,8 +267,8 @@
 }
 
 .input:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--accent-primary-soft), 0 0 20px rgba(59, 130, 246, 0.06);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 0 20px rgba(59, 130, 246, 0.06);
   background: var(--bg-card);
 }
 
