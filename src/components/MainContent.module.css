@@ -1,7 +1,7 @@
 .main {
   padding: 0;
   background-color: var(--bg-primary);
-  color: var(--text-primary);
+  color: var(--bg-primary);
   min-height: 100%;
 }
 
@@ -17,8 +17,8 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent-primary);
-  background: rgba(124, 105, 227, 0.12);
-  border: 1px solid rgba(124, 105, 227, 0.28);
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   z-index: 3;
 }
 
@@ -60,7 +60,7 @@
   letter-spacing: -2px;
   margin: 0;
   line-height: 1;
-  color: var(--text-primary);
+  color: var(--bg-primary);
   filter: drop-shadow(0 0 30px var(--border-primary));
 }
 
@@ -75,7 +75,7 @@
 }
 
 .heroSummary strong {
-  color: var(--text-primary);
+  color: var(--bg-primary);
   font-weight: 700;
 }
 
@@ -96,7 +96,7 @@
 .commandInputBox {
   position: relative;
   background: var(--bg-secondary);
-  border: 1px solid rgba(124, 105, 227, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -122,7 +122,7 @@
   flex: 1;
   background: none;
   border: none;
-  color: var(--text-primary);
+  color: var(--bg-primary);
   font-size: 16px;
   outline: none;
   font-weight: 500;
@@ -155,7 +155,7 @@
   background: var(--accent-primary);
   border: none;
   border-radius: 14px;
-  color: var(--text-primary);
+  color: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,13 +190,13 @@
   max-width: 85%;
   font-size: 15px;
   line-height: 1.6;
-  border: 1px solid rgba(124, 105, 227, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .userMsg {
   align-self: flex-end;
   background: var(--accent-primary);
-  color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .aiMsg {
@@ -220,8 +220,8 @@
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  background: rgba(124, 105, 227, 0.1);
-  border: 1px solid rgba(124, 105, 227, 0.2);
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   font-size: 11px;
   cursor: help;
@@ -229,7 +229,7 @@
 }
 
 .citationChip:hover {
-  background: rgba(124, 105, 227, 0.2);
+  background: rgba(0, 0, 0, 0.1);
   border-color: var(--accent-primary);
   transform: translateY(-1px);
 }
@@ -237,7 +237,7 @@
 .sourceId {
   font-weight: 800;
   color: var(--accent-primary);
-  filter: drop-shadow(0 0 4px rgba(124, 105, 227, 0.4));
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.1));
 }
 
 .sourcePlatform {
@@ -280,7 +280,7 @@
 
 .actionCard:hover {
   background: var(--bg-secondary);
-  color: var(--text-primary);
+  color: var(--bg-primary);
   border-color: var(--bg-secondary);
 }
 
@@ -304,7 +304,7 @@
   transition: color 0.2s;
 }
 
-.backBtn:hover { color: var(--text-primary); }
+.backBtn:hover { color: var(--bg-primary); }
 
 .soloTitle {
   font-size: 32px;
@@ -363,7 +363,7 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 1.5px;
-  color: var(--text-primary);
+  color: var(--bg-primary);
   margin-bottom: 2px;
 }
 
@@ -385,7 +385,7 @@
 
 .meterFillRed { background: #ff4d4d; box-shadow: 0 0 10px rgba(255, 77, 77, 0.4); height: 100%; transition: width 1s ease-out; }
 .meterFillYellow { background: #ffcc00; box-shadow: 0 0 10px rgba(255, 204, 0, 0.4); height: 100%; transition: width 1s ease-out; }
-.meterFillGreen { background: var(--accent-primary); box-shadow: 0 0 12px rgba(124, 105, 227, 0.4); height: 100%; transition: width 1s ease-out; }
+.meterFillGreen { background: var(--accent-primary); box-shadow: 0 0 12px rgba(0, 0, 0, 0.1); height: 100%; transition: width 1s ease-out; }
 
 .meterDesc {
   font-size: 10px;
@@ -416,7 +416,7 @@
   left: 50%;
   width: 250%;
   height: 250%;
-  background: conic-gradient(from 0deg, transparent 0%, rgba(124, 105, 227, 0.08) 20%, transparent 40%);
+  background: conic-gradient(from 0deg, transparent 0%, rgba(0, 0, 0, 0.1) 20%, transparent 40%);
   transform: translate(-50%, -50%);
   animation: radarRotate 8s linear infinite;
   pointer-events: none;
@@ -429,7 +429,7 @@
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  border: 1px solid rgba(124, 105, 227, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
@@ -441,8 +441,8 @@
   transform: translate(-50%, -52%);
   font-size: 64px;
   font-weight: 900;
-  color: var(--text-primary);
-  text-shadow: 0 0 40px rgba(124, 105, 227, 0.4);
+  color: var(--bg-primary);
+  text-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
   z-index: 5;
 }
 
@@ -505,7 +505,7 @@
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .auditMainInfo p {
@@ -542,7 +542,7 @@
   font-size: 20px;
   font-weight: 700;
   font-family: var(--font-mono);
-  color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .auditRecentFlags {
@@ -628,7 +628,7 @@
 .flagContent strong {
   display: block;
   font-size: 13px;
-  color: var(--text-primary);
+  color: var(--bg-primary);
   margin-bottom: 4px;
 }
 
@@ -783,7 +783,7 @@
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--accent-primary);
-  background: rgba(124, 105, 227, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   padding: 4px 10px;
   border-radius: 6px;
 }
@@ -798,7 +798,7 @@
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .eventBody {
@@ -820,7 +820,7 @@
   color: var(--accent-primary);
   opacity: 0.8;
   letter-spacing: 0.5px;
-  border: 1px solid rgba(124, 105, 227, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   padding: 3px 8px;
   border-radius: 4px;
 }
@@ -890,7 +890,7 @@
 }
 
 .cardHasRisk {
-  border-color: rgba(124, 105, 227, 0.15);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 .fallbackIcon {
@@ -936,9 +936,9 @@
 
 .filterChipActive {
   background: var(--accent-primary);
-  color: var(--text-primary);
+  color: var(--bg-primary); /* Pure visible text */
   border-color: var(--accent-primary);
-  box-shadow: 0 4px 15px rgba(124, 105, 227, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ─── Indexing Command Center ─── */
@@ -973,7 +973,7 @@
 
 .syncAllBtn {
   background: var(--accent-primary);
-  color: var(--text-primary);
+  color: var(--bg-primary);
   border: none;
   padding: 14px 28px;
   border-radius: 12px;
@@ -982,13 +982,13 @@
   letter-spacing: 1.5px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 10px 30px rgba(124, 105, 227, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .syncAllBtn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(124, 105, 227, 0.6);
-  background: #9d7dfa;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  filter: brightness(1.2);
 }
 
 .syncAllBtn:disabled {
@@ -998,7 +998,7 @@
 }
 
 .btnSyncing {
-  background: rgba(124, 105, 227, 0.2);
+  background: rgba(0, 0, 0, 0.1);
   color: var(--accent-primary);
   border: 1px solid var(--accent-primary);
   animation: pulseOpacity 2s infinite ease-in-out;
@@ -1042,7 +1042,7 @@
 
 .miniSyncBtn:hover:not(:disabled) {
   background: var(--border-primary);
-  color: var(--text-primary);
+  color: var(--bg-primary);
   border-color: var(--bg-secondary);
 }
 
@@ -1063,7 +1063,7 @@
 
 .cardSyncing {
   border-color: var(--accent-primary);
-  background: rgba(124, 105, 227, 0.04);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .cardError {
@@ -1081,7 +1081,7 @@
 
 .readinessCard {
   background: var(--bg-secondary);
-  border: 1px solid rgba(124, 105, 227, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   padding: 20px;
   display: flex;
@@ -1096,7 +1096,7 @@
 .readinessCard:hover {
   background: var(--bg-secondary);
   border-color: var(--accent-primary);
-  box-shadow: 0 0 20px rgba(124, 105, 227, 0.2);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   transform: translateY(-4px);
 }
 
@@ -1116,7 +1116,7 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 2px;
-  color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .deepCrawlDesc {
@@ -1159,7 +1159,7 @@
   width: 16px;
   left: 3px;
   bottom: 3px;
-  background-color: var(--text-primary);
+  background-color: var(--bg-primary);
   transition: .3s;
   border-radius: 50%;
   box-shadow: 0 0 10px rgba(255,255,255,0.4);
@@ -1167,14 +1167,14 @@
 
 
 input:checked + .slider {
-  background-color: rgba(124, 105, 227, 0.3);
+  background-color: rgba(0, 0, 0, 0.1);
   border-color: var(--accent-primary);
 }
 
 input:checked + .slider:before {
   transform: translateX(20px);
   background-color: var(--accent-primary);
-  box-shadow: 0 0 15px rgba(124, 105, 227, 0.8);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
 .readinessIcon {
@@ -1196,7 +1196,7 @@ input:checked + .slider:before {
 
 .readinessInfo strong {
   font-size: 15px;
-  color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .syncStatusText {
@@ -1251,7 +1251,7 @@ input:checked + .slider:before {
 
 .actionCard {
   background: var(--bg-secondary);
-  border: 1px solid rgba(124, 105, 227, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   padding: 12px 24px;
   cursor: pointer;
@@ -1262,9 +1262,9 @@ input:checked + .slider:before {
 }
 
 .actionCard:hover {
-  background: rgba(124, 105, 227, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   border-color: var(--accent-primary);
-  color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 @media (max-width: 768px) {
@@ -1385,7 +1385,7 @@ input:checked + .slider:before {
 .statValue {
   font-size: 32px;
   font-weight: 900;
-  color: var(--text-primary);
+  color: var(--bg-primary);
   font-family: var(--font-serif);
 }
 
@@ -1437,7 +1437,7 @@ input:checked + .slider:before {
 .threadTitle {
   font-size: 16px;
   font-weight: 800;
-  color: var(--text-primary);
+  color: var(--bg-primary);
   letter-spacing: 0.5px;
 }
 
@@ -1481,7 +1481,7 @@ input:checked + .slider:before {
 .previewText {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .errorText {
@@ -1493,7 +1493,7 @@ input:checked + .slider:before {
 .pageHeroTitle {
   font-size: 36px;
   font-weight: 900;
-  color: var(--text-primary);
+  color: var(--bg-primary);
   letter-spacing: -1px;
   margin-bottom: 8px;
   max-width: 800px;
@@ -1536,7 +1536,7 @@ input:checked + .slider:before {
 .kpiValue {
   font-size: 28px;
   font-weight: 900;
-  color: var(--text-primary);
+  color: var(--bg-primary);
   margin: 6px 0;
 }
 
@@ -1560,7 +1560,7 @@ input:checked + .slider:before {
   font-family: var(--font-serif);
   font-size: 72px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--bg-primary);
   letter-spacing: -2px;
   margin-bottom: 8px;
   text-shadow: 0 0 40px var(--border-primary);
