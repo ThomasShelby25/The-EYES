@@ -64,10 +64,6 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
           <EyeIcon />
         </div>
         <span className={styles.logoText} onClick={() => router.push('/')} style={{ cursor: 'pointer' }}>EYES</span>
-        <div className={styles.neuralStatus}>
-          <span className={`${styles.statusDot} ${isSyncing ? styles.dotSyncing : ''}`} />
-          <span className={styles.statusText}>{isSyncing ? 'NEURAL INTAKE ACTIVE' : 'NEURAL LINK ACTIVE'}</span>
-        </div>
       </div>
 
       <div className={styles.right} ref={menuRef}>

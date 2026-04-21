@@ -28,20 +28,19 @@
 }
 
 [data-theme='light'] {
-  /* EXACT CLAUDE (ANTHROPIC) THEME SYSTEM */
-  --bg-primary: #F9F9F8; /* Warm Off-White Paper */
-  --bg-secondary: #F0F0EE; /* Soft Greige Sidebar */
+  /* CLAUDE PALETTE WITH PURPLE ACCENTS */
+  --bg-primary: #F9F9F8;
+  --bg-secondary: #F0F0EE;
   --bg-card: #FFFFFF;
   --bg-card-hover: #F4F4F2;
   
-  --text-primary: #1D1C16; /* Claude Espresso Black */
+  --text-primary: #1D1C16;
   --text-secondary: #4A4942;
   --text-muted: #9E9D97;
   
-  /* Claude's Signature Earth Tones */
-  --accent-primary: #D97757; /* Claude Terracotta */
-  --accent-primary-soft: #E5A18C;
-  --accent-green: #678A7F; /* Claude Sage */
+  --accent-primary: #7866ff; /* Reverted to Purple */
+  --accent-primary-soft: #9a8bff;
+  --accent-green: #678A7F;
   --accent-red: #B54D3F;
   
   --border-primary: #E6E6E3;
@@ -67,8 +66,6 @@ html, body {
 
 h1, h2, h3, .brand-title {
   font-family: var(--font-serif);
-  font-weight: 400;
-  letter-spacing: -0.5px;
 }
 
 .neural-bg {
@@ -76,28 +73,6 @@ h1, h2, h3, .brand-title {
   inset: 0;
   z-index: -1;
   background: var(--bg-primary);
-  transition: background 0.4s ease;
-}
-
-[data-theme='light'] .neural-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle at 1.5px 1.5px, #E6E6E3 0.8px, transparent 0);
-  background-size: 32px 32px;
-  opacity: 0.4;
-}
-
-/* Claude-style softer, larger shadows */
-.glass-panel {
-  background: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
-[data-theme='light'] .glass-panel {
-  box-shadow: 0 10px 40px rgba(29, 28, 22, 0.05);
 }
 
 ::-webkit-scrollbar {
@@ -107,8 +82,4 @@ h1, h2, h3, .brand-title {
 ::-webkit-scrollbar-thumb {
   background: var(--border-primary);
   border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
 }
