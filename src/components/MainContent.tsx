@@ -11,9 +11,10 @@ import { MemoryFeedView } from './dashboard/MemoryFeedView';
 import { TimelineView } from './dashboard/TimelineView';
 import { AuditView } from './dashboard/AuditView';
 import { SynthesisView } from './dashboard/SynthesisView';
+import { HistoryView } from './dashboard/HistoryView';
 
 
-type ViewMode = 'dashboard' | 'synthesis' | 'audit' | 'timeline' | 'feed' | 'readiness' | 'connectors';
+type ViewMode = 'dashboard' | 'synthesis' | 'audit' | 'timeline' | 'feed' | 'readiness' | 'connectors' | 'history';
 
 function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
   const searchParams = useSearchParams();
@@ -191,6 +192,10 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
 
       {activeView === 'audit' && (
         <AuditView onBack={() => setView('dashboard')} summary={summary} />
+      )}
+
+      {activeView === 'history' && (
+        <HistoryView onBack={() => setView('dashboard')} />
       )}
 
       {(activeView === 'readiness' || activeView === 'connectors') && (

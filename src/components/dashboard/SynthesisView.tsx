@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styles from '../MainContent.module.css';
-import { SearchIcon, ArrowRightIcon, ShieldIcon } from '../common/icons/PlatformIcons';
+import { SearchIcon, ArrowRightIcon, ShieldIcon, GmailIconOfficial, CalendarIconOfficial } from '../common/icons/PlatformIcons';
 import type { Message } from '@/types/dashboard';
 
 interface SynthesisViewProps {
@@ -10,8 +10,6 @@ interface SynthesisViewProps {
   setQuery: (q: string) => void;
   messages: Message[];
   isStreaming: boolean;
-
-
   onSubmit: (text: string) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   setView: (v: any) => void;
@@ -32,10 +30,12 @@ export function SynthesisView({
   return (
     <div className={styles.heroLayout}>
       <div className={styles.heroContent}>
-        <h1 className={`${styles.megaTitle} pulse-subtle`}>EYES</h1>
+        {/* Exact Logo from Screenshot */}
+        <h1 className={styles.brandDisplayTitle}>The EYES</h1>
+        
         <div className={styles.heroSummary}>
           <div className={styles.shieldIcon}><ShieldIcon /></div>
-          <span>I&apos;ve indexed <strong>{totalMemories.toLocaleString()}</strong> things you&apos;ve said since 2018.</span>
+          <span>Indexed <strong>{totalMemories.toLocaleString()}</strong> records across your connected sources.</span>
         </div>
 
         <div className={styles.commandContainer}>
@@ -54,11 +54,25 @@ export function SynthesisView({
               className={styles.commandSendBtn} 
               onClick={() => onSubmit(query)}
               disabled={!query.trim() || isStreaming}
-                       aria-label="Send memory query"
-                       title="Send memory query"
+              aria-label="Send query"
             >
               <ArrowRightIcon />
             </button>
+          </div>
+        </div>
+
+        {/* Connected Pills (from Screenshot) */}
+        <div className={styles.connectedRow}>
+          <span className={styles.connectedLabel}>CONNECTED</span>
+          <div className={styles.connectedPills}>
+            <div className={styles.miniConnectionPill}>
+              <GmailIconOfficial />
+              <span>Gmail</span>
+            </div>
+            <div className={styles.miniConnectionPill}>
+              <CalendarIconOfficial />
+              <span>Google Calendar</span>
+            </div>
           </div>
         </div>
       </div>
@@ -88,7 +102,6 @@ export function SynthesisView({
         </div>
       )}
 
-      
       <div className={styles.quickActions}>
          <div className={styles.actionCard} onClick={() => setView('feed')}><span>Memory Feed</span></div>
          <div className={styles.actionCard} onClick={() => setView('timeline')}><span>Time Line</span></div>
@@ -97,4 +110,3 @@ export function SynthesisView({
     </div>
   );
 }
-

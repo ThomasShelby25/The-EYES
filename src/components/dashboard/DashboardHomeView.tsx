@@ -13,32 +13,55 @@ interface DashboardHomeViewProps {
 export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
   const router = useRouter();
   const connectedCount = platforms.filter(p => p.connected).length;
+  const availableCount = ALL_POSSIBLE_PLATFORMS.length - connectedCount;
+  const connectedList = platforms.filter(p => p.connected);
   const remainingPlatforms = ALL_POSSIBLE_PLATFORMS.filter(p => !platforms.find(ap => ap.id === p.id)?.connected);
 
   return (
     <div className={styles.readinessContainer}>
-      <button className={styles.backBtn} onClick={() => router.push('/?view=dashboard')}>← Back</button>
+      {/* Intro Block (from Screenshot) */}
+      <h1 className={styles.pageHeroTitle}>Manage every connected platform from one hub.</h1>
+      <p className={styles.pageHeroSub}>Review what is already connected, check readiness, and open the auth flow for any platform that is still missing.</p>
+
+      {/* KPI Metric Grid */}
+      <div className={styles.kpiGrid}>
+        <div className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>CONNECTED PLATFORMS</span>
+          <span className={styles.kpiValue}>{connectedCount}</span>
+          <span className={styles.kpiDesc}>Platforms ready for sync or already active.</span>
+        </div>
+        <div className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>AVAILABLE CONNECTORS</span>
+          <span className={styles.kpiValue}>{availableCount}</span>
+          <span className={styles.kpiDesc}>Platforms you can connect next.</span>
+        </div>
+        <div className={`${styles.kpiCard} ${styles.kpiCardFocus}`}>
+          <span className={styles.kpiLabel}>FOCUS</span>
+          <span className={styles.kpiValue}>Direct connect</span>
+          <span className={styles.kpiDesc}>New connectors start OAuth immediately from this page.</span>
+        </div>
+      </div>
 
       <div className={styles.readinessSection}>
-        <h2 className={styles.subHeader}>● NEURAL CORE BRIDGES ({platforms.filter(p => p.connected).length})</h2>
+        <h3 className={styles.subHeader}>● CONNECTED PLATFORMS ({connectedCount})</h3>
         <div className={styles.readinessGrid}>
-          {platforms.filter(p => p.connected).map(p => {
+          {connectedList.map(p => {
              const isSyncing = p.status === 'syncing';
              const isError = p.status === 'error';
              const config = ALL_POSSIBLE_PLATFORMS.find(ap => ap.id === p.id);
              
              return (
-              <div key={p.id} className={`${styles.readinessCard} ${isSyncing ? styles.cardSyncing : ''} ${isError ? styles.cardError : ''}`}>
-                <div className={styles.cardHeader} onClick={() => router.push(`/connect/${p.id}`)}>
+              <div key={p.id} className={`${styles.readinessCard} ${isSyncing ? styles.cardSyncing : ''} ${isError ? styles.cardError : ''}`} onClick={() => router.push(`/connect/${p.id}`)}>
+                <div className={styles.cardHeader}>
                   <div className={styles.readinessIcon}>{config?.icon}</div>
                   <div className={styles.readinessInfo}>
                     <strong>{p.name}</strong>
                     <span className={isError ? styles.errorStatusText : (isSyncing ? styles.syncStatusText : styles.readyStatusText)}>
-                      {isError ? 'Neural Connection Fragmented' : (isSyncing ? 'Synchronizing Neural Path...' : 'Neural Matrix Optimized')}
+                      {isError ? 'Something went wrong' : (isSyncing ? 'Synchronizing...' : 'Connected and ready')}
                     </span>
                   </div>
                 </div>
-                <div className={styles.itemBadge}>{p.items > 999 ? `${(p.items/1000).toFixed(1)}k` : p.items}</div>
+                <div className={styles.itemBadge}>{p.items || 0}</div>
                 {isSyncing && <div className={styles.syncPulse} />}
               </div>
              );
@@ -47,14 +70,14 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
       </div>
 
       <div className={styles.readinessSection}>
-        <h2 className={styles.subHeader}>● PENDING NEURAL CONFIGURATION ({remainingPlatforms.length})</h2>
+        <h3 className={styles.subHeader}>● AVAILABLE CONNECTORS ({availableCount})</h3>
         <div className={styles.readinessGrid}>
           {remainingPlatforms.map(p => (
             <div key={p.id} className={styles.readinessCard} onClick={() => router.push(`/connect/${p.id}`)}>
               <div className={styles.readinessIcon}>{p.icon}</div>
               <div className={styles.readinessInfo}>
                 <strong>{p.name}</strong>
-                <span className={styles.availStatusText}>Ready for Discovery</span>
+                <span className={styles.availStatusText}>Connect now</span>
               </div>
               <span className={styles.addIndicator}>+</span>
             </div>
@@ -64,4 +87,3 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
     </div>
   );
 }
-

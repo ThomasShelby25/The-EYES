@@ -34,7 +34,7 @@
 }
 
 .logoText {
-  font-family: inherit;
+  font-family: var(--font-serif);
   font-weight: 800;
   font-size: 20px;
   letter-spacing: 2px;

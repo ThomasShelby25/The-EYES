@@ -1,28 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --bg-primary: #0a0a0b;
-  --bg-secondary: #0d0d0f;
-  --bg-card: #151518;
-  --bg-card-hover: #1c1c21;
-  --bg-purple: #7c69e3;
-  --bg-purple-hover: #6a56cf;
+  /* Core Surface Tokens (from UI Report Section 4.1) */
+  --bg-primary: #05060f;
+  --bg-secondary: #070a14;
+  --bg-card: #0c1020;
+  --bg-card-hover: #12182d;
   
-  --border-primary: #1f1f23;
-  --border-subtle: #161618;
+  /* Text Hierarchy (from UI Report Section 4.2) */
+  --text-primary: #dce0ef;
+  --text-secondary: #a5adc8;
+  --text-muted: #6f7898;
   
-  --text-primary: #ffffff;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
+  /* Accent and Status (from UI Report Section 4.3) */
+  --accent-primary: #7866ff;
+  --accent-primary-soft: #6958df;
+  --accent-green: #00d47a;
+  --accent-red: #d46a6a;
+  --accent-blue: #9a8bff;
   
-  --accent-purple: #7c69e3;
-  --accent-green: #22c55e;
-  --accent-red: #ef4444;
-  --accent-blue: #3b82f6;
+  /* Border and Layering (from UI Report Section 4.4) */
+  --border-primary: #1d2238;
+  --border-subtle: #151a2d;
 
+  /* Layout Constants */
   --sidebar-width: 280px;
   --header-height: 64px;
+
+  /* Font Mapping (from UI Report Section 3.1) */
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Source Serif 4', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 }
 
 * {
@@ -36,12 +44,18 @@ html, body {
   overflow: hidden;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Typography System (from UI Report Section 3) */
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, .brand-text {
+  font-family: var(--font-serif);
+}
+
+code, pre, .mono-data {
+  font-family: var(--font-mono);
 }
 
 ::-webkit-scrollbar {
@@ -53,12 +67,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a3a52;
+  background: var(--border-primary);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a4a62;
+  background: var(--accent-primary-soft);
 }
 
 .animate-fade-in {
@@ -86,14 +100,12 @@ body {
 @media (max-width: 1200px) {
   :root {
     --sidebar-width: 240px;
-    --right-panel-width: 280px;
   }
 }
 
 @media (max-width: 960px) {
   :root {
     --sidebar-width: 100%;
-    --right-panel-width: 100%;
   }
 }
 
@@ -105,7 +117,7 @@ body {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a0b 100%);
+  background: radial-gradient(circle at 50% 50%, #11142b 0%, var(--bg-primary) 100%);
   overflow: hidden;
 }
 
@@ -117,24 +129,24 @@ body {
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(circle at 2px 2px, rgba(124, 105, 227, 0.15) 1px, transparent 0);
+    radial-gradient(circle at 2px 2px, rgba(120, 102, 255, 0.1) 1px, transparent 0);
   background-size: 40px 40px;
   mask-image: radial-gradient(circle at center, black, transparent 80%);
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(12, 16, 32, 0.4);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
 }
 
 .scanline {
   width: 100%;
   height: 100px;
   z-index: 10;
-  background: linear-gradient(0deg, rgba(124, 105, 227, 0) 0%, rgba(124, 105, 227, 0.05) 50%, rgba(124, 105, 227, 0) 100%);
+  background: linear-gradient(0deg, rgba(120, 102, 255, 0) 0%, rgba(120, 102, 255, 0.03) 50%, rgba(120, 102, 255, 0) 100%);
   opacity: 0.1;
   position: absolute;
   bottom: 100%;
@@ -155,4 +167,3 @@ body {
   0%, 100% { opacity: 0.8; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.02); }
 }
-
