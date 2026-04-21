@@ -48,13 +48,13 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
                        <circle 
                          cx="50" cy="50" r="45" 
                          fill="none" 
-                         stroke="rgba(255,255,255,0.05)" 
+                         stroke="var(--bg-secondary)" 
                          strokeWidth="8" 
                        />
                        <circle 
                          cx="50" cy="50" r="45" 
                          fill="none" 
-                         stroke="var(--accent-purple)" 
+                         stroke="var(--accent-primary)" 
                          strokeWidth="8" 
                          strokeDasharray={2 * Math.PI * 45}
                          strokeDashoffset={2 * Math.PI * 45 * (1 - healthScore / 100)}
