@@ -28,7 +28,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--text-primary);
 
   box-shadow: 0 4px 12px rgba(124, 105, 227, 0.3);
 }
@@ -85,7 +85,7 @@
   display: none;
   background: none;
   border: none;
-  color: white;
+  color: var(--text-primary);
   padding: 8px;
   cursor: pointer;
   margin-right: 8px;
@@ -148,7 +148,7 @@
 .avatarInitial {
   font-weight: 700;
   font-size: 16px;
-  color: white;
+  color: var(--text-primary);
   text-transform: uppercase;
 }
 
@@ -190,7 +190,7 @@
 .userName {
   font-weight: 600;
   font-size: 14px;
-  color: white;
+  color: var(--text-primary);
 }
 
 .userPlan {
@@ -225,7 +225,7 @@
 
 .menuItem:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: white;
+  color: var(--text-primary);
 }
 
 .logoutBtn {
