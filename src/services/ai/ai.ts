@@ -5,20 +5,52 @@
  */
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 export interface EmbeddingResult {
   embedding: number[];
   tokens: number;
-  provider: 'anthropic';
+  provider: 'openai';
 }
 
 /**
- * Anthropic does not natively support embeddings. 
- * Returning null until Voyage AI or similar is configured.
+ * Generates pgvector embeddings using OpenAI text-embedding-3-small.
  */
 export async function generateEmbedding(text: string): Promise<EmbeddingResult | null> {
-  console.warn('[AI] Embeddings currently unavailable (OpenAI disabled).');
-  return null;
+  if (!OPENAI_API_KEY) {
+    console.warn('[AI] Open AI Key missing. Embeddings offline.');
+    return null;
+  }
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/embeddings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        input: text,
+        model: 'text-embedding-3-small',
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        embedding: data.data[0].embedding,
+        tokens: data.usage.total_tokens,
+        provider: 'openai',
+      };
+    }
+    
+    const err = await response.json();
+    console.error('[AI] OpenAI Embedding Error:', err);
+    return null;
+  } catch (err) {
+    console.error('[AI] Neural Engine Failure:', err);
+    return null;
+  }
 }
 
 /**
