@@ -63,39 +63,37 @@ export default function Sidebar() {
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>WORKSPACE</h3>
           
-          {/* THE NAV GROUP (Merged Background Container) */}
-          <div className={styles.navGroup}>
-            <div 
-              className={`${styles.item} ${activeView === 'dashboard' ? styles.itemActive : ''}`} 
-              onClick={() => navigateToView('dashboard')}
-            >
-              <div className={styles.itemIcon}><ChatIcon /></div>
-              <div className={styles.itemMain}>
-                <span className={styles.itemLabel}>Chat</span>
-                <span className={styles.itemDesc}>Start a new thread</span>
-              </div>
+          {/* REMOVED navGroup WRAPPER TO ELIMINATE EXTRA CONTAINER */}
+          <div 
+            className={`${styles.item} ${activeView === 'dashboard' ? styles.itemActive : ''}`} 
+            onClick={() => navigateToView('dashboard')}
+          >
+            <div className={styles.itemIcon}><ChatIcon /></div>
+            <div className={styles.itemMain}>
+              <span className={styles.itemLabel}>Chat</span>
+              <span className={styles.itemDesc}>Start a new thread</span>
             </div>
+          </div>
 
-            <div 
-              className={`${styles.item} ${activeView === 'connectors' ? styles.itemActive : ''}`} 
-              onClick={() => navigateToView('connectors')}
-            >
-              <div className={styles.itemIcon}><ConnectorsIcon /></div>
-              <div className={styles.itemMain}>
-                <span className={styles.itemLabel}>Connectors</span>
-                <span className={styles.itemDesc}>Manage connected sources</span>
-              </div>
+          <div 
+            className={`${styles.item} ${activeView === 'connectors' ? styles.itemActive : ''}`} 
+            onClick={() => navigateToView('connectors')}
+          >
+            <div className={styles.itemIcon}><ConnectorsIcon /></div>
+            <div className={styles.itemMain}>
+              <span className={styles.itemLabel}>Connectors</span>
+              <span className={styles.itemDesc}>Manage connected sources</span>
             </div>
+          </div>
 
-            <div 
-              className={`${styles.item} ${activeView === 'history' ? styles.itemActive : ''}`} 
-              onClick={() => navigateToView('history')}
-            >
-              <div className={styles.itemIcon}><HistoryIcon /></div>
-              <div className={styles.itemMain}>
-                <span className={styles.itemLabel}>History</span>
-                <span className={styles.itemDesc}>Review runs and activity</span>
-              </div>
+          <div 
+            className={`${styles.item} ${activeView === 'history' ? styles.itemActive : ''}`} 
+            onClick={() => navigateToView('history')}
+          >
+            <div className={styles.itemIcon}><HistoryIcon /></div>
+            <div className={styles.itemMain}>
+              <span className={styles.itemLabel}>History</span>
+              <span className={styles.itemDesc}>Review runs and activity</span>
             </div>
           </div>
         </div>

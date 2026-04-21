@@ -28,62 +28,47 @@
 
 .newChatBtn:hover { transform: translateY(-2px); }
 
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Subtle spacing between items */
+}
+
 .sectionTitle {
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
   color: var(--text-muted);
   letter-spacing: 2px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   padding-left: 12px;
-}
-
-/* --- GROUP MERGE EFFECT --- */
-
-.navGroup {
-  display: flex;
-  flex-direction: column;
-  background-color: #242424; /* Base unified block color */
-  border-radius: 12px;
-  overflow: visible; /* Required so popping items aren't clipped */
 }
 
 .item {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 14px 16px;
+  padding: 12px 14px;
   cursor: pointer;
-  color: #a5adc8;
+  color: var(--text-secondary);
   gap: 14px;
-  background-color: #242424;
-  border-radius: 0; /* Forced merge by default */
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: transparent; /* No extra container background */
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Rounded corners for the block boundaries */
-.item:first-child { border-top-left-radius: 12px; border-top-right-radius: 12px; }
-.item:last-child { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
-
-/* HOVER ISOLATION */
+/* Individual Highlight */
 .item:hover {
-  background-color: #2d2d2d; /* Lighter background on hover */
-  border-radius: 8px !important; /* Visual breakout */
-  transform: scale(1.02);
-  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.04);
   color: #fff;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  transform: translateX(4px); /* Subtle indentation on hover */
 }
 
-/* NEIGHBOUR RE-ROUNDING */
-/* When an item is hovered, the next item needs to round its top corners to create the 'gap' illusion */
-.item:hover + .item {
-  border-top-left-radius: 12px !important;
-  border-top-right-radius: 12px !important;
+.itemActive {
+  background-color: rgba(120, 102, 255, 0.08);
+  color: var(--accent-primary);
+  border: 1px solid rgba(120, 102, 255, 0.1);
 }
-
-/* Handling the previous item's bottom corners is harder with CSS-only (+), 
-   so we rely on the hovered item's border-radius overriding the merge. */
 
 .itemIcon {
   width: 20px;
@@ -112,41 +97,43 @@
   opacity: 0;
 }
 
-.item:hover .itemIcon :global(.icon-filled) {
+.item:hover .itemIcon :global(.icon-filled),
+.itemActive .itemIcon :global(.icon-filled) {
   opacity: 1;
 }
 
-.item:hover .itemIcon :global(.icon-outline) {
+.item:hover .itemIcon :global(.icon-outline),
+.itemActive .itemIcon :global(.icon-outline) {
   opacity: 0;
 }
 
 .itemMain { display: flex; flex-direction: column; }
 .itemLabel { font-size: 14px; font-weight: 700; }
-.itemDesc { font-size: 11px; color: #6f7898; font-weight: 500; }
+.itemDesc { font-size: 11px; color: var(--text-muted); font-weight: 500; }
 
 .footer { margin-top: auto; padding-top: 24px; }
 
 .readinessCard {
   background: rgba(255, 255, 255, 0.02);
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
   padding: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.readinessCard:hover { background: rgba(255, 255, 255, 0.04); }
+.readinessCard:hover { background: rgba(255, 255, 255, 0.04); border-color: var(--border-primary); }
 
 .readinessHeader { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
-.readinessTitle { font-size: 9px; font-weight: 800; color: #6f7898; letter-spacing: 1.5px; }
+.readinessTitle { font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 1.5px; }
 
 .readinessContent { display: flex; align-items: center; gap: 16px; }
 .gaugeWrapper { width: 50px; height: 50px; }
 .gaugeBg { fill: none; stroke: rgba(255, 255, 255, 0.05); stroke-width: 8; }
-.gaugeFill { fill: none; stroke: #00d47a; stroke-width: 8; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; }
+.gaugeFill { fill: none; stroke: var(--accent-green); stroke-width: 8; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.8s ease;}
 .gaugeText { font-size: 22px; font-weight: 800; fill: #fff; }
 
 .readinessInfo { display: flex; flex-direction: column; gap: 2px; }
 .platformsCount { font-size: 13px; font-weight: 700; color: #fff; }
-.reliabilityLabel { font-size: 11px; color: #6f7898; }
-.reliabilityHigh { color: #00d47a; font-weight: 800; }
+.reliabilityLabel { font-size: 11px; color: var(--text-muted); }
+.reliabilityHigh { color: var(--accent-green); font-weight: 800; }
