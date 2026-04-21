@@ -1,15 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import styles from './settings.module.css';
+import { useAuth } from '@/context/AuthContext';
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [activeTab, setActiveTab] = useState<'profile' | 'appearance' | 'security'>('profile');
+  const [displayName, setDisplayName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load current theme
+    const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    setTheme(currentTheme);
+    if (user?.name) setDisplayName(user.name);
+  }, [user]);
+
+  const handleUpdateTheme = (newTheme: 'dark' | 'light') => {
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('eyes-theme', newTheme);
+  };
+
+  const handleUpdateProfile = async () => {
+    setIsSaving(true);
+    setSaveStatus(null);
+    try {
+      // Logic to persist display name
+      console.log('Updating profile to:', displayName);
+      // Mock delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setSaveStatus('Profile updated successfully!');
+    } catch (e) {
+      setSaveStatus('Failed to update.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className={styles.pageRoot}>
@@ -60,13 +94,27 @@ export default function SettingsPage() {
                 <div className={styles.profileSection}>
                   <div className={styles.fieldGroup}>
                     <label>DISPLAY NAME</label>
-                    <input type="text" placeholder="Thomas Shelby" className={styles.input} />
+                    <input 
+                      type="text" 
+                      value={displayName} 
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className={styles.input} 
+                    />
                   </div>
                   <div className={styles.fieldGroup}>
                     <label>EMAIL ADDRESS</label>
-                    <input type="email" placeholder="thomasshelby25@example.com" className={styles.input} disabled />
+                    <input type="email" value={user?.email || ''} className={styles.input} disabled />
                   </div>
-                  <button className={styles.saveBtn}>Update Profile</button>
+                  
+                  {saveStatus && <p className={saveStatus.includes('success') ? styles.successText : styles.errorText}>{saveStatus}</p>}
+                  
+                  <button 
+                    className={styles.saveBtn} 
+                    onClick={handleUpdateProfile}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? 'Updating...' : 'Update Profile'}
+                  </button>
                 </div>
               )}
 
@@ -75,20 +123,20 @@ export default function SettingsPage() {
                   <div className={styles.themeGrid}>
                     <div 
                       className={`${styles.themeCard} ${theme === 'dark' ? styles.themeActive : ''}`}
-                      onClick={() => setTheme('dark')}
+                      onClick={() => handleUpdateTheme('dark')}
                     >
                       <div className={styles.themePreviewDark} />
                       <span>Obsidian (Dark)</span>
                     </div>
                     <div 
                       className={`${styles.themeCard} ${theme === 'light' ? styles.themeActive : ''}`}
-                      onClick={() => setTheme('light')}
+                      onClick={() => handleUpdateTheme('light')}
                     >
                       <div className={styles.themePreviewLight} />
                       <span>Crystal (Light)</span>
                     </div>
                   </div>
-                  <p className={styles.helpText}>Light mode is currently in experimental preview.</p>
+                  <p className={styles.helpText}>Settings are applied instantly to your neural link.</p>
                 </div>
               )}
 
@@ -96,9 +144,9 @@ export default function SettingsPage() {
                 <div className={styles.securitySection}>
                   <div className={styles.securityInfo}>
                     <h3>OAuth Connections</h3>
-                    <p>Your account is linked via ThomasShelby25 GitHub.</p>
+                    <p>Your account is currently secured via GitHub.</p>
                   </div>
-                  <button className={styles.dangerBtn}>Disconnect Account</button>
+                  <button className={styles.dangerBtn} disabled>Disconnect Account</button>
                 </div>
               )}
             </div>

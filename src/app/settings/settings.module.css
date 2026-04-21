@@ -213,3 +213,17 @@
   .sidebarWrapper { display: none; }
   .contentLayout { grid-template-columns: 1fr; }
 }
+
+.successText {
+  font-size: 13px;
+  color: var(--accent-green);
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.errorText {
+  font-size: 13px;
+  color: var(--accent-red);
+  margin-bottom: 20px;
+  font-weight: 600;
+}

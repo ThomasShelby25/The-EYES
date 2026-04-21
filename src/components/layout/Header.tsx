@@ -14,6 +14,10 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Sync with global theme on load
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    setIsDarkMode(currentTheme !== 'light');
+
     const checkSyncStatus = async () => {
       try {
         const res = await fetch('/api/sync/status');
@@ -25,6 +29,13 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
     const interval = setInterval(checkSyncStatus, 15000);
     return () => clearInterval(interval);
   }, []);
+
+  const toggleTheme = () => {
+    const newTheme = isDarkMode ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    setIsDarkMode(!isDarkMode);
+    localStorage.setItem('eyes-theme', newTheme);
+  };
 
   const avatarImageUrl = user?.avatar && user.avatar.length > 2 ? user.avatar : null;
   const avatarInitial = user?.avatar && user.avatar.length <= 2 ? user.avatar : user?.name?.[0] || 'U';
@@ -89,7 +100,7 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
               <SettingsIcon /> Settings
             </button>
             
-            <div className={styles.menuItem} onClick={() => setIsDarkMode(!isDarkMode)}>
+            <div className={styles.menuItem} onClick={toggleTheme}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
                 {isDarkMode ? <MoonIcon /> : <SunIcon />}
                 <span>{isDarkMode ? 'Dark Mode' : 'Light Mode'}</span>

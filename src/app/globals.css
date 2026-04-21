@@ -1,36 +1,48 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Core Surface Tokens (from UI Report Section 4.1) */
+  /* Default Dark Mode Tokens */
   --bg-primary: #05060f;
   --bg-secondary: #070a14;
   --bg-card: #0c1020;
   --bg-card-hover: #12182d;
   
-  /* Text Hierarchy (from UI Report Section 4.2) */
   --text-primary: #dce0ef;
   --text-secondary: #a5adc8;
   --text-muted: #6f7898;
   
-  /* Accent and Status (from UI Report Section 4.3) */
   --accent-primary: #7866ff;
   --accent-primary-soft: #6958df;
   --accent-green: #00d47a;
   --accent-red: #d46a6a;
   --accent-blue: #9a8bff;
   
-  /* Border and Layering (from UI Report Section 4.4) */
   --border-primary: #1d2238;
   --border-subtle: #151a2d;
 
-  /* Layout Constants */
   --sidebar-width: 280px;
   --header-height: 64px;
 
-  /* Font Mapping (from UI Report Section 3.1) */
-  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Manrope', sans-serif;
   --font-serif: 'Source Serif 4', serif;
   --font-mono: 'IBM Plex Mono', monospace;
+}
+
+[data-theme='light'] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  
+  --border-primary: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  
+  --accent-primary: #6366f1;
+  --accent-primary-soft: #818cf8;
 }
 
 * {
@@ -44,10 +56,10 @@ html, body {
   overflow: hidden;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  /* Typography System (from UI Report Section 3) */
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, .brand-text {
@@ -119,6 +131,11 @@ code, pre, .mono-data {
   z-index: -1;
   background: radial-gradient(circle at 50% 50%, #11142b 0%, var(--bg-primary) 100%);
   overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+[data-theme='light'] .neural-bg {
+  background: radial-gradient(circle at 50% 50%, #f1f5f9 0%, #f8fafc 100%);
 }
 
 .neural-bg::after {
@@ -140,6 +157,10 @@ code, pre, .mono-data {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-primary);
   border-radius: 12px;
+}
+
+[data-theme='light'] .glass-panel {
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .scanline {
