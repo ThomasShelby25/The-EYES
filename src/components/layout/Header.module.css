@@ -254,7 +254,7 @@
 }
 
 .switchActive {
-  background: var(--accent-primary); color: var(--bg-primary) !important;
+  background: var(--accent-primary); color: var(--text-primary) !important;
 }
 
 .switchActive::after {

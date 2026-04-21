@@ -7,7 +7,7 @@
   grid-template-areas: 
     "sidebar header"
     "sidebar main";
-  background-color: var(--bg-primary);
+  background-color: var(--text-primary);
   color: var(--text-primary);
   overflow: hidden;
 }
@@ -124,7 +124,7 @@
 }
 
 .saveBtn {
-  background: var(--accent-primary); color: var(--bg-primary) !important;
+  background: var(--accent-primary); color: var(--text-primary) !important;
   color: var(--text-primary);
   border: none;
   padding: 12px 24px;
