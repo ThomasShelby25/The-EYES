@@ -122,10 +122,10 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: var(--accent-primary);
+  background-color: #D4A373; /* Warm Scholarly Amber */
   background-size: cover;
   background-position: center;
-  border: 2px solid var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   position: relative;
   display: flex;
   align-items: center;
@@ -140,9 +140,9 @@
 }
 
 .avatarInitial {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 16px;
-  color: var(--text-primary);
+  color: #fff;
   text-transform: uppercase;
 }
 
