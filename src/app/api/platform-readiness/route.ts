@@ -71,12 +71,6 @@ const platformConfigs: Array<{
     env: ['SLACK_CLIENT_ID', 'SLACK_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
     scopes: ['channels:history', 'groups:history', 'im:history', 'mpim:history'],
   },
-  {
-    id: 'twitter',
-    name: 'Twitter (X)',
-    env: ['TWITTER_CLIENT_ID', 'TWITTER_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['tweet.read', 'users.read', 'offline.access'],
-  },
 ];
 
 const toDbPlatform = (id: PlatformId) => (id === 'google-calendar' ? 'google_calendar' : id);
