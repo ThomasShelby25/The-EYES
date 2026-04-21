@@ -173,6 +173,7 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
           messagesEndRef={messagesEndRef}
           setView={setView}
           totalMemories={summary.totalMemories}
+          platforms={platforms}
         />
       )}
 

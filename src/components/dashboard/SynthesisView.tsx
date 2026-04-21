@@ -14,6 +14,7 @@ interface SynthesisViewProps {
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   setView: (v: any) => void;
   totalMemories: number;
+  platforms?: any[];
 }
 
 export function SynthesisView({
@@ -24,8 +25,11 @@ export function SynthesisView({
   onSubmit,
   messagesEndRef,
   setView,
-  totalMemories
+  totalMemories,
+  platforms = []
 }: SynthesisViewProps) {
+
+  const connected = platforms.filter(p => p.isConnected);
 
   return (
     <div className={styles.heroLayout}>
@@ -61,20 +65,21 @@ export function SynthesisView({
           </div>
         </div>
 
-        {/* Connected Pills (from Screenshot) */}
-        <div className={styles.connectedRow}>
-          <span className={styles.connectedLabel}>CONNECTED</span>
-          <div className={styles.connectedPills}>
-            <div className={styles.miniConnectionPill}>
-              <GmailIconOfficial />
-              <span>Gmail</span>
-            </div>
-            <div className={styles.miniConnectionPill}>
-              <CalendarIconOfficial />
-              <span>Google Calendar</span>
+        {/* Dynamic Connected Pills */}
+        {connected.length > 0 && (
+          <div className={styles.connectedRow}>
+            <span className={styles.connectedLabel}>CONNECTED</span>
+            <div className={styles.connectedPills}>
+              {connected.map(p => (
+                <div key={p.id} className={styles.miniConnectionPill} onClick={() => setView('readiness')} style={{ cursor: 'pointer' }}>
+                  {p.id === 'gmail' && <GmailIconOfficial />}
+                  {p.id === 'google-calendar' && <CalendarIconOfficial />}
+                  <span style={{ textTransform: 'capitalize' }}>{p.id.replace('-', ' ')}</span>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {messages.length > 0 && (
