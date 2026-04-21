@@ -40,29 +40,36 @@ export async function POST(request: Request) {
 
     const url = new URL(request.url);
     const depth = url.searchParams.get('depth') || 'shallow';
-    const perPage = depth === 'deep' ? 100 : 10;
+    const perPage = 100;
+    const maxTotal = depth === 'deep' ? 300 : 20;
 
-    const repoResponse = await fetch(`https://api.github.com/user/repos?sort=updated&per_page=${perPage}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-      },
-      cache: 'no-store',
-    });
+    let allRepos: GitHubRepo[] = [];
+    let page = 1;
 
-    if (!repoResponse.ok) {
-      const body = await repoResponse.text();
-      return NextResponse.json(
-        { error: `GitHub API request failed (${repoResponse.status}): ${body}` },
-        { status: 502 }
-      );
+    // --- PAGINATION LOOP ---
+    while (allRepos.length < maxTotal) {
+      const repoResponse = await fetch(`https://api.github.com/user/repos?sort=updated&per_page=${perPage}&page=${page}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        },
+        cache: 'no-store',
+      });
+
+      if (!repoResponse.ok) break;
+
+      const repos = (await repoResponse.json()) as GitHubRepo[];
+      if (!repos || repos.length === 0) break;
+
+      allRepos = [...allRepos, ...repos];
+      page += 1;
+      if (repos.length < perPage) break;
     }
 
-    const repos = (await repoResponse.json()) as GitHubRepo[];
     const now = new Date().toISOString();
 
-    const rawEvents = repos.map((repo) => {
+    const rawEvents = allRepos.map((repo) => {
       const description = repo.description || 'No description provided.';
       const content = [
         description,

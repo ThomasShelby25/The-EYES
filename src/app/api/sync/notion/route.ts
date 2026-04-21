@@ -55,31 +55,45 @@ export async function POST(request: Request) {
 
     const accessToken = decryptToken(tokenRow.access_token);
 
-    const searchResponse = await fetch('https://api.notion.com/v1/search', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        page_size: 100,
-        sort: {
-          direction: 'descending',
-          timestamp: 'last_edited_time'
-        }
-      }),
-      cache: 'no-store',
-    });
+    const url = new URL(request.url);
+    const depth = url.searchParams.get('depth') || 'shallow';
+    const maxResultsPerPage = 100;
+    const maxTotalResults = depth === 'deep' ? 300 : 50;
 
-    if (!searchResponse.ok) {
-      return NextResponse.json({ error: `Notion API request failed (${searchResponse.status})` }, { status: 502 });
+    let allResults: NotionSearchResult[] = [];
+    let nextCursor: string | undefined = undefined;
+
+    // --- PAGINATION LOOP ---
+    while (allResults.length < maxTotalResults) {
+      const searchResponse = await fetch('https://api.notion.com/v1/search', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          page_size: maxResultsPerPage,
+          start_cursor: nextCursor,
+          sort: {
+            direction: 'descending',
+            timestamp: 'last_edited_time'
+          }
+        }),
+        cache: 'no-store',
+      });
+
+      if (!searchResponse.ok) break;
+
+      const body = (await searchResponse.json()) as { results?: NotionSearchResult[], next_cursor?: string | null };
+      const pageResults = body.results ?? [];
+      allResults = [...allResults, ...pageResults];
+      
+      nextCursor = body.next_cursor || undefined;
+      if (!nextCursor) break;
     }
 
-    const body = (await searchResponse.json()) as NotionSearchResponse;
-    const results = body.results ?? [];
-
-    const events = results.map((item) => {
+    const events = allResults.map((item) => {
       const title = extractTitle(item);
       const content = `${title} ${item.url || ''}`.trim();
       const risk = scoreNotionEvent({ title, content });

@@ -40,10 +40,15 @@ export async function POST(request: Request) {
         throw new Error(`Slack Auth Test failed: ${authData.error}`);
     }
 
-    // 3. Fetch History for each channel (Concurrent with small limit)
-    const activeChannels = (channelData.channels || []).filter((c: any) => c.is_member).slice(0, 5);
+    // 3. Fetch History for each channel (Concurrent with batch limit)
+    const url = new URL(request.url);
+    const depth = url.searchParams.get('depth') || 'shallow';
+    const channelLimit = depth === 'deep' ? 15 : 5;
+    const messageLimit = depth === 'deep' ? 100 : 20;
+
+    const activeChannels = (channelData.channels || []).filter((c: any) => c.is_member).slice(0, channelLimit);
     const historyPromises = activeChannels.map(async (channel: any) => {
-      const resp = await fetch(`https://slack.com/api/conversations.history?channel=${channel.id}&limit=20`, {
+      const resp = await fetch(`https://slack.com/api/conversations.history?channel=${channel.id}&limit=${messageLimit}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
         cache: 'no-store',
       });

@@ -47,24 +47,35 @@ export async function POST(request: Request) {
 
     const url = new URL(request.url);
     const depth = url.searchParams.get('depth') || 'shallow';
-    const maxResults = depth === 'deep' ? 50 : 10;
+    const maxResultsPerPage = 50; 
+    const maxTotalResults = depth === 'deep' ? 200 : 10; // Batch limit per cron run
 
-    const listResponse = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=${maxResults}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      cache: 'no-store',
-    });
+    let allMessageIds: string[] = [];
+    let nextPageToken: string | undefined = undefined;
 
-    if (!listResponse.ok) {
-      return NextResponse.json({ error: `Gmail API request failed (${listResponse.status})` }, { status: 502 });
+    // --- PAGINATION LOOP ---
+    while (allMessageIds.length < maxTotalResults) {
+      const fetchUrl = new URL('https://gmail.googleapis.com/gmail/v1/users/me/messages');
+      fetchUrl.searchParams.set('maxResults', Math.min(maxResultsPerPage, maxTotalResults - allMessageIds.length).toString());
+      if (nextPageToken) fetchUrl.searchParams.set('pageToken', nextPageToken);
+
+      const listResponse = await fetch(fetchUrl.toString(), {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        cache: 'no-store',
+      });
+
+      if (!listResponse.ok) break;
+
+      const listBody = (await listResponse.json()) as { messages?: Array<{ id: string }>, nextPageToken?: string };
+      const pageIds = (listBody.messages ?? []).map((m) => m.id);
+      allMessageIds = [...allMessageIds, ...pageIds];
+      
+      nextPageToken = listBody.nextPageToken;
+      if (!nextPageToken) break;
     }
 
-    const listBody = (await listResponse.json()) as GmailListResponse;
-    const messageIds = (listBody.messages ?? []).map((message) => message.id);
-
     const messageResponses = await Promise.all(
-      messageIds.map((id) =>
+      allMessageIds.map((id) =>
         fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=Subject&metadataHeaders=From`, {
           headers: { Authorization: `Bearer ${accessToken}` },
           cache: 'no-store',
@@ -133,7 +144,7 @@ export async function POST(request: Request) {
       throw profileUpdate.error;
     }
 
-    return NextResponse.json({ ok: true, syncedMessages: events.length });
+    return NextResponse.json({ ok: true, syncedMessages: events.length, totalMemories });
   } catch (error: unknown) {
     const detail = error instanceof Error ? error.message : String(error);
     console.error('gmail sync error:', error);
