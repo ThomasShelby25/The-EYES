@@ -1,7 +1,7 @@
 .main {
   padding: 0;
   background-color: var(--bg-primary);
-  color: var(--bg-primary);
+  color: var(--text-primary);
   min-height: 100%;
 }
 
@@ -364,7 +364,7 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 1.5px;
-  color: var(--bg-primary);
+  color: var(--text-primary);
   margin-bottom: 2px;
 }
 
@@ -506,7 +506,7 @@
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .auditMainInfo p {
@@ -799,7 +799,7 @@
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .eventBody {
@@ -937,7 +937,7 @@
 
 .filterChipActive {
   background: var(--accent-primary); color: var(--bg-primary) !important;
-  color: var(--bg-primary); /* Pure visible text */
+  color: var(--bg-primary); /* Keeps light text on dark background */
   border-color: var(--accent-primary);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -1043,7 +1043,7 @@
 
 .miniSyncBtn:hover:not(:disabled) {
   background: var(--border-primary);
-  color: var(--bg-primary);
+  color: var(--text-primary);
   border-color: var(--bg-secondary);
 }
 
@@ -1117,7 +1117,7 @@
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 2px;
-  color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .deepCrawlDesc {
@@ -1265,7 +1265,7 @@ input:checked + .slider:before {
 .actionCard:hover {
   background: rgba(0, 0, 0, 0.1);
   border-color: var(--accent-primary);
-  color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {
