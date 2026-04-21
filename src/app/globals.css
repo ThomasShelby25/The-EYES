@@ -15,7 +15,6 @@
   --accent-primary-soft: #6958df;
   --accent-green: #00d47a;
   --accent-red: #d46a6a;
-  --accent-blue: #9a8bff;
   
   --border-primary: #1d2238;
   --border-subtle: #151a2d;
@@ -29,21 +28,24 @@
 }
 
 [data-theme='light'] {
-  /* Salt and Pepper Mode (from reference image) */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #D4D4D4; /* Secondary contrast */
+  /* EXACT CLAUDE (ANTHROPIC) THEME SYSTEM */
+  --bg-primary: #F9F9F8; /* Warm Off-White Paper */
+  --bg-secondary: #F0F0EE; /* Soft Greige Sidebar */
   --bg-card: #FFFFFF;
-  --bg-card-hover: #F2F2F2;
+  --bg-card-hover: #F4F4F2;
   
-  --text-primary: #2B2B2B; /* Charcoal text */
-  --text-secondary: #525252;
-  --text-muted: #B3B3B3; /* Stone accents */
+  --text-primary: #1D1C16; /* Claude Espresso Black */
+  --text-secondary: #4A4942;
+  --text-muted: #9E9D97;
   
-  --border-primary: #B3B3B3; /* Defining borders */
-  --border-subtle: #D4D4D4;
+  /* Claude's Signature Earth Tones */
+  --accent-primary: #D97757; /* Claude Terracotta */
+  --accent-primary-soft: #E5A18C;
+  --accent-green: #678A7F; /* Claude Sage */
+  --accent-red: #B54D3F;
   
-  --accent-primary: #6366f1;
-  --accent-primary-soft: #4f46e5;
+  --border-primary: #E6E6E3;
+  --border-subtle: #EBEBE9;
 }
 
 * {
@@ -60,47 +62,42 @@ html, body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 h1, h2, h3, .brand-title {
   font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.5px;
 }
 
 .neural-bg {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(circle at center, #11142b 0%, var(--bg-primary) 100%);
+  background: var(--bg-primary);
   transition: background 0.4s ease;
 }
 
-[data-theme='light'] .neural-bg {
-  background: radial-gradient(circle at center, #F2F2F2 0%, #FFFFFF 100%);
-}
-
-.neural-bg::after {
+[data-theme='light'] .neural-bg::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle at 2px 2px, rgba(120, 102, 255, 0.05) 1px, transparent 0);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(circle at center, black, transparent 80%);
+  background-image: radial-gradient(circle at 1.5px 1.5px, #E6E6E3 0.8px, transparent 0);
+  background-size: 32px 32px;
+  opacity: 0.4;
 }
 
-.scanline {
-  position: absolute;
-  width: 100%;
-  height: 120px;
-  background: linear-gradient(0deg, transparent 0%, rgba(120, 102, 255, 0.02) 50%, transparent 100%);
-  bottom: 100%;
-  animation: scanline 10s linear infinite;
-  pointer-events: none;
+/* Claude-style softer, larger shadows */
+.glass-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
-@keyframes scanline {
-  0% { bottom: 100%; }
-  100% { bottom: -120px; }
+[data-theme='light'] .glass-panel {
+  box-shadow: 0 10px 40px rgba(29, 28, 22, 0.05);
 }
 
 ::-webkit-scrollbar {
@@ -110,4 +107,8 @@ h1, h2, h3, .brand-title {
 ::-webkit-scrollbar-thumb {
   background: var(--border-primary);
   border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }

@@ -22,7 +22,7 @@
   font-weight: 700;
   cursor: pointer;
   margin-bottom: 40px;
-  box-shadow: 0 8px 24px rgba(120, 102, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(217, 119, 87, 0.2);
   transition: transform 0.2s;
 }
 
