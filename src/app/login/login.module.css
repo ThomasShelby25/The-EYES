@@ -183,20 +183,20 @@
   padding: 14px;
   border: none;
   border-radius: 10px;
-  background: #D97757; /* Warm Terracotta / Orange accent like Claude */
+  background: #1D1C16; /* Reverted to sleek Charcoal */
   color: white;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   margin-top: 12px;
-  box-shadow: 0 4px 12px rgba(217, 119, 87, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: #c26a4e;
+  background: #2a2a22;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(217, 119, 87, 0.3);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 .submitBtn:active:not(:disabled) {
@@ -258,8 +258,9 @@
 }
 
 .switchLink {
-  color: #D97757;
-  text-decoration: none;
+  color: #1D1C16;
+  text-decoration: underline;
+  text-underline-offset: 4px;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
@@ -269,8 +270,7 @@
 }
 
 .switchLink:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  opacity: 0.7;
 }
 
 /* ─── Features List ─── */
