@@ -110,3 +110,52 @@ export function DropboxIconOfficial({ size = 40 }: { size?: number }) {
     </svg>
   );
 }
+
+export function OutlookIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0072C6" d="M128 0c70.7 0 128 57.3 128 128s-57.3 128-128 128S0 198.7 0 128 57.3 0 128 0z"/>
+      <path fill="#fff" d="M185 70h-94c-11 0-20 9-20 20v76c0 11 9 20 20 20h94c11 0 20-9 20-20V90c0-11-9-20-20-20zm-4 76l-43-30-43 30V90l43 30 43-30v56z"/>
+    </svg>
+  );
+}
+
+export function AsanaIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="128" cy="74" r="34" fill="#F06A6A"/>
+      <circle cx="78" cy="160" r="34" fill="#F06A6A"/>
+      <circle cx="178" cy="160" r="34" fill="#F06A6A"/>
+    </svg>
+  );
+}
+
+export function TrelloIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <rect width="256" height="256" rx="40" fill="#0079BF"/>
+      <rect x="40" y="40" width="70" height="140" rx="15" fill="#fff"/>
+      <rect x="146" y="40" width="70" height="80" rx="15" fill="#fff"/>
+    </svg>
+  );
+}
+
+export function LinearIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <rect width="256" height="256" rx="40" fill="#5E6AD2"/>
+      <path d="M70 70h116v116H70z" fill="#fff" opacity="0.2"/>
+      <path d="M70 70l116 116h-116z" fill="#fff"/>
+    </svg>
+  );
+}
+
+export function ClickUpIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path d="M128 30l110 60v120l-110-60L18 90z" fill="#7B68EE"/>
+      <path d="M128 226l-110-60V46l110 60 110-60v120z" fill="#FF00DF" opacity="0.3"/>
+    </svg>
+  );
+}
+

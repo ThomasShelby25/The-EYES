@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { createClient } from '@/utils/supabase/server';
 
-type PlatformId = 'reddit' | 'gmail' | 'github' | 'notion' | 'google-calendar' | 'discord' | 'slack' | 'twitter';
+type PlatformId = 'reddit' | 'gmail' | 'github' | 'notion' | 'google-calendar' | 'discord' | 'slack' | 'twitter' | 'outlook' | 'asana' | 'trello' | 'linear' | 'clickup';
 
 type PlatformReadiness = {
   id: PlatformId;
@@ -47,6 +47,12 @@ const platformConfigs: Array<{
     scopes: ['calendar.readonly', 'openid', 'email', 'profile'],
   },
   {
+    id: 'outlook',
+    name: 'Outlook',
+    env: ['OUTLOOK_CLIENT_ID', 'OUTLOOK_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['mail.read', 'calendars.read'],
+  },
+  {
     id: 'reddit',
     name: 'Reddit',
     env: ['REDDIT_CLIENT_ID', 'REDDIT_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
@@ -60,16 +66,40 @@ const platformConfigs: Array<{
     scopes: ['read content', 'read user'],
   },
   {
+    id: 'slack',
+    name: 'Slack',
+    env: ['SLACK_CLIENT_ID', 'SLACK_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['channels:history', 'groups:history', 'im:history', 'mpim:history'],
+  },
+  {
     id: 'discord',
     name: 'Discord',
     env: ['DISCORD_CLIENT_ID', 'DISCORD_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
     scopes: ['identify', 'email'],
   },
   {
-    id: 'slack',
-    name: 'Slack',
-    env: ['SLACK_CLIENT_ID', 'SLACK_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['channels:history', 'groups:history', 'im:history', 'mpim:history'],
+    id: 'asana',
+    name: 'Asana',
+    env: ['ASANA_CLIENT_ID', 'ASANA_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['default'],
+  },
+  {
+    id: 'trello',
+    name: 'Trello',
+    env: ['TRELLO_CLIENT_ID', 'TRELLO_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'linear',
+    name: 'Linear',
+    env: ['LINEAR_CLIENT_ID', 'LINEAR_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'clickup',
+    name: 'ClickUp',
+    env: ['CLICKUP_CLIENT_ID', 'CLICKUP_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['read'],
   },
 ];
 
