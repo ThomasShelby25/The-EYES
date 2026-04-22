@@ -118,8 +118,9 @@
   align-items: center;
   gap: 24px;
   padding: 32px;
-  background: rgba(21, 29, 46, 0.5);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   border-radius: 16px;
   position: relative;
   overflow: hidden;
@@ -220,12 +221,13 @@
 
 .statusDisconnected {
   background: rgba(100, 116, 139, 0.1);
-  color: #94a3b8;
-  border: 1px solid rgba(100, 116, 139, 0.2);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
 }
 
 .statusDisconnected .statusChipDot {
   background: #94a3b8;
+  opacity: 0.6;
 }
 
 @keyframes pulse {
@@ -236,10 +238,11 @@
 /* ─── Connection Flow ─── */
 .connectionFlow {
   padding: 32px;
-  background: rgba(21, 29, 46, 0.4);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
   margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   animation: fadeInUp 0.4s ease-out;
 }
 
@@ -449,13 +452,14 @@
 }
 
 .statCard {
-  background: rgba(21, 29, 46, 0.5);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
   opacity: 0;
   animation: fadeInUp 0.4s ease-out forwards;
   transition: border-color 0.2s, transform 0.2s;
@@ -496,10 +500,11 @@
 .permissionsCard,
 .dataCard,
 .settingsCard {
-  background: rgba(21, 29, 46, 0.5);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
 }
 
 .cardTitle {
