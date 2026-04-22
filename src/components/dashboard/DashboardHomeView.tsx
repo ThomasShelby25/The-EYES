@@ -1,17 +1,15 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import styles from '../MainContent.module.css';
 import { ALL_POSSIBLE_PLATFORMS } from '@/config/platforms';
 import type { PlatformStatus } from '@/types/dashboard';
-import { useAuth } from '@/context/AuthContext';
 
 interface DashboardHomeViewProps {
   platforms: PlatformStatus[];
 }
 
 export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
-  const { supabase, user } = useAuth();
   const connectedCount = platforms.filter(p => p.connected).length;
   const availableCount = ALL_POSSIBLE_PLATFORMS.length - connectedCount;
   const connectedList = platforms.filter(p => p.connected);
