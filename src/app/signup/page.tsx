@@ -43,7 +43,6 @@ export default function SignupPage() {
       const result = await signup(name, email, password);
 
       if (result.success) {
-        // Success: AuthProvider handles the session and redirection
         router.push('/');
       } else {
         setError(result.message || 'Identity creation failed. Please check your data.');
@@ -55,6 +54,19 @@ export default function SignupPage() {
       console.error('Signup Failure:', err);
     }
   }, [name, email, password, signup, router]);
+
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: x * 20, y: y * -20 });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
 
   return (
     <div className={styles.loginPageContainer}>
@@ -155,47 +167,43 @@ export default function SignupPage() {
           </div>
         </div>
 
-        {/* Right Section: Showcase Card */}
-        <div className={styles.visualSection}>
-          <div className={styles.showcaseOuter}>
-             <div className={styles.showcaseCard}>
-                <div className={styles.abstractVisual}>
-                  <div className={styles.vaultWindow}>
-                    <div className={styles.vaultSidebar}>
-                      <div className={`${styles.sidebarItem} ${styles.sidebarItemActive}`} style={{ width: '80%' }} />
-                      <div className={styles.sidebarItem} style={{ width: '60%' }} />
-                      <div className={styles.sidebarItem} style={{ width: '70%' }} />
-                      <div className={styles.sidebarItem} style={{ width: '50%' }} />
+        {/* Right Section: Digital Vault Mockup */}
+        <div 
+          className={styles.visualSection} 
+          onMouseMove={handleMouseMove} 
+          onMouseLeave={handleMouseLeave}
+        >
+          <div 
+            className={styles.vaultWindow}
+            style={{ 
+              transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+              transition: tilt.x === 0 ? 'transform 0.5s ease-out' : 'none'
+            }}
+          >
+            <div className={styles.vaultSidebar}>
+              <div className={`${styles.sidebarItem} ${styles.sidebarItemActive}`} style={{ width: '80%' }} />
+              <div className={styles.sidebarItem} style={{ width: '60%' }} />
+              <div className={styles.sidebarItem} style={{ width: '70%' }} />
+              <div className={styles.sidebarItem} style={{ width: '50%' }} />
+            </div>
+            <div className={styles.vaultMain}>
+              <div className={styles.vaultHeader}>
+                <div className={styles.sidebarItem} style={{ width: '100px', height: '12px' }} />
+                <div className={styles.vaultSearch} />
+              </div>
+              <div className={styles.vaultGrid}>
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className={styles.vaultCard}>
+                    <div className={styles.vaultCardIcon} />
+                    <div className={styles.vaultCardLines}>
+                      <div className={styles.vaultLine} />
+                      <div className={`${styles.vaultLine} ${styles.vaultLineShort}`} />
                     </div>
-                    <div className={styles.vaultMain}>
-                      <div className={styles.vaultHeader}>
-                        <div className={styles.sidebarItem} style={{ width: '100px', height: '12px' }} />
-                        <div className={styles.vaultSearch} />
-                      </div>
-                      <div className={styles.vaultGrid}>
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
-                          <div key={i} className={styles.vaultCard}>
-                            <div className={styles.vaultCardIcon} />
-                            <div className={styles.vaultCardLines}>
-                              <div className={styles.vaultLine} />
-                              <div className={`${styles.vaultLine} ${styles.vaultLineShort}`} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className={styles.vaultBadge}>SECURED BY EYES</div>
                   </div>
-                  <div className={styles.visualGlow} />
-                  <div className={styles.visualTitle}>EYES</div>
-                  <div className={styles.visualTagline}>Private & Permanent</div>
-                </div>
-                
-                <div className={styles.showcaseFooter}>
-                   <div className={styles.showcaseBadge}>V1.2.0</div>
-                   <div className={styles.showcaseBadge}>End-to-End Encrypted</div>
-                </div>
-             </div>
+                ))}
+              </div>
+            </div>
+            <div className={styles.vaultBadge}>SECURED BY EYES</div>
           </div>
         </div>
       </div>
@@ -210,4 +218,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
