@@ -283,5 +283,33 @@ export function WithingsIconOfficial({ size = 40 }: { size?: number }) {
   );
 }
 
+export function MercuryIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <rect width="256" height="256" rx="40" fill="#000"/>
+      <path d="M60 196V60h136v40H100v36h80v40h-80v60z" fill="#fff"/>
+    </svg>
+  );
+}
+
+export function RampIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#1DB954" d="M0 128L128 0l128 128-128 128z"/>
+      <rect x="110" y="60" width="36" height="136" fill="#fff"/>
+    </svg>
+  );
+}
+
+export function NavanIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="128" cy="128" r="128" fill="#FF4F00"/>
+      <path d="M128 60l68 116H60z" fill="#fff"/>
+    </svg>
+  );
+}
+
+
 
 

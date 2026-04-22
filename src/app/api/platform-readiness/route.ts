@@ -204,6 +204,24 @@ const platformConfigs: Array<{
     env: ['WITHINGS_CLIENT_ID', 'WITHINGS_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
     scopes: ['user.metrics'],
   },
+  {
+    id: 'mercury',
+    name: 'Mercury',
+    env: ['MERCURY_API_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'ramp',
+    name: 'Ramp',
+    env: ['RAMP_CLIENT_ID', 'RAMP_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'navan',
+    name: 'Navan',
+    env: ['NAVAN_API_KEY'],
+    scopes: ['read'],
+  },
 ];
 
 const toDbPlatform = (id: PlatformId) => (id === 'google-calendar' ? 'google_calendar' : (id === 'twitter' ? 'twitter' : id));

@@ -26,7 +26,10 @@ import {
   StravaIconOfficial,
   FitbitIconOfficial,
   OuraIconOfficial,
-  WithingsIconOfficial
+  WithingsIconOfficial,
+  MercuryIconOfficial,
+  RampIconOfficial,
+  NavanIconOfficial
 } from '../components/common/icons/PlatformIcons';
 
 export const ALL_POSSIBLE_PLATFORMS = [
@@ -57,5 +60,8 @@ export const ALL_POSSIBLE_PLATFORMS = [
   { id: 'strava', name: 'Strava', icon: <StravaIconOfficial /> },
   { id: 'fitbit', name: 'Fitbit', icon: <FitbitIconOfficial /> },
   { id: 'oura', name: 'Oura', icon: <OuraIconOfficial /> },
-  { id: 'withings', name: 'Withings', icon: <WithingsIconOfficial /> }
+  { id: 'withings', name: 'Withings', icon: <WithingsIconOfficial /> },
+  { id: 'mercury', name: 'Mercury', icon: <MercuryIconOfficial /> },
+  { id: 'ramp', name: 'Ramp', icon: <RampIconOfficial /> },
+  { id: 'navan', name: 'Navan', icon: <NavanIconOfficial /> }
 ];
