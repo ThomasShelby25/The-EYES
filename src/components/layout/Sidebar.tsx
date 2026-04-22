@@ -7,7 +7,8 @@ import {
   ConnectorsIcon, 
   HistoryIcon,
   PlusIcon,
-  EyeIconSmall
+  EyeIconSmall,
+  NodesIcon
 } from '../common/icons/SidebarIcons';
 import styles from './Sidebar.module.css';
 
@@ -63,7 +64,6 @@ export default function Sidebar() {
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>WORKSPACE</h3>
           
-          {/* REMOVED navGroup WRAPPER TO ELIMINATE EXTRA CONTAINER */}
           <div 
             className={`${styles.item} ${activeView === 'dashboard' ? styles.itemActive : ''}`} 
             onClick={() => navigateToView('dashboard')}
@@ -83,6 +83,17 @@ export default function Sidebar() {
             <div className={styles.itemMain}>
               <span className={styles.itemLabel}>Connectors</span>
               <span className={styles.itemDesc}>Manage connected sources</span>
+            </div>
+          </div>
+
+          <div 
+            className={`${styles.item} ${activeView === 'neural-map' ? styles.itemActive : ''}`} 
+            onClick={() => navigateToView('neural-map')}
+          >
+            <div className={styles.itemIcon}><NodesIcon /></div>
+            <div className={styles.itemMain}>
+              <span className={styles.itemLabel}>Neural Map</span>
+              <span className={styles.itemDesc}>Explore memory connections</span>
             </div>
           </div>
 

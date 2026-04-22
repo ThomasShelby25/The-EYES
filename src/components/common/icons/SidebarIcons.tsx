@@ -51,3 +51,24 @@ export const EyeIconSmall = () => (
     <circle cx="12" cy="12" r="3"></circle>
   </svg>
 );
+
+export const NodesIcon = () => (
+  <div className="icon-stack">
+    <svg className="icon-outline" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 3a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3Z"></path>
+      <path d="M6 15a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3Z"></path>
+      <path d="M18 15a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3Z"></path>
+      <path d="M9 18h6"></path>
+      <path d="M18 9v6"></path>
+      <path d="M15 6 9 15"></path>
+    </svg>
+    <svg className="icon-filled" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 3a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3Z"></path>
+      <path d="M6 15a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3Z"></path>
+      <path d="M18 15a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3Z"></path>
+      <path d="M9 18h6"></path>
+      <path d="M18 9v6"></path>
+      <path d="M15 6 9 15"></path>
+    </svg>
+  </div>
+);
