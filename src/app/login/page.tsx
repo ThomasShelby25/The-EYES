@@ -53,19 +53,6 @@ export default function LoginPage() {
 
   return (
     <div className={styles.page}>
-      {/* Animated Aesthetic Layer */}
-      <div className={styles.bgGrid} />
-      <div className={styles.bgGlow1} />
-      <div className={styles.bgGlow2} />
-      <div className={styles.bgGlow3} />
-
-      {/* Floating Particles */}
-      <div className={styles.particles}>
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className={styles.particle} />
-        ))}
-      </div>
-
       {/* Sign In Core Card */}
       <div className={styles.card}>
         <div className={styles.cardGlow} />
@@ -74,7 +61,7 @@ export default function LoginPage() {
         <div className={styles.brand}>
           <div className={styles.logoContainer}>
             <div className={styles.logoIcon}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
             </div>

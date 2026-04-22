@@ -2,142 +2,34 @@
 .page {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--bg-primary);
+  background: #FBF9F7;
   position: relative;
   overflow: hidden;
-  padding: 24px;
+  padding: 40px 24px;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
-/* ─── Animated Background ─── */
-.bgGrid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  animation: gridDrift 20s linear infinite;
-}
-
-@keyframes gridDrift {
-  from { transform: translate(0, 0); }
-  to { transform: translate(60px, 60px); }
-}
-
-.bgGlow1 {
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  top: -200px;
-  left: -100px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
-  animation: floatGlow1 12s ease-in-out infinite;
-}
-
-.bgGlow2 {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  border-radius: 50%;
-  bottom: -150px;
-  right: -100px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
-  animation: floatGlow2 15s ease-in-out infinite;
-}
-
-.bgGlow3 {
-  position: absolute;
-  width: 350px;
-  height: 350px;
-  border-radius: 50%;
-  top: 40%;
-  right: 30%;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 70%);
-  animation: floatGlow3 18s ease-in-out infinite;
-}
-
-@keyframes floatGlow1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(30px, 20px) scale(1.1); }
-}
-
-@keyframes floatGlow2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-20px, -30px) scale(1.15); }
-}
-
-@keyframes floatGlow3 {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
-  50% { transform: translate(15px, -15px) scale(1.05); opacity: 1; }
-}
-
-/* ─── Floating Particles ─── */
-.particles {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.particle {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: rgba(59, 130, 246, 0.3);
-  animation: particleFloat linear infinite;
-}
-
-.particle:nth-child(1) { left: 10%; animation-duration: 14s; animation-delay: 0s; }
-.particle:nth-child(2) { left: 25%; animation-duration: 18s; animation-delay: 2s; width: 2px; height: 2px; background: rgba(99, 102, 241, 0.3); }
-.particle:nth-child(3) { left: 40%; animation-duration: 12s; animation-delay: 4s; }
-.particle:nth-child(4) { left: 55%; animation-duration: 16s; animation-delay: 1s; width: 4px; height: 4px; background: rgba(139, 92, 246, 0.2); }
-.particle:nth-child(5) { left: 70%; animation-duration: 20s; animation-delay: 3s; }
-.particle:nth-child(6) { left: 85%; animation-duration: 15s; animation-delay: 5s; width: 2px; height: 2px; background: rgba(59, 130, 246, 0.25); }
-.particle:nth-child(7) { left: 50%; animation-duration: 22s; animation-delay: 7s; }
-.particle:nth-child(8) { left: 15%; animation-duration: 17s; animation-delay: 9s; width: 2px; height: 2px; background: rgba(99, 102, 241, 0.25); }
-
-@keyframes particleFloat {
-  0% { bottom: -10px; opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { bottom: 110%; opacity: 0; }
-}
+/* Background handled by .page */
 
 /* ─── Card ─── */
 .card {
   width: 100%;
   max-width: 440px;
-  background: var(--bg-card);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  border: 1px solid var(--border-subtle);
-  border-radius: 24px;
+  background: white;
+  border: 1px solid #E5E1DA;
+  border-radius: 12px;
   padding: 48px 40px;
   position: relative;
   z-index: 1;
-  animation: cardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0;
-  box-shadow:
-    0 0 0 1px var(--border-subtle),
-    0 20px 60px rgba(0, 0, 0, 0.1),
-    0 0 80px rgba(59, 130, 246, 0.05);
-}
-
-@keyframes cardIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .cardGlow {
+  display: none;
+}
   position: absolute;
   inset: -1px;
   border-radius: 24px;
@@ -171,38 +63,30 @@
 }
 
 .logoIcon {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(99, 102, 241, 0.15));
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  width: 32px;
+  height: 32px;
+  background: #F3F1ED;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: logoGlow 3s ease-in-out infinite;
-}
-
-@keyframes logoGlow {
-  0%, 100% { box-shadow: 0 0 12px rgba(59, 130, 246, 0.1); }
-  50% { box-shadow: 0 0 24px rgba(59, 130, 246, 0.2); }
+  color: #1D1C16;
 }
 
 .logoText {
-  font-size: 32px;
-  font-weight: 800;
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 6px;
-  background: linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 38px;
+  font-weight: 700;
+  font-family: 'Outfit', -apple-system, sans-serif;
+  letter-spacing: -0.5px;
+  color: #1D1C16;
+  margin-bottom: 4px;
 }
 
 .tagline {
-  font-size: 10px;
-  letter-spacing: 4px;
-  color: var(--text-secondary);
-  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #8C8A85;
+  font-weight: 500;
   text-transform: uppercase;
 }
 
@@ -250,26 +134,18 @@
 
 .input {
   width: 100%;
-  padding: 13px 14px 13px 42px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-primary);
-  border-radius: 12px;
-  color: var(--text-primary);
-  font-size: 14px;
-  font-family: 'Inter', sans-serif;
-  outline: none;
-  transition: all 0.25s ease;
-}
-
-.input::placeholder {
-  color: var(--text-secondary);
-  font-size: 13px;
+  padding: 12px 14px 12px 42px;
+  background: white;
+  border: 1px solid #E5E1DA;
+  border-radius: 8px;
+  color: #1D1C16;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 0 20px rgba(59, 130, 246, 0.06);
-  background: var(--bg-card);
+  border-color: #1D1C16;
+  box-shadow: 0 0 0 3px rgba(29, 28, 22, 0.05);
 }
 
 .input:focus ~ .inputIcon,
@@ -317,52 +193,32 @@
 /* ─── Submit Button ─── */
 .submitBtn {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #3b82f6, #6366f1);
-  color: var(--text-primary);
+  border-radius: 8px;
+  background: #1D1C16;
+  color: white;
   font-size: 15px;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  margin-top: 4px;
-  letter-spacing: 0.3px;
-}
-
-.submitBtn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, #2563eb, #4f46e5);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.submitBtn:hover:not(:disabled)::before {
-  opacity: 1;
+  transition: transform 0.1s, opacity 0.2s;
+  margin-top: 10px;
 }
 
 .submitBtn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3), 0 0 24px rgba(99, 102, 241, 0.15);
+  opacity: 0.9;
 }
 
 .submitBtn:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(0.99);
 }
 
 .submitBtn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .btnContent {
-  position: relative;
-  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -412,21 +268,19 @@
 }
 
 .switchLink {
-  color: #3b82f6;
-  text-decoration: none;
-  font-weight: 500;
+  color: #1D1C16;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: opacity 0.2s;
   background: none;
   border: none;
-  font-size: 13px;
-  font-family: 'Inter', sans-serif;
   padding: 0;
 }
 
 .switchLink:hover {
-  color: #60a5fa;
-  text-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+  opacity: 0.7;
 }
 
 /* ─── Features List ─── */
