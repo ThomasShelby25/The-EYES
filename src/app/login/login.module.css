@@ -73,7 +73,7 @@
 .tagline {
   font-size: 11px;
   letter-spacing: 2px;
-  color: var(--accent-highlight);
+  color: var(--accent-vital);
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -259,7 +259,7 @@
 }
 
 .switchLink {
-  color: var(--accent-highlight);
+  color: var(--accent-vital);
   text-decoration: underline;
   text-underline-offset: 4px;
   font-weight: 600;
