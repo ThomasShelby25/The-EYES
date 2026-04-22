@@ -160,13 +160,31 @@ export default function SignupPage() {
           <div className={styles.showcaseOuter}>
              <div className={styles.showcaseCard}>
                 <div className={styles.abstractVisual}>
-                  <div className={styles.visualImageWrapper}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src="/showcase-visual.png" 
-                      alt="The EYES Deep Context Visualization" 
-                      className={styles.showcaseImage} 
-                    />
+                  <div className={styles.vaultWindow}>
+                    <div className={styles.vaultSidebar}>
+                      <div className={`${styles.sidebarItem} ${styles.sidebarItemActive}`} style={{ width: '80%' }} />
+                      <div className={styles.sidebarItem} style={{ width: '60%' }} />
+                      <div className={styles.sidebarItem} style={{ width: '70%' }} />
+                      <div className={styles.sidebarItem} style={{ width: '50%' }} />
+                    </div>
+                    <div className={styles.vaultMain}>
+                      <div className={styles.vaultHeader}>
+                        <div className={styles.sidebarItem} style={{ width: '100px', height: '12px' }} />
+                        <div className={styles.vaultSearch} />
+                      </div>
+                      <div className={styles.vaultGrid}>
+                        {[1, 2, 3, 4, 5, 6].map((i) => (
+                          <div key={i} className={styles.vaultCard}>
+                            <div className={styles.vaultCardIcon} />
+                            <div className={styles.vaultCardLines}>
+                              <div className={styles.vaultLine} />
+                              <div className={`${styles.vaultLine} ${styles.vaultLineShort}`} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className={styles.vaultBadge}>SECURED BY EYES</div>
                   </div>
                   <div className={styles.visualGlow} />
                   <div className={styles.visualTitle}>EYES</div>

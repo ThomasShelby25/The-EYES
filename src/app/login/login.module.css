@@ -15,7 +15,8 @@
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 60px;
+  align-items: center;
 }
 
 /* ─── Left Section (Auth) ─── */
@@ -23,12 +24,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 40px 0;
-  max-width: 480px;
+  padding: 60px 0;
+  max-width: 520px;
 }
 
 .header {
-  margin-bottom: clamp(40px, 5vh, 80px);
+  margin-bottom: clamp(40px, 8vh, 120px);
 }
 
 .logoRow {
@@ -56,7 +57,7 @@
 }
 
 .authHero {
-  margin-bottom: clamp(24px, 4vh, 48px);
+  margin-bottom: clamp(24px, 6vh, 60px);
 }
 
 .megaHeroTitle {
@@ -84,13 +85,13 @@
 
 .authCard {
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-subtle);
   border-radius: 24px;
-  padding: clamp(24px, 4vh, 40px);
-  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.05);
-  margin-bottom: clamp(16px, 3vh, 24px);
+  padding: clamp(24px, 5vh, 48px);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
 }
 
 .socialAuthRow {
@@ -99,7 +100,7 @@
 
 .socialBtn {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   background: white;
   border: 1px solid #E5E1DA;
   border-radius: 12px;
@@ -232,129 +233,136 @@
   border: 1px solid rgba(239, 68, 68, 0.1);
 }
 
-/* ─── Right Section (Visual) ─── */
+/* ─── Right Section (Digital Vault Mockup) ─── */
 .visualSection {
   flex: 1.2;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 40px 0;
+  padding: 60px 0;
 }
 
-.showcaseOuter {
+.vaultWindow {
   width: 100%;
-  max-width: 600px;
-  aspect-ratio: 1 / 1;
-}
-
-.showcaseCard {
-  width: 100%;
-  height: 100%;
-  background: #F5F3EF;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 48px;
+  max-width: 680px;
+  height: 520px;
+  background: #FBF9F7;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
+  box-shadow: 
+    0 40px 120px rgba(0, 0, 0, 0.15),
+    0 10px 30px rgba(0, 98, 114, 0.1);
   position: relative;
   overflow: hidden;
   display: flex;
-  flex-direction: column;
-  padding: 40px;
+  animation: float 8s ease-in-out infinite;
 }
 
-.abstractVisual {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.visualCircle {
+.vaultSidebar {
   width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  opacity: 0.1;
-  animation: pulse 8s infinite alternate;
+  background: rgba(0, 0, 0, 0.02);
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 24px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.visualImageWrapper {
-  width: 280px;
-  height: 280px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
+.sidebarItem {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
 }
 
-.showcaseImage {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 20px 40px rgba(0, 98, 114, 0.15));
-  animation: float 6s ease-in-out infinite;
+.sidebarItemActive {
+  background: var(--accent-vital);
+  opacity: 0.2;
+}
+
+.vaultMain {
+  flex: 1;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.vaultHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vaultSearch {
+  width: 240px;
+  height: 32px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.vaultGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.vaultCard {
+  aspect-ratio: 1;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s;
+}
+
+.vaultCardIcon {
+  width: 32px;
+  height: 32px;
+  background: rgba(0, 98, 114, 0.1);
+  border-radius: 8px;
+}
+
+.vaultCardLines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vaultLine {
+  height: 4px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+}
+
+.vaultLineShort { width: 60%; }
+
+.vaultBadge {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  background: #1F1F1F;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  z-index: 10;
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes pulse {
-  from { transform: scale(1); opacity: 0.1; }
-  to { transform: scale(1.4); opacity: 0.3; }
-}
-
-.visualGlow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100px;
-  height: 100px;
-  border: 2px solid var(--accent-vital);
-  border-radius: 50%;
-  opacity: 0.4;
-}
-
-.visualTitle {
-  font-family: var(--font-serif);
-  font-size: 48px;
-  font-weight: 700;
-  letter-spacing: 4px;
-  color: var(--text-primary);
-  margin-top: 24px;
-}
-
-.visualTagline {
-  font-size: 14px;
-  color: var(--text-secondary);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-top: 8px;
-}
-
-.showcaseFooter {
-  display: flex;
-  gap: 12px;
-}
-
-.showcaseBadge {
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 6px 14px;
-  border-radius: 99px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-secondary);
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(0.5deg); }
 }
 
 /* ─── Legal Footer ─── */
 .legalFooter {
-  padding: 24px 40px;
+  padding: 24px 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -377,34 +385,23 @@
   color: var(--text-primary);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .visualSection {
     display: none;
   }
   .loginContent {
     justify-content: center;
+    padding: 0 40px;
   }
   .authSection {
     max-width: 100%;
   }
 }
 
-@media (max-width: 640px) {
-  .megaHeroTitle {
-    font-size: 40px;
-  }
-  .loginContent {
-    padding: 0 24px;
-  }
-  .authCard {
-    padding: 32px 24px;
-  }
-}
 @media (max-height: 800px) {
   .header { margin-bottom: 32px; }
   .authHero { margin-bottom: 24px; }
-  .megaHeroTitle { font-size: 40px; }
-  .authCard { padding: 24px; }
+  .authCard { padding: 32px; }
 }
 
 @media (max-height: 600px) {
