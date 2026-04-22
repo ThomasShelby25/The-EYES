@@ -245,4 +245,43 @@ export function GranolaIconOfficial({ size = 40 }: { size?: number }) {
   );
 }
 
+export function StravaIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#FC4C02" d="M153.8 179.9l-31.1-61.4-31.1 61.4h62.2zm44.2-86.4L153.8 0l-44.2 93.5h88.4z"/>
+    </svg>
+  );
+}
+
+export function FitbitIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="128" cy="128" r="28" fill="#00B0B9"/>
+      <circle cx="128" cy="64" r="20" fill="#00B0B9"/>
+      <circle cx="128" cy="192" r="20" fill="#00B0B9"/>
+      <circle cx="64" cy="128" r="20" fill="#00B0B9"/>
+      <circle cx="192" cy="128" r="20" fill="#00B0B9"/>
+    </svg>
+  );
+}
+
+export function OuraIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="128" cy="128" r="110" fill="none" stroke="var(--text-primary)" strokeWidth="20"/>
+      <path d="M128 18L128 48" stroke="var(--text-primary)" strokeWidth="20" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+export function WithingsIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#000" d="M128 0C57.3 0 0 57.3 0 128s57.3 128 128 128 128-57.3 128-128S198.7 0 128 0zm0 40c48.6 0 88 39.4 88 88s-39.4 88-88 88-88-39.4-88-88 39.4-88 88-88z"/>
+      <circle cx="128" cy="128" r="40" fill="#000"/>
+    </svg>
+  );
+}
+
+
 

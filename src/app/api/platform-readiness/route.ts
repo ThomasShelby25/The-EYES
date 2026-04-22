@@ -180,6 +180,30 @@ const platformConfigs: Array<{
     env: ['GRANOLA_API_KEY'],
     scopes: ['read'],
   },
+  {
+    id: 'strava',
+    name: 'Strava',
+    env: ['STRAVA_CLIENT_ID', 'STRAVA_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['activity:read_all'],
+  },
+  {
+    id: 'fitbit',
+    name: 'Fitbit',
+    env: ['FITBIT_CLIENT_ID', 'FITBIT_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['activity', 'heartrate', 'profile', 'sleep'],
+  },
+  {
+    id: 'oura',
+    name: 'Oura',
+    env: ['OURA_CLIENT_ID', 'OURA_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['personal', 'daily'],
+  },
+  {
+    id: 'withings',
+    name: 'Withings',
+    env: ['WITHINGS_CLIENT_ID', 'WITHINGS_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['user.metrics'],
+  },
 ];
 
 const toDbPlatform = (id: PlatformId) => (id === 'google-calendar' ? 'google_calendar' : (id === 'twitter' ? 'twitter' : id));

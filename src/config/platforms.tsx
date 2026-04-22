@@ -22,7 +22,11 @@ import {
   CanvaIconOfficial,
   GranolaIconOfficial,
   DropboxIconOfficial,
-  XIconOfficial
+  XIconOfficial,
+  StravaIconOfficial,
+  FitbitIconOfficial,
+  OuraIconOfficial,
+  WithingsIconOfficial
 } from '../components/common/icons/PlatformIcons';
 
 export const ALL_POSSIBLE_PLATFORMS = [
@@ -49,5 +53,9 @@ export const ALL_POSSIBLE_PLATFORMS = [
   { id: 'devin', name: 'Devin', icon: <DevinIconOfficial /> },
   { id: 'cursor', name: 'Cursor', icon: <CursorIconOfficial /> },
   { id: 'canva', name: 'Canva', icon: <CanvaIconOfficial /> },
-  { id: 'granola', name: 'Granola', icon: <GranolaIconOfficial /> }
+  { id: 'granola', name: 'Granola', icon: <GranolaIconOfficial /> },
+  { id: 'strava', name: 'Strava', icon: <StravaIconOfficial /> },
+  { id: 'fitbit', name: 'Fitbit', icon: <FitbitIconOfficial /> },
+  { id: 'oura', name: 'Oura', icon: <OuraIconOfficial /> },
+  { id: 'withings', name: 'Withings', icon: <WithingsIconOfficial /> }
 ];
