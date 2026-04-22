@@ -79,7 +79,7 @@ export function SynthesisView({
                 const config = ALL_POSSIBLE_PLATFORMS.find(ap => ap.id === p.id);
                 return (
                   <div key={p.id} className={styles.miniConnectionPill} onClick={() => setView('readiness')} style={{ cursor: 'pointer' }}>
-                    {config?.icon ? React.cloneElement(config.icon as React.ReactElement, { size: 16 }) : null}
+                    {config?.icon ? React.cloneElement(config.icon as React.ReactElement<any>, { size: 16 }) : null}
                     <span style={{ textTransform: 'capitalize' }}>{p.id.replace('-', ' ')}</span>
                   </div>
                 );

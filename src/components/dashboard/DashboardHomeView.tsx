@@ -54,7 +54,7 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
               <div key={p.id} className={`${styles.readinessCard} ${isSyncing ? styles.cardSyncing : ''} ${isError ? styles.cardError : ''}`} onClick={() => router.push(`/connect/${p.id}`)}>
                 <div className={styles.cardHeader}>
                   <div className={styles.readinessIcon}>
-                    {config?.icon ? React.cloneElement(config.icon as React.ReactElement, { size: 20 }) : null}
+                    {config?.icon ? React.cloneElement(config.icon as React.ReactElement<any>, { size: 20 }) : null}
                   </div>
                   <div className={styles.readinessInfo}>
                     <strong>{p.name}</strong>
@@ -77,7 +77,7 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
           {remainingPlatforms.map(p => (
             <div key={p.id} className={styles.readinessCard} onClick={() => router.push(`/connect/${p.id}`)}>
               <div className={styles.readinessIcon}>
-                {p.icon ? React.cloneElement(p.icon as React.ReactElement, { size: 20 }) : null}
+                {p.icon ? React.cloneElement(p.icon as React.ReactElement<any>, { size: 20 }) : null}
               </div>
               <div className={styles.readinessInfo}>
                 <strong>{p.name}</strong>

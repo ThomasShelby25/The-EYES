@@ -57,7 +57,7 @@ export function MemoryFeedView({
             return (
               <div key={e.id} className={`${styles.feedEventCard} ${hasRisk ? styles.cardHasRisk : ''}`}>
                  <div className={styles.eventIconWrapper}>
-                    {platform?.icon ? React.cloneElement(platform.icon as React.ReactElement, { size: 18 }) : <div className={styles.fallbackIcon}>{e.platform[0]}</div>}
+                    {platform?.icon ? React.cloneElement(platform.icon as React.ReactElement<any>, { size: 18 }) : <div className={styles.fallbackIcon}>{e.platform[0]}</div>}
                  </div>
                  <div className={styles.eventMain}>
                     <div className={styles.eventMeta}>
