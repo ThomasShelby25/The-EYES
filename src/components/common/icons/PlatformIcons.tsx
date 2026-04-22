@@ -159,3 +159,90 @@ export function ClickUpIconOfficial({ size = 40 }: { size?: number }) {
   );
 }
 
+export function VercelIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path fill="var(--text-primary)" d="M128 0L256 221.7H0L128 0z"/>
+    </svg>
+  );
+}
+
+export function NetlifyIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#25C7B7" d="M128 0L256 128L128 256L0 128L128 0z"/>
+      <path fill="#fff" d="M128 40L216 128L128 216L40 128L128 40z" opacity="0.4"/>
+    </svg>
+  );
+}
+
+export function SupabaseIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#3ECF8E" d="M128 0l110 128-110 128L18 128z"/>
+    </svg>
+  );
+}
+
+export function SentryIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#362D59" d="M128 0C57.3 0 0 57.3 0 128s57.3 128 128 128 128-57.3 128-128S198.7 0 128 0zm0 186.7c-32.4 0-58.7-26.3-58.7-58.7s26.3-58.7 58.7-58.7 58.7 26.3 58.7 58.7-26.3 58.7-58.7 58.7z"/>
+    </svg>
+  );
+}
+
+export function PostHogIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <rect width="256" height="256" rx="40" fill="#F0F0F0"/>
+      <circle cx="128" cy="128" r="80" fill="#000"/>
+    </svg>
+  );
+}
+
+export function WebflowIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#4353FF" d="M0 0h256v256H0z"/>
+      <path fill="#fff" d="M50 50h156v156H50z" opacity="0.2"/>
+    </svg>
+  );
+}
+
+export function DevinIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="128" cy="128" r="128" fill="#1A1A1A"/>
+      <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#fff" fontSize="120" fontWeight="bold">D</text>
+    </svg>
+  );
+}
+
+export function CursorIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <path fill="var(--text-primary)" d="M128 0L30 256l98-60 98 60L128 0z"/>
+    </svg>
+  );
+}
+
+export function CanvaIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="128" cy="128" r="128" fill="#00C4CC"/>
+      <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#fff" fontSize="100" fontWeight="bold">C</text>
+    </svg>
+  );
+}
+
+export function GranolaIconOfficial({ size = 40 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+      <rect width="256" height="256" rx="40" fill="#6B4E31"/>
+      <path d="M50 128h156" stroke="#fff" strokeWidth="20" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+

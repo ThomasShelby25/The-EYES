@@ -2,12 +2,19 @@ import { NextResponse } from 'next/server';
 
 import { createClient } from '@/utils/supabase/server';
 
-type PlatformId = 'reddit' | 'gmail' | 'github' | 'notion' | 'google-calendar' | 'discord' | 'slack' | 'twitter' | 'outlook' | 'asana' | 'trello' | 'linear' | 'clickup';
+type PlatformId = 
+  | 'reddit' | 'gmail' | 'github' | 'notion' | 'google-calendar' | 'discord' | 'slack' | 'twitter' | 'dropbox'
+  | 'outlook' | 'asana' | 'trello' | 'linear' | 'clickup'
+  | 'vercel' | 'netlify' | 'supabase' | 'sentry' | 'posthog' | 'webflow' | 'devin' | 'cursor'
+  | 'canva' | 'granola'
+  | 'strava' | 'fitbit' | 'oura' | 'withings'
+  | 'mercury' | 'ramp' | 'navan'
+  | 'sonos' | 'philips-hue';
 
 type PlatformReadiness = {
   id: PlatformId;
   name: string;
-  connectionType: 'OAuth';
+  connectionType: 'OAuth' | 'APIKey';
   requiredScopes: string[];
   optional: boolean;
   deferred: boolean;
@@ -78,32 +85,104 @@ const platformConfigs: Array<{
     scopes: ['identify', 'email'],
   },
   {
+    id: 'twitter',
+    name: 'Twitter (X)',
+    env: ['TWITTER_API_KEY', 'TWITTER_API_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['tweet.read', 'users.read'],
+  },
+  {
+    id: 'dropbox',
+    name: 'Dropbox',
+    env: ['DROPBOX_CLIENT_ID', 'DROPBOX_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['files.metadata.read'],
+  },
+  {
     id: 'asana',
     name: 'Asana',
-    env: ['ASANA_CLIENT_ID', 'ASANA_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
+    env: ['ASANA_CLIENT_ID', 'ASANA_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
     scopes: ['default'],
   },
   {
     id: 'trello',
     name: 'Trello',
-    env: ['TRELLO_CLIENT_ID', 'TRELLO_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
+    env: ['TRELLO_API_KEY', 'TRELLO_TOKEN', 'TOKEN_ENCRYPTION_KEY'],
     scopes: ['read'],
   },
   {
     id: 'linear',
     name: 'Linear',
-    env: ['LINEAR_CLIENT_ID', 'LINEAR_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
+    env: ['LINEAR_CLIENT_ID', 'LINEAR_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
     scopes: ['read'],
   },
   {
     id: 'clickup',
     name: 'ClickUp',
-    env: ['CLICKUP_CLIENT_ID', 'CLICKUP_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
+    env: ['CLICKUP_CLIENT_ID', 'CLICKUP_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'vercel',
+    name: 'Vercel',
+    env: ['VERCEL_API_TOKEN'],
+    scopes: ['read'],
+  },
+  {
+    id: 'netlify',
+    name: 'Netlify',
+    env: ['NETLIFY_CLIENT_ID', 'NETLIFY_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'supabase',
+    name: 'Supabase',
+    env: ['SUPABASE_ACCESS_TOKEN'],
+    scopes: ['read'],
+  },
+  {
+    id: 'sentry',
+    name: 'Sentry',
+    env: ['SENTRY_AUTH_TOKEN'],
+    scopes: ['event:read', 'project:read'],
+  },
+  {
+    id: 'posthog',
+    name: 'PostHog',
+    env: ['POSTHOG_API_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'webflow',
+    name: 'Webflow',
+    env: ['WEBFLOW_CLIENT_ID', 'WEBFLOW_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'devin',
+    name: 'Devin',
+    env: ['DEVIN_API_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'cursor',
+    name: 'Cursor',
+    env: ['CURSOR_API_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'canva',
+    name: 'Canva',
+    env: ['CANVA_CLIENT_ID', 'CANVA_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    scopes: ['read'],
+  },
+  {
+    id: 'granola',
+    name: 'Granola',
+    env: ['GRANOLA_API_KEY'],
     scopes: ['read'],
   },
 ];
 
-const toDbPlatform = (id: PlatformId) => (id === 'google-calendar' ? 'google_calendar' : id);
+const toDbPlatform = (id: PlatformId) => (id === 'google-calendar' ? 'google_calendar' : (id === 'twitter' ? 'twitter' : id));
 
 export async function GET() {
   try {
@@ -152,7 +231,7 @@ export async function GET() {
       return {
         id: cfg.id,
         name: cfg.name,
-        connectionType: 'OAuth',
+        connectionType: cfg.env.some(e => e.includes('TOKEN') || e.includes('KEY')) ? 'APIKey' : 'OAuth',
         requiredScopes: cfg.scopes,
         optional: Boolean(cfg.optional),
         deferred,

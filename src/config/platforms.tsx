@@ -10,7 +10,19 @@ import {
   AsanaIconOfficial,
   TrelloIconOfficial,
   LinearIconOfficial,
-  ClickUpIconOfficial
+  ClickUpIconOfficial,
+  VercelIconOfficial,
+  NetlifyIconOfficial,
+  SupabaseIconOfficial,
+  SentryIconOfficial,
+  PostHogIconOfficial,
+  WebflowIconOfficial,
+  DevinIconOfficial,
+  CursorIconOfficial,
+  CanvaIconOfficial,
+  GranolaIconOfficial,
+  DropboxIconOfficial,
+  XIconOfficial
 } from '../components/common/icons/PlatformIcons';
 
 export const ALL_POSSIBLE_PLATFORMS = [
@@ -22,8 +34,20 @@ export const ALL_POSSIBLE_PLATFORMS = [
   { id: 'notion', name: 'Notion', icon: <NotionIconOfficial /> },
   { id: 'slack', name: 'Slack', icon: <SlackIconOfficial /> },
   { id: 'discord', name: 'Discord', icon: <DiscordIconOfficial /> },
+  { id: 'twitter', name: 'Twitter (X)', icon: <XIconOfficial /> },
+  { id: 'dropbox', name: 'Dropbox', icon: <DropboxIconOfficial /> },
   { id: 'asana', name: 'Asana', icon: <AsanaIconOfficial /> },
   { id: 'trello', name: 'Trello', icon: <TrelloIconOfficial /> },
   { id: 'linear', name: 'Linear', icon: <LinearIconOfficial /> },
-  { id: 'clickup', name: 'ClickUp', icon: <ClickUpIconOfficial /> }
+  { id: 'clickup', name: 'ClickUp', icon: <ClickUpIconOfficial /> },
+  { id: 'vercel', name: 'Vercel', icon: <VercelIconOfficial /> },
+  { id: 'netlify', name: 'Netlify', icon: <NetlifyIconOfficial /> },
+  { id: 'supabase', name: 'Supabase', icon: <SupabaseIconOfficial /> },
+  { id: 'sentry', name: 'Sentry', icon: <SentryIconOfficial /> },
+  { id: 'posthog', name: 'PostHog', icon: <PostHogIconOfficial /> },
+  { id: 'webflow', name: 'Webflow', icon: <WebflowIconOfficial /> },
+  { id: 'devin', name: 'Devin', icon: <DevinIconOfficial /> },
+  { id: 'cursor', name: 'Cursor', icon: <CursorIconOfficial /> },
+  { id: 'canva', name: 'Canva', icon: <CanvaIconOfficial /> },
+  { id: 'granola', name: 'Granola', icon: <GranolaIconOfficial /> }
 ];
