@@ -160,12 +160,13 @@ export default function SignupPage() {
           <div className={styles.showcaseOuter}>
              <div className={styles.showcaseCard}>
                 <div className={styles.abstractVisual}>
-                  <div className={styles.visualCircle}>
-                    <div className={styles.neuralIris}>
-                       <div className={styles.irisCore} />
-                       <div className={styles.irisRing} />
-                       <div className={styles.irisPulse} />
-                    </div>
+                  <div className={styles.visualImageWrapper}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src="/showcase-visual.png" 
+                      alt="The EYES Deep Context Visualization" 
+                      className={styles.showcaseImage} 
+                    />
                   </div>
                   <div className={styles.visualGlow} />
                   <div className={styles.visualTitle}>EYES</div>

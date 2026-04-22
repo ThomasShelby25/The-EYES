@@ -270,55 +270,35 @@
 .visualCircle {
   width: 200px;
   height: 200px;
-  background: radial-gradient(circle, var(--accent-vital) 0%, transparent 70%);
   border-radius: 50%;
-  filter: blur(40px);
-  opacity: 0.2;
+  opacity: 0.1;
   animation: pulse 8s infinite alternate;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.neuralIris {
-  width: 80px;
-  height: 80px;
+.visualImageWrapper {
+  width: 280px;
+  height: 280px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.irisCore {
-  width: 20px;
-  height: 20px;
-  background: var(--accent-vital);
-  border-radius: 50%;
   z-index: 2;
-  box-shadow: 0 0 20px var(--accent-vital);
 }
 
-.irisRing {
-  position: absolute;
+.showcaseImage {
   width: 100%;
   height: 100%;
-  border: 2px solid var(--accent-vital);
-  border-radius: 50%;
-  opacity: 0.3;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(0, 98, 114, 0.15));
+  animation: float 6s ease-in-out infinite;
 }
 
-.irisPulse {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border: 1px solid var(--accent-vital);
-  border-radius: 50%;
-  animation: irisRipple 3s infinite ease-out;
-}
-
-@keyframes irisRipple {
-  0% { transform: scale(0.5); opacity: 0.8; }
-  100% { transform: scale(2.5); opacity: 0; }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes pulse {
