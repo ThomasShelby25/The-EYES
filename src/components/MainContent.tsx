@@ -65,7 +65,23 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
       }
     };
 
+    const triggerAutoSync = async () => {
+      // Prevent rapid fire auto-syncs (throttle to once every 5 mins per session)
+      const lastSync = sessionStorage.getItem('eyes-auto-sync-timestamp');
+      const now = Date.now();
+      if (lastSync && now - parseInt(lastSync) < 300000) return;
+
+      try {
+        console.log('[Automatic Sync] Initiating neural link update...');
+        sessionStorage.setItem('eyes-auto-sync-timestamp', now.toString());
+        await fetch('/api/sync/all?background=true', { method: 'POST' });
+      } catch (e) {
+        console.warn('[Automatic Sync] Pulse failed to dispatch:', e);
+      }
+    };
+
     load();
+    triggerAutoSync();
 
     // Real-time UI synchronization listener
     const handleRefresh = () => {

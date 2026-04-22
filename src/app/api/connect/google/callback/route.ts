@@ -153,5 +153,19 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=token_persist_failed`, await appBaseUrl(request)));
   }
 
+  // Trigger immediate automatic background sync for Google platforms
+  try {
+    const syncUrl = new URL('/api/sync/all?background=true', await appBaseUrl(request));
+    fetch(syncUrl.toString(), { 
+      method: 'POST',
+      headers: {
+        'x-cron-user-id': userId,
+        'x-cron-secret': process.env.CRON_SECRET || ''
+      }
+    }).catch(e => console.error('[Auto Sync] Google initial trigger failed:', e));
+  } catch (e) {
+    console.warn('[Auto Sync] Google trigger error:', e);
+  }
+
   return NextResponse.redirect(new URL(`/connect/${platform}?oauth=success`, await appBaseUrl(request)));
 }

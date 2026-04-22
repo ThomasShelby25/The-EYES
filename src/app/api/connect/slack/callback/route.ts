@@ -97,6 +97,20 @@ export async function GET(request: Request) {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id,platform' });
 
+    // Trigger immediate automatic background sync
+    try {
+      const syncUrl = new URL('/api/sync/slack?background=true', baseUrl);
+      fetch(syncUrl.toString(), { 
+        method: 'POST',
+        headers: {
+          'x-cron-user-id': user.id,
+          'x-cron-secret': process.env.CRON_SECRET || ''
+        }
+      }).catch(e => console.error('[Auto Sync] Slack initial trigger failed:', e));
+    } catch (e) {
+      console.warn('[Auto Sync] Slack trigger error:', e);
+    }
+
     return NextResponse.redirect(new URL('/connect/slack?oauth=success', baseUrl));
   } catch (err) {
     console.error('Slack Auth Error:', err);

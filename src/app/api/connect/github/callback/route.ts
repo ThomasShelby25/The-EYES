@@ -114,5 +114,20 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL('/connect/github?oauth=error&reason=token_persist_failed', getAppBaseUrl(request)));
   }
 
+  // Trigger immediate automatic background sync
+  try {
+    const syncUrl = new URL('/api/sync/github?background=true', getAppBaseUrl(request));
+    // We don't await this as it's a background process
+    fetch(syncUrl.toString(), { 
+      method: 'POST',
+      headers: {
+        'x-cron-user-id': userId,
+        'x-cron-secret': process.env.CRON_SECRET || ''
+      }
+    }).catch(e => console.error('[Auto Sync] GitHub initial trigger failed:', e));
+  } catch (e) {
+    console.warn('[Auto Sync] GitHub trigger error:', e);
+  }
+
   return NextResponse.redirect(new URL('/connect/github?oauth=success', getAppBaseUrl(request)));
 }
