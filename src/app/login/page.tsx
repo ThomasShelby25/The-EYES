@@ -59,11 +59,12 @@ export default function LoginPage() {
           <div className={styles.header}>
             <div className={styles.logoRow}>
                <div className={styles.logoIconMini}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
                   </svg>
                </div>
-               <span className={styles.logoTextMini}>EYES</span>
+               <span className={styles.logoTextMini}>The EYES</span>
             </div>
           </div>
 
@@ -145,7 +146,13 @@ export default function LoginPage() {
              <div className={styles.showcaseCard}>
                 <div className={styles.abstractVisual}>
                   {/* Signature Visual Placeholder */}
-                  <div className={styles.visualCircle} />
+                  <div className={styles.visualCircle}>
+                    <div className={styles.neuralIris}>
+                       <div className={styles.irisCore} />
+                       <div className={styles.irisRing} />
+                       <div className={styles.irisPulse} />
+                    </div>
+                  </div>
                   <div className={styles.visualGlow} />
                   <div className={styles.visualTitle}>EYES</div>
                   <div className={styles.visualTagline}>The AI for deep context</div>

@@ -275,6 +275,50 @@
   filter: blur(40px);
   opacity: 0.2;
   animation: pulse 8s infinite alternate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.neuralIris {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.irisCore {
+  width: 20px;
+  height: 20px;
+  background: var(--accent-vital);
+  border-radius: 50%;
+  z-index: 2;
+  box-shadow: 0 0 20px var(--accent-vital);
+}
+
+.irisRing {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--accent-vital);
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+.irisPulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--accent-vital);
+  border-radius: 50%;
+  animation: irisRipple 3s infinite ease-out;
+}
+
+@keyframes irisRipple {
+  0% { transform: scale(0.5); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
 }
 
 @keyframes pulse {
