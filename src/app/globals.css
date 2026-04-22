@@ -29,32 +29,26 @@
 }
 
 [data-theme='light'] {
-  /* PREMIUM HUMANISTIC PALETTE (Paper, Ink & Terracotta) */
-  --bg-primary: #FBF9F7;
-  --bg-secondary: #F5F3EF;
-  --bg-card: rgba(255, 255, 255, 0.85);
-  /* For Glassmorphism */
-  --bg-card-hover: #FFFFFF;
+  /* SALT AND PEPPER PALETTE (High-Contrast Neutral) */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F9F9F9;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FDFDFD;
 
-  --text-primary: #1F1F1F;
-  /* Soft Charcoal Ink */
-  --text-secondary: #4A4945;
-  /* Muted Charcoal */
-  --text-muted: #8E8D88;
-  /* Aged Paper Grey */
+  --text-primary: #2B2B2B;
+  --text-secondary: #B3B3B3;
+  --text-muted: #D4D4D4;
 
-  --accent-primary: #1F1F1F;
-  /* Primary Action: Deep Ink */
-  --accent-primary-soft: #4A4A4A;
+  --accent-primary: #2B2B2B;
+  --accent-primary-soft: #444444;
   --accent-vital: #006272;
-  /* Premium Emerald Teal */
-  --accent-green: #4D6A5F;
-  --accent-red: #9B3D2F;
+  --accent-green: #10B981;
+  --accent-red: #EF4444;
 
-  --border-primary: rgba(31, 31, 31, 0.1);
-  --border-subtle: rgba(31, 31, 31, 0.05);
+  --border-primary: #D4D4D4;
+  --border-subtle: #F0F0F0;
 
-  --glass-blur: blur(12px);
+  --glass-blur: blur(20px);
 }
 
 * {

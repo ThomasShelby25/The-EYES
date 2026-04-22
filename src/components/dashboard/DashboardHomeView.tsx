@@ -118,14 +118,17 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
 
              return (
               <div key={p.id} className={styles.readinessCard} onClick={startAuth}>
-                <div className={styles.readinessIcon}>
-                  {p.icon ? React.cloneElement(p.icon as React.ReactElement<any>, { size: 20 }) : null}
+                <div className={styles.cardHeader}>
+                  <div className={styles.readinessIcon}>
+                    {p.icon ? React.cloneElement(p.icon as React.ReactElement<any>, { size: 24 }) : null}
+                  </div>
+                  <div className={styles.readinessInfo}>
+                    <strong>{p.name}</strong>
+                    <span className={styles.availStatusText}>Connect now</span>
+                  </div>
+                  <span className={styles.addIndicator}>+</span>
                 </div>
-                <div className={styles.readinessInfo}>
-                  <strong>{p.name}</strong>
-                  <span className={styles.availStatusText}>Connect now</span>
-                </div>
-                <span className={styles.addIndicator}>+</span>
+                <p className={styles.platformDesc}>{(p as any).description}</p>
               </div>
              );
           })}

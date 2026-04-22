@@ -1229,9 +1229,17 @@ input:checked + .slider:before {
 
 .availStatusText {
   font-size: 11px;
-  color: var(--text-secondary);
-  font-weight: 600;
+  color: var(--accent-vital);
+  font-weight: 700;
   letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.platformDesc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-top: 4px;
 }
 
 .syncPulse {
@@ -1608,7 +1616,7 @@ input:checked + .slider:before {
 
 .kpiCardFocus {
   background: var(--bg-primary);
-  border-color: var(--text-primary);
+  border-color: var(--border-primary);
   border-width: 1px;
 }
 

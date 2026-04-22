@@ -1,7 +1,7 @@
 .loginPageContainer {
   min-height: 100vh;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: #FFFFFF;
+  color: #2B2B2B;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -41,8 +41,8 @@
 .logoIconMini {
   width: 32px;
   height: 32px;
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  background: #2B2B2B;
+  color: #FFFFFF;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -65,7 +65,7 @@
   font-size: clamp(40px, 6vw, 72px);
   line-height: 1.05;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #2B2B2B;
   margin-bottom: 24px;
   letter-spacing: -3px;
 }
@@ -73,7 +73,7 @@
 .heroSubText {
   font-family: var(--font-serif);
   font-size: 18px;
-  color: var(--text-secondary);
+  color: #B3B3B3;
   line-height: 1.6;
   max-width: 440px;
   opacity: 0.8;
@@ -84,13 +84,13 @@
 }
 
 .authCard {
-  background: var(--bg-card);
+  background: #FFFFFF;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid #D4D4D4;
   border-radius: 24px;
   padding: clamp(24px, 5vh, 48px);
-  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.05);
   margin-bottom: 24px;
 }
 
@@ -101,8 +101,8 @@
 .socialBtn {
   width: 100%;
   padding: 14px;
-  background: white;
-  border: 1px solid #E5E1DA;
+  background: #FFFFFF;
+  border: 1px solid #D4D4D4;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -110,14 +110,14 @@
   gap: 12px;
   font-size: 14px;
   font-weight: 600;
-  color: #1F1F1F;
+  color: #2B2B2B;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .socialBtn:hover {
-  background: #f9f9f9;
-  border-color: #d1cdca;
+  background: #F9F9F9;
+  border-color: #B3B3B3;
   transform: translateY(-1px);
 }
 
@@ -132,14 +132,14 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--border-subtle);
+  background: #D4D4D4;
 }
 
 .authDivider span {
   padding: 0 16px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #B3B3B3;
 }
 
 .inputStack {
@@ -156,18 +156,18 @@
 .elegantInput {
   width: 100%;
   padding: 14px 16px;
-  background: white;
-  border: 1px solid #E5E1DA;
+  background: #FFFFFF;
+  border: 1px solid #D4D4D4;
   border-radius: 12px;
   font-size: 15px;
-  color: #1F1F1F;
+  color: #2B2B2B;
   transition: all 0.2s;
 }
 
 .elegantInput:focus {
   outline: none;
-  border-color: var(--accent-vital);
-  box-shadow: 0 0 0 4px rgba(0, 98, 114, 0.05);
+  border-color: #2B2B2B;
+  box-shadow: 0 0 0 4px rgba(43, 43, 43, 0.05);
 }
 
 .eyeToggle {
@@ -179,15 +179,15 @@
   border: none;
   font-size: 12px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #B3B3B3;
   cursor: pointer;
 }
 
 .primaryAuthBtn {
   width: 100%;
   padding: 16px;
-  background: #1F1F1F;
-  color: white;
+  background: #2B2B2B;
+  color: #FFFFFF;
   border: none;
   border-radius: 12px;
   font-size: 15px;
@@ -197,7 +197,7 @@
 }
 
 .primaryAuthBtn:hover {
-  background: #333;
+  background: #000000;
   transform: translateY(-1px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
@@ -210,11 +210,11 @@
 .authFooterLink {
   text-align: center;
   font-size: 14px;
-  color: var(--text-secondary);
+  color: #B3B3B3;
 }
 
 .authFooterLink a {
-  color: var(--accent-vital);
+  color: #2B2B2B;
   font-weight: 700;
   text-decoration: none;
 }
@@ -246,12 +246,12 @@
   width: 100%;
   max-width: 680px;
   height: clamp(320px, 45vh, 520px);
-  background: #FBF9F7;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #FFFFFF;
+  border: 1px solid #D4D4D4;
   border-radius: 24px;
   box-shadow: 
-    0 40px 120px rgba(0, 0, 0, 0.15),
-    0 10px 30px rgba(0, 98, 114, 0.1);
+    0 40px 120px rgba(0, 0, 0, 0.05),
+    0 10px 30px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -259,9 +259,9 @@
 }
 
 .vaultSidebar {
-  width: 200px;
-  background: rgba(0, 0, 0, 0.02);
-  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  width: 180px;
+  background: #FFFFFF;
+  border-right: 1px solid #D4D4D4;
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -270,7 +270,7 @@
 
 .sidebarItem {
   height: 8px;
-  background: rgba(0, 0, 0, 0.05);
+  background: #D4D4D4;
   border-radius: 4px;
 }
 
