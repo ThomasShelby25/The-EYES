@@ -433,7 +433,7 @@
 
 .sectionTabActive {
   color: var(--text-primary);
-  border-color: var(--platform-color);
+  border-color: var(--accent-primary);
 }
 
 /* ─── Section Content ─── */
@@ -475,12 +475,12 @@
   font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
   line-height: 1;
-  color: var(--platform-color);
+  color: var(--text-primary);
   transition: color 0.3s;
 }
 
 :global([data-theme='light']) .statValue {
-  filter: brightness(0.6);
+  color: var(--accent-primary);
 }
 
 .statsGrid .statCard:nth-child(1) { animation-delay: 0s; }
