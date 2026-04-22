@@ -15,7 +15,7 @@
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;
-  padding: 80px 60px;
+  padding: clamp(40px, 5vh, 80px) 60px;
   align-items: flex-start;
 }
 
@@ -245,7 +245,7 @@
 .vaultWindow {
   width: 100%;
   max-width: 680px;
-  height: 520px;
+  height: clamp(320px, 45vh, 520px);
   background: #FBF9F7;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 24px;
@@ -405,9 +405,12 @@
 }
 
 @media (max-height: 800px) {
-  .header { margin-bottom: 32px; }
-  .authHero { margin-bottom: 24px; }
-  .authCard { padding: 32px; }
+  .header { margin-bottom: 24px; }
+  .authHero { margin-bottom: 20px; }
+  .heroSubText { display: none; }
+  .megaHeroTitle { font-size: clamp(32px, 4vw, 56px); }
+  .authCard { padding: 24px; }
+  .loginContent { padding-top: 20px; }
 }
 
 @media (max-height: 600px) {
