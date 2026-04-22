@@ -73,7 +73,7 @@ export default function SignupPage() {
           </div>
           <h1 className={styles.logoText}>EYES</h1>
           <p className={styles.tagline}>Everything You Ever Said</p>
-          <p className={styles.subtitle}>Join the network. Your digital history, indexed and secured.</p>
+          <p className={styles.subtitle}>Let&apos;s build your digital memory vault. Private, secured, and uniquely yours.</p>
         </div>
 
         {/* Identity Form */}
@@ -91,7 +91,7 @@ export default function SignupPage() {
 
           {/* Full Name Interaction Zone */}
           <div className={styles.inputGroup}>
-            <label className={styles.inputLabel} htmlFor="name">IDENTIFIER / NAME</label>
+            <label className={styles.inputLabel} htmlFor="name">WHAT SHOULD WE CALL YOU?</label>
             <div className={styles.inputWrapper}>
               <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -113,7 +113,7 @@ export default function SignupPage() {
 
           {/* Email Interaction Zone */}
           <div className={styles.inputGroup}>
-            <label className={styles.inputLabel} htmlFor="email">EYES ACCOUNT EMAIL</label>
+            <label className={styles.inputLabel} htmlFor="email">WHAT&apos;S YOUR EMAIL ADDRESS?</label>
             <div className={styles.inputWrapper}>
               <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -134,7 +134,7 @@ export default function SignupPage() {
 
           {/* Password Interaction Zone */}
           <div className={styles.inputGroup}>
-            <label className={styles.inputLabel} htmlFor="password">SECURITY PASSWORD</label>
+            <label className={styles.inputLabel} htmlFor="password">CHOOSE A SECURE PASSWORD</label>
             <div className={styles.inputWrapper}>
               <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />

@@ -68,7 +68,7 @@ export default function LoginPage() {
           </div>
           <h1 className={styles.logoText}>EYES</h1>
           <p className={styles.tagline}>Everything You Ever Said</p>
-          <p className={styles.subtitle}>Welcome back. Sign in to access your digital memory vault.</p>
+          <p className={styles.subtitle}>Welcome back. Let&apos;s pick up where we left off.</p>
         </div>
 
         {/* Unified Credentials Form */}
@@ -86,7 +86,7 @@ export default function LoginPage() {
 
           {/* Email Interaction Zone */}
           <div className={styles.inputGroup}>
-            <label className={styles.inputLabel} htmlFor="email">EMAIL ADDRESS</label>
+            <label className={styles.inputLabel} htmlFor="email">YOUR EMAIL ADDRESS</label>
             <div className={styles.inputWrapper}>
               <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -108,7 +108,7 @@ export default function LoginPage() {
 
           {/* Password Interaction Zone */}
           <div className={styles.inputGroup}>
-            <label className={styles.inputLabel} htmlFor="password">PASSWORD</label>
+            <label className={styles.inputLabel} htmlFor="password">YOUR PASSWORD</label>
             <div className={styles.inputWrapper}>
               <svg className={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />

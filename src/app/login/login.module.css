@@ -5,11 +5,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #FBF9F7;
+  background: #F8F5F2; /* Warmer, more paper-like tone */
   position: relative;
   overflow: hidden;
   padding: 40px 24px;
   font-family: 'Inter', -apple-system, sans-serif;
+  color: #1D1C16;
 }
 
 /* Background handled by .page */
@@ -17,14 +18,17 @@
 /* ─── Card ─── */
 .card {
   width: 100%;
-  max-width: 440px;
+  max-width: 460px; /* Slightly wider for better breathing room */
   background: white;
-  border: 1px solid #E5E1DA;
-  border-radius: 12px;
-  padding: 48px 40px;
+  border: 1px solid #EAE6DF;
+  border-radius: 16px;
+  padding: 56px 48px;
   position: relative;
   z-index: 1;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 12px 32px rgba(0, 0, 0, 0.04),
+    0 32px 64px rgba(0, 0, 0, 0.02);
 }
 
 .cardGlow {
@@ -57,18 +61,18 @@
 }
 
 .logoText {
-  font-size: 38px;
-  font-weight: 700;
-  font-family: 'Outfit', -apple-system, sans-serif;
-  letter-spacing: -0.5px;
+  font-size: 42px;
+  font-weight: 400;
+  font-family: 'Georgia', serif; /* Humanistic Serif */
+  letter-spacing: -1px;
   color: #1D1C16;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .tagline {
   font-size: 11px;
-  letter-spacing: 2px;
-  color: #8C8A85;
+  letter-spacing: 1px;
+  color: #AFABA3;
   font-weight: 500;
   text-transform: uppercase;
 }
@@ -176,24 +180,27 @@
 /* ─── Submit Button ─── */
 .submitBtn {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: none;
-  border-radius: 8px;
-  background: #1D1C16;
+  border-radius: 10px;
+  background: #D97757; /* Warm Terracotta / Orange accent like Claude */
   color: white;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s, opacity 0.2s;
-  margin-top: 10px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 12px;
+  box-shadow: 0 4px 12px rgba(217, 119, 87, 0.2);
 }
 
 .submitBtn:hover:not(:disabled) {
-  opacity: 0.9;
+  background: #c26a4e;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(217, 119, 87, 0.3);
 }
 
 .submitBtn:active:not(:disabled) {
-  transform: scale(0.99);
+  transform: scale(0.985);
 }
 
 .submitBtn:disabled {
@@ -251,9 +258,8 @@
 }
 
 .switchLink {
-  color: #1D1C16;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  color: #D97757;
+  text-decoration: none;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
@@ -263,7 +269,8 @@
 }
 
 .switchLink:hover {
-  opacity: 0.7;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 /* ─── Features List ─── */
