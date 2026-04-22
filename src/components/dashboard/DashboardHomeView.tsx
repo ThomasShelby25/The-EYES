@@ -74,18 +74,31 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
       <div className={styles.readinessSection}>
         <h3 className={styles.subHeader}>● AVAILABLE CONNECTORS ({availableCount})</h3>
         <div className={styles.readinessGrid}>
-          {remainingPlatforms.map(p => (
-            <div key={p.id} className={styles.readinessCard} onClick={() => router.push(`/connect/${p.id}`)}>
-              <div className={styles.readinessIcon}>
-                {p.icon ? React.cloneElement(p.icon as React.ReactElement<any>, { size: 20 }) : null}
+          {remainingPlatforms.map(p => {
+             const startAuth = () => {
+               // Map IDs to their respective API start routes
+               let startUrl = `/api/connect/${p.id}/start`;
+               if (p.id === 'gmail' || p.id === 'google-calendar') {
+                 startUrl = `/api/connect/google/start?platform=${p.id}`;
+               }
+               
+               // Direct browser redirect to kick off OAuth
+               window.location.href = startUrl;
+             };
+
+             return (
+              <div key={p.id} className={styles.readinessCard} onClick={startAuth}>
+                <div className={styles.readinessIcon}>
+                  {p.icon ? React.cloneElement(p.icon as React.ReactElement<any>, { size: 20 }) : null}
+                </div>
+                <div className={styles.readinessInfo}>
+                  <strong>{p.name}</strong>
+                  <span className={styles.availStatusText}>Connect now</span>
+                </div>
+                <span className={styles.addIndicator}>+</span>
               </div>
-              <div className={styles.readinessInfo}>
-                <strong>{p.name}</strong>
-                <span className={styles.availStatusText}>Connect now</span>
-              </div>
-              <span className={styles.addIndicator}>+</span>
-            </div>
-          ))}
+             );
+          })}
         </div>
       </div>
     </div>
