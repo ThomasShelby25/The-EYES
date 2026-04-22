@@ -182,7 +182,7 @@ export function NeuralMapView() {
                 y1={source.y}
                 x2={target.x}
                 y2={target.y}
-                stroke={isHighlighted ? 'var(--accent-terracotta)' : 'var(--text-muted)'}
+                stroke={isHighlighted ? 'var(--accent-highlight)' : 'var(--text-muted)'}
                 strokeWidth={isHighlighted ? 2 : 1}
                 strokeOpacity={isHighlighted ? 0.8 : edge.opacity}
                 style={{ transition: 'stroke 0.3s ease, stroke-width 0.3s ease' }}
@@ -213,7 +213,7 @@ export function NeuralMapView() {
               <circle
                 r={node.radius}
                 fill="var(--bg-card)"
-                stroke={hoveredNode === node.id ? 'var(--accent-terracotta)' : 'var(--border-subtle)'}
+                stroke={hoveredNode === node.id ? 'var(--accent-highlight)' : 'var(--border-subtle)'}
                 strokeWidth={2}
                 style={{ transition: 'all 0.3s ease' }}
               />

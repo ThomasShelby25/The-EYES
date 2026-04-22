@@ -146,7 +146,7 @@
 .shortcutHint span {
   font-size: 12px;
   font-weight: 700;
-  color: var(--accent-terracotta);
+  color: var(--accent-highlight);
 }
 
 .commandSendBtn {
@@ -281,8 +281,8 @@
 
 .actionCard:hover {
   background: var(--bg-primary);
-  color: var(--accent-terracotta);
-  border-color: var(--accent-terracotta);
+  color: var(--accent-highlight);
+  border-color: var(--accent-highlight);
   transform: translateY(-2px);
 }
 
@@ -1102,7 +1102,7 @@
 
 .readinessCard:hover {
   background: var(--bg-primary);
-  border-color: var(--accent-terracotta);
+  border-color: var(--accent-highlight);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
   transform: translateY(-4px);
 }
@@ -1608,12 +1608,12 @@ input:checked + .slider:before {
 
 .kpiCardFocus {
   background: var(--bg-primary);
-  border-color: var(--accent-terracotta);
+  border-color: var(--accent-highlight);
   border-width: 1px;
 }
 
 .kpiCardFocus .kpiValue {
-  color: var(--accent-terracotta);
+  color: var(--accent-highlight);
 }
 
 /* DASHBOARD HOME (SYNTHESIS) SPECIFIC */
