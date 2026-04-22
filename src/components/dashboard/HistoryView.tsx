@@ -32,9 +32,7 @@ export function HistoryView({ onBack }: { onBack: () => void }) {
 
   return (
     <div className={styles.soloView}>
-      <button className={styles.backBtn} onClick={onBack}>
-        ← Back to Dashboard
-      </button>
+
 
       <div className={styles.viewHeader}>
         <h1 className={styles.soloTitle}>History</h1>
