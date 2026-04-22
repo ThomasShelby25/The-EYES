@@ -153,8 +153,21 @@ async function parseResponseError(response: Response, fallback: string) {
 export default function ConnectPlatformPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { user, supabase } = useAuth();
+  
+  // Permanent redirect to dashboard - this page is no longer needed
+  useEffect(() => {
+    router.replace('/?view=readiness');
+  }, [router]);
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8F5F2' }}>
+      <p style={{ fontFamily: 'Georgia, serif', color: '#1D1C16' }}>Returning to dashboard...</p>
+    </div>
+  );
+}
+
+// Keeping original props for reference until fully purged
+function ConnectPlatformPageOld() {
   const platformId = (params.platform as string)?.toLowerCase();
   const meta = platformMeta[platformId];
   

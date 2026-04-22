@@ -2,20 +2,44 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import styles from '../MainContent.module.css';
 import { ALL_POSSIBLE_PLATFORMS } from '@/config/platforms';
 import type { PlatformStatus } from '@/types/dashboard';
+import { useAuth } from '@/context/AuthContext';
 
 interface DashboardHomeViewProps {
   platforms: PlatformStatus[];
 }
 
 export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
-  const router = useRouter();
+  const { supabase, user } = useAuth();
   const connectedCount = platforms.filter(p => p.connected).length;
   const availableCount = ALL_POSSIBLE_PLATFORMS.length - connectedCount;
   const connectedList = platforms.filter(p => p.connected);
   const remainingPlatforms = ALL_POSSIBLE_PLATFORMS.filter(p => !platforms.find(ap => ap.id === p.id)?.connected);
+
+  const handleDisconnect = async (platformId: string, platformName: string) => {
+    if (!window.confirm(`Disconnect ${platformName} and remove its active tokens?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/data/platform/${platformId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ disconnect: true }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to disconnect (${response.status})`);
+      }
+
+      // Trigger a global UI refresh
+      window.dispatchEvent(new CustomEvent('eyes-realtime-refresh'));
+    } catch (error) {
+      console.error('Disconnect error:', error);
+      alert('Failed to disconnect platform.');
+    }
+  };
 
   return (
     <div className={styles.readinessContainer}>
@@ -51,7 +75,7 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
              const config = ALL_POSSIBLE_PLATFORMS.find(ap => ap.id === p.id);
              
              return (
-              <div key={p.id} className={`${styles.readinessCard} ${isSyncing ? styles.cardSyncing : ''} ${isError ? styles.cardError : ''}`} onClick={() => router.push(`/connect/${p.id}`)}>
+              <div key={p.id} className={`${styles.readinessCard} ${styles.connectedCard} ${isSyncing ? styles.cardSyncing : ''} ${isError ? styles.cardError : ''}`}>
                 <div className={styles.cardHeader}>
                   <div className={styles.readinessIcon}>
                     {config?.icon ? React.cloneElement(config.icon as React.ReactElement<any>, { size: 20 }) : null}
@@ -63,7 +87,15 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
                     </span>
                   </div>
                 </div>
-                <div className={styles.itemBadge}>{p.items || 0}</div>
+                <div className={styles.cardActions}>
+                   <div className={styles.itemBadge}>{p.items || 0} items</div>
+                   <button 
+                     className={styles.inlineDisconnectBtn} 
+                     onClick={(e) => { e.stopPropagation(); handleDisconnect(p.id, p.name); }}
+                   >
+                     Disconnect
+                   </button>
+                </div>
                 {isSyncing && <div className={styles.syncPulse} />}
               </div>
              );
