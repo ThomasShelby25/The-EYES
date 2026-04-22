@@ -15,6 +15,7 @@
   --accent-primary-soft: #6958df;
   --accent-green: #05060f;
   --accent-red: #d46a6a;
+  --accent-vital: #006272;
 
   --border-primary: #1d2238;
   --border-subtle: #151a2d;
@@ -45,8 +46,8 @@
   --accent-primary: #1F1F1F;
   /* Primary Action: Deep Ink */
   --accent-primary-soft: #4A4A4A;
-  --accent-vital: #10B981;
-  /* High-Contrast Emerald Green (Confirmed Override) */
+  --accent-vital: #006272;
+  /* Premium Emerald Teal */
   --accent-green: #4D6A5F;
   --accent-red: #9B3D2F;
 
