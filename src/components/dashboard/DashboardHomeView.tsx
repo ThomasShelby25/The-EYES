@@ -53,7 +53,9 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
              return (
               <div key={p.id} className={`${styles.readinessCard} ${isSyncing ? styles.cardSyncing : ''} ${isError ? styles.cardError : ''}`} onClick={() => router.push(`/connect/${p.id}`)}>
                 <div className={styles.cardHeader}>
-                  <div className={styles.readinessIcon}>{config?.icon}</div>
+                  <div className={styles.readinessIcon}>
+                    {config?.icon ? React.cloneElement(config.icon as React.ReactElement, { size: 20 }) : null}
+                  </div>
                   <div className={styles.readinessInfo}>
                     <strong>{p.name}</strong>
                     <span className={isError ? styles.errorStatusText : (isSyncing ? styles.syncStatusText : styles.readyStatusText)}>
@@ -74,7 +76,9 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
         <div className={styles.readinessGrid}>
           {remainingPlatforms.map(p => (
             <div key={p.id} className={styles.readinessCard} onClick={() => router.push(`/connect/${p.id}`)}>
-              <div className={styles.readinessIcon}>{p.icon}</div>
+              <div className={styles.readinessIcon}>
+                {p.icon ? React.cloneElement(p.icon as React.ReactElement, { size: 20 }) : null}
+              </div>
               <div className={styles.readinessInfo}>
                 <strong>{p.name}</strong>
                 <span className={styles.availStatusText}>Connect now</span>

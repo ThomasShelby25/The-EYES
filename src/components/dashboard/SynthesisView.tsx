@@ -2,7 +2,12 @@
 
 import React from 'react';
 import styles from '../MainContent.module.css';
-import { SearchIcon, ArrowRightIcon, ShieldIcon, GmailIconOfficial, CalendarIconOfficial } from '../common/icons/PlatformIcons';
+import { 
+  SearchIcon, 
+  ArrowRightIcon, 
+  ShieldIcon 
+} from '../common/icons/PlatformIcons';
+import { ALL_POSSIBLE_PLATFORMS } from '@/config/platforms';
 import type { Message } from '@/types/dashboard';
 
 interface SynthesisViewProps {
@@ -70,13 +75,15 @@ export function SynthesisView({
           <div className={styles.connectedRow}>
             <span className={styles.connectedLabel}>CONNECTED</span>
             <div className={styles.connectedPills}>
-              {connected.map(p => (
-                <div key={p.id} className={styles.miniConnectionPill} onClick={() => setView('readiness')} style={{ cursor: 'pointer' }}>
-                  {p.id === 'gmail' && <GmailIconOfficial />}
-                  {p.id === 'google-calendar' && <CalendarIconOfficial />}
-                  <span style={{ textTransform: 'capitalize' }}>{p.id.replace('-', ' ')}</span>
-                </div>
-              ))}
+              {connected.map(p => {
+                const config = ALL_POSSIBLE_PLATFORMS.find(ap => ap.id === p.id);
+                return (
+                  <div key={p.id} className={styles.miniConnectionPill} onClick={() => setView('readiness')} style={{ cursor: 'pointer' }}>
+                    {config?.icon ? React.cloneElement(config.icon as React.ReactElement, { size: 16 }) : null}
+                    <span style={{ textTransform: 'capitalize' }}>{p.id.replace('-', ' ')}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
