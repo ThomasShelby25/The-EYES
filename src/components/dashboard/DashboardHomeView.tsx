@@ -41,7 +41,7 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
 
   return (
     <div className={styles.readinessContainer}>
-      {/* Intro Block (from Screenshot) */}
+      {/* Intro Block */}
       <h1 className={styles.pageHeroTitle}>Manage every connected platform from one hub.</h1>
       <p className={styles.pageHeroSub}>Review what is already connected, check readiness, and open the auth flow for any platform that is still missing.</p>
 
@@ -76,7 +76,7 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
               <div key={p.id} className={`${styles.readinessCard} ${styles.connectedCard} ${isSyncing ? styles.cardSyncing : ''} ${isError ? styles.cardError : ''}`}>
                 <div className={styles.cardHeader}>
                   <div className={styles.readinessIcon}>
-                    {config?.icon ? React.cloneElement(config.icon as React.ReactElement<any>, { size: 20 }) : null}
+                    {config?.icon ? React.cloneElement(config.icon as React.ReactElement<any>, { size: 24 }) : null}
                   </div>
                   <div className={styles.readinessInfo}>
                     <strong>{p.name}</strong>
@@ -85,6 +85,7 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
                     </span>
                   </div>
                 </div>
+                <p className={styles.platformDesc}>{(config as any)?.description}</p>
                 <div className={styles.cardActions}>
                    <div className={styles.itemBadge}>{p.items || 0} items</div>
                    <button 
@@ -106,13 +107,10 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
         <div className={styles.readinessGrid}>
           {remainingPlatforms.map(p => {
              const startAuth = () => {
-               // Map IDs to their respective API start routes
                let startUrl = `/api/connect/${p.id}/start`;
                if (p.id === 'gmail' || p.id === 'google-calendar') {
                  startUrl = `/api/connect/google/start?platform=${p.id}`;
                }
-               
-               // Direct browser redirect to kick off OAuth
                window.location.href = startUrl;
              };
 

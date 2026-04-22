@@ -1237,9 +1237,10 @@ input:checked + .slider:before {
 
 .platformDesc {
   font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.4;
-  margin-top: 4px;
+  color: #555555;
+  line-height: 1.5;
+  margin-top: 8px;
+  max-width: 90%;
 }
 
 .syncPulse {
