@@ -146,7 +146,7 @@
 .shortcutHint span {
   font-size: 12px;
   font-weight: 700;
-  color: var(--bg-secondary);
+  color: var(--accent-terracotta);
 }
 
 .commandSendBtn {
@@ -269,19 +269,21 @@
 .actionCard {
   padding: 12px 24px;
   background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .actionCard:hover {
-  background: var(--bg-secondary);
-  color: var(--bg-primary);
-  border-color: var(--bg-secondary);
+  background: var(--bg-primary);
+  color: var(--accent-terracotta);
+  border-color: var(--accent-terracotta);
+  transform: translateY(-2px);
 }
 
 /* SOLO VIEWS (Modules) */
@@ -1081,23 +1083,27 @@
 
 
 .readinessCard {
-  background: var(--bg-secondary);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 16px;
-  padding: 20px;
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 24px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 16px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   position: relative;
   overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
 }
 
 .readinessCard:hover {
-  background: var(--bg-secondary);
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  background: var(--bg-primary);
+  border-color: var(--accent-terracotta);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
   transform: translateY(-4px);
 }
 
@@ -1567,13 +1573,17 @@ input:checked + .slider:before {
 }
 
 .kpiCard {
-  background: var(--bg-secondary);
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 20px 24px;
+  border-radius: 20px;
+  padding: 24px 28px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.02);
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .kpiLabel {
@@ -1597,22 +1607,25 @@ input:checked + .slider:before {
 }
 
 .kpiCardFocus {
-  background: var(--bg-secondary);
-  border-color: var(--bg-secondary);
+  background: var(--bg-primary);
+  border-color: var(--accent-terracotta);
+  border-width: 1px;
 }
 
 .kpiCardFocus .kpiValue {
-  color: var(--accent-primary);
+  color: var(--accent-terracotta);
 }
 
 /* DASHBOARD HOME (SYNTHESIS) SPECIFIC */
 .brandDisplayTitle {
   font-family: var(--font-serif);
-  font-size: 72px;
-  font-weight: 500;
+  font-size: 88px;
+  font-weight: 400;
   color: var(--text-primary);
-  letter-spacing: -2px;
-  margin-bottom: 8px;
+  letter-spacing: -3px;
+  margin-bottom: 12px;
+  line-height: 0.9;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .connectedRow {

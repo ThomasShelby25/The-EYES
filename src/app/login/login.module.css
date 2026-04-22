@@ -1,16 +1,15 @@
-/* ─── Page Layout ─── */
 .page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #F8F5F2; /* Warmer, more paper-like tone */
+  background: var(--bg-primary); 
   position: relative;
   overflow: hidden;
   padding: 40px 24px;
-  font-family: 'Inter', -apple-system, sans-serif;
-  color: #1D1C16;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
 }
 
 /* Background handled by .page */
@@ -18,17 +17,19 @@
 /* ─── Card ─── */
 .card {
   width: 100%;
-  max-width: 460px; /* Slightly wider for better breathing room */
-  background: white;
-  border: 1px solid #EAE6DF;
-  border-radius: 16px;
+  max-width: 460px;
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
   padding: 56px 48px;
   position: relative;
   z-index: 1;
   box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 12px 32px rgba(0, 0, 0, 0.04),
-    0 32px 64px rgba(0, 0, 0, 0.02);
+    0 4px 12px rgba(0, 0, 0, 0.02),
+    0 32px 64px rgba(0, 0, 0, 0.04);
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .cardGlow {
@@ -63,17 +64,17 @@
 .logoText {
   font-size: 42px;
   font-weight: 400;
-  font-family: 'Georgia', serif; /* Humanistic Serif */
-  letter-spacing: -1px;
-  color: #1D1C16;
+  font-family: var(--font-serif);
+  letter-spacing: -2px;
+  color: var(--text-primary);
   margin-bottom: 2px;
 }
 
 .tagline {
   font-size: 11px;
-  letter-spacing: 1px;
-  color: #AFABA3;
-  font-weight: 500;
+  letter-spacing: 2px;
+  color: var(--accent-terracotta);
+  font-weight: 700;
   text-transform: uppercase;
 }
 
@@ -258,7 +259,7 @@
 }
 
 .switchLink {
-  color: #1D1C16;
+  color: var(--accent-terracotta);
   text-decoration: underline;
   text-underline-offset: 4px;
   font-weight: 600;
