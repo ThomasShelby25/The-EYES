@@ -304,7 +304,7 @@
   transition: color 0.2s;
 }
 
-.backBtn:hover { color: var(--bg-primary); }
+.backBtn:hover { color: var(--text-primary); }
 
 .soloTitle {
   font-size: 32px;
