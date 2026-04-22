@@ -12,9 +12,8 @@ import { TimelineView } from './dashboard/TimelineView';
 import { AuditView } from './dashboard/AuditView';
 import { SynthesisView } from './dashboard/SynthesisView';
 import { HistoryView } from './dashboard/HistoryView';
-import { NeuralMapView } from './dashboard/NeuralMapView';
 
-type ViewMode = 'dashboard' | 'synthesis' | 'audit' | 'timeline' | 'feed' | 'readiness' | 'connectors' | 'history' | 'neural-map';
+type ViewMode = 'dashboard' | 'synthesis' | 'audit' | 'timeline' | 'feed' | 'readiness' | 'connectors' | 'history';
 
 function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
   const searchParams = useSearchParams();
@@ -215,9 +214,7 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
         <HistoryView onBack={() => setView('dashboard')} />
       )}
 
-      {activeView === 'neural-map' && (
-        <NeuralMapView />
-      )}
+
 
       {(activeView === 'readiness' || activeView === 'connectors') && (
         <DashboardHomeView platforms={platforms} />

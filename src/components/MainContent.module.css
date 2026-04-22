@@ -1608,12 +1608,12 @@ input:checked + .slider:before {
 
 .kpiCardFocus {
   background: var(--bg-primary);
-  border-color: var(--accent-vital);
+  border-color: var(--text-primary);
   border-width: 1px;
 }
 
 .kpiCardFocus .kpiValue {
-  color: var(--accent-vital) !important;
+  color: var(--text-primary) !important;
 }
 
 /* DASHBOARD HOME (SYNTHESIS) SPECIFIC */

@@ -6,16 +6,16 @@
   --bg-secondary: #070a14;
   --bg-card: #0c1020;
   --bg-card-hover: #12182d;
-  
+
   --text-primary: #dce0ef;
   --text-secondary: #a5adc8;
   --text-muted: #6f7898;
-  
+
   --accent-primary: #7866ff;
   --accent-primary-soft: #6958df;
-  --accent-green: #00d47a;
+  --accent-green: #05060f;
   --accent-red: #d46a6a;
-  
+
   --border-primary: #1d2238;
   --border-subtle: #151a2d;
 
@@ -31,19 +31,25 @@
   /* PREMIUM HUMANISTIC PALETTE (Paper, Ink & Terracotta) */
   --bg-primary: #FBF9F7;
   --bg-secondary: #F5F3EF;
-  --bg-card: rgba(255, 255, 255, 0.85); /* For Glassmorphism */
+  --bg-card: rgba(255, 255, 255, 0.85);
+  /* For Glassmorphism */
   --bg-card-hover: #FFFFFF;
-  
-  --text-primary: #1F1F1F;    /* Soft Charcoal Ink */
-  --text-secondary: #4A4945;  /* Muted Charcoal */
-  --text-muted: #8E8D88;      /* Aged Paper Grey */
-  
-  --accent-primary: #1F1F1F;  /* Primary Action: Deep Ink */
+
+  --text-primary: #1F1F1F;
+  /* Soft Charcoal Ink */
+  --text-secondary: #4A4945;
+  /* Muted Charcoal */
+  --text-muted: #8E8D88;
+  /* Aged Paper Grey */
+
+  --accent-primary: #1F1F1F;
+  /* Primary Action: Deep Ink */
   --accent-primary-soft: #4A4A4A;
-  --accent-vital: #10B981; /* High-Contrast Emerald Green (Confirmed Override) */
+  --accent-vital: #10B981;
+  /* High-Contrast Emerald Green (Confirmed Override) */
   --accent-green: #4D6A5F;
   --accent-red: #9B3D2F;
-  
+
   --border-primary: rgba(31, 31, 31, 0.1);
   --border-subtle: rgba(31, 31, 31, 0.05);
 
@@ -61,13 +67,15 @@
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-html, body {
+html,
+body {
   height: 100%;
   overflow: hidden;
   background-color: var(--bg-primary);
@@ -78,7 +86,10 @@ html, body {
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-h1, h2, h3, .brand-title {
+h1,
+h2,
+h3,
+.brand-title {
   font-family: var(--font-serif);
 }
 

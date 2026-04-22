@@ -7,8 +7,7 @@ import {
   ConnectorsIcon, 
   HistoryIcon,
   PlusIcon,
-  EyeIconSmall,
-  NodesIcon
+  EyeIconSmall
 } from '../common/icons/SidebarIcons';
 import styles from './Sidebar.module.css';
 
@@ -86,16 +85,6 @@ export default function Sidebar() {
             </div>
           </div>
 
-          <div 
-            className={`${styles.item} ${activeView === 'neural-map' ? styles.itemActive : ''}`} 
-            onClick={() => navigateToView('neural-map')}
-          >
-            <div className={styles.itemIcon}><NodesIcon /></div>
-            <div className={styles.itemMain}>
-              <span className={styles.itemLabel}>Neural Map</span>
-              <span className={styles.itemDesc}>Explore memory connections</span>
-            </div>
-          </div>
 
           <div 
             className={`${styles.item} ${activeView === 'history' ? styles.itemActive : ''}`} 
