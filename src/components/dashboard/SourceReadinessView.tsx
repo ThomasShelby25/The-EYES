@@ -14,7 +14,7 @@ export function SourceReadinessView({ platforms }: SourceReadinessViewProps) {
   const connectedList = platforms.filter(p => p.connected);
 
   // Mock health score calculation
-  const healthScore = connectedCount === 0 ? 100 : Math.round((platforms.filter(p => p.status === 'ready').length / connectedCount) * 100);
+  const healthScore = connectedCount === 0 ? 100 : Math.round((platforms.filter(p => p.status === 'connected').length / connectedCount) * 100);
 
   const handleDisconnect = async (platformId: string, platformName: string) => {
     if (!window.confirm(`Disconnect ${platformName} and remove its active tokens?`)) {
