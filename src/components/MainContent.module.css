@@ -1314,7 +1314,7 @@ input:checked + .slider:before {
 
 .connectedCard:hover {
   border-color: var(--border-primary);
-  background: white;
+  background: var(--bg-card-hover);
 }
 
 .actionCard {
