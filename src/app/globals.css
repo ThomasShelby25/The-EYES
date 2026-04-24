@@ -1,24 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Default Obsidian (Dark) Mode */
-  --bg-primary: #05060f;
-  --bg-secondary: #070a14;
-  --bg-card: #0c1020;
-  --bg-card-hover: #12182d;
+  /* Default Obsidian (Dark) Mode - True Neutral */
+  --bg-primary: #000000;
+  --bg-secondary: #0D0D0D;
+  --bg-card: #141414;
+  --bg-card-hover: #1C1C1C;
 
-  --text-primary: #dce0ef;
-  --text-secondary: #a5adc8;
-  --text-muted: #6f7898;
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0A0A0;
+  --text-muted: #666666;
 
-  --accent-primary: #7866ff;
-  --accent-primary-soft: #6958df;
-  --accent-green: #05060f;
-  --accent-red: #d46a6a;
-  --accent-vital: #006272;
+  --accent-primary: #FFFFFF; /* High-Contrast 'Salt' accent */
+  --accent-primary-soft: #E5E5E5;
+  --accent-green: #10B981;
+  --accent-red: #EF4444;
+  --accent-vital: #00899B;
 
-  --border-primary: #1d2238;
-  --border-subtle: #151a2d;
+  --border-primary: #262626;
+  --border-subtle: #1A1A1A;
 
   --sidebar-width: 280px;
   --header-height: 64px;
