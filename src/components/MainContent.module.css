@@ -939,10 +939,11 @@
 }
 
 .filterChipActive {
-  background: var(--accent-primary); color: var(--bg-primary) !important;
-  color: var(--bg-primary); /* Keeps light text on dark background */
-  border-color: var(--accent-primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--text-primary) !important;
+  color: var(--bg-primary) !important;
+  border-color: var(--text-primary) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  opacity: 1 !important;
 }
 
 /* ─── Indexing Command Center ─── */
