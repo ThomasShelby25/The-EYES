@@ -9,7 +9,13 @@ import {
 } from '@/utils/provider-revocation';
 import { createClient } from '@/utils/supabase/server';
 
-const SUPPORTED_PLATFORMS = new Set(['github', 'gmail', 'google-calendar', 'google_calendar', 'reddit', 'notion']);
+const SUPPORTED_PLATFORMS = new Set([
+  'github', 'gmail', 'google-calendar', 'google_calendar', 'reddit', 'notion', 
+  'discord', 'slack', 'twitter', 'dropbox', 'outlook', 'asana', 'trello', 
+  'linear', 'clickup', 'vercel', 'netlify', 'supabase', 'sentry', 'posthog', 
+  'webflow', 'devin', 'cursor', 'canva', 'granola', 'strava', 'fitbit', 
+  'oura', 'withings', 'mercury', 'ramp', 'navan', 'sonos', 'philips-hue'
+]);
 
 function toDbPlatform(platform: string) {
   return platform === 'google-calendar' ? 'google_calendar' : platform;

@@ -282,7 +282,7 @@ export async function GET() {
         connected,
         status,
         syncProgress: sync?.sync_progress ?? 0,
-        totalItems: sync?.total_items ?? 0,
+        items: sync?.total_items ?? 0,
         lastSyncAt: sync?.last_sync_at ?? null,
         errorMessage: sync?.error_message ?? null,
       };
