@@ -7,23 +7,12 @@ import styles from './Header.module.css';
 
 export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, theme, setGlobalTheme } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Sync with global theme on load
-    const savedTheme = localStorage.getItem('eyes-theme');
-    const currentTheme = savedTheme || document.documentElement.getAttribute('data-theme') || 'dark';
-    
-    if (savedTheme) {
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    }
-    
-    setIsDarkMode(currentTheme !== 'light');
-
     const checkSyncStatus = async () => {
       try {
         const res = await fetch('/api/sync/status');
@@ -37,10 +26,7 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = isDarkMode ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    setIsDarkMode(!isDarkMode);
-    localStorage.setItem('eyes-theme', newTheme);
+    setGlobalTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   const avatarImageUrl = user?.avatar && user.avatar.length > 2 ? user.avatar : null;
@@ -104,10 +90,10 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
             
             <div className={styles.menuItem} onClick={toggleTheme}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                {isDarkMode ? <MoonIcon /> : <SunIcon />}
-                <span>{isDarkMode ? 'Dark Mode' : 'Light Mode'}</span>
+                {theme === 'dark' ? <MoonIcon /> : <SunIcon />}
+                <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
               </div>
-              <div className={`${styles.miniSwitch} ${isDarkMode ? styles.switchActive : ''}`} />
+              <div className={`${styles.miniSwitch} ${theme === 'dark' ? styles.switchActive : ''}`} />
             </div>
 
             <div className={styles.divider} />

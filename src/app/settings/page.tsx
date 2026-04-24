@@ -9,37 +9,33 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user } = useAuth();
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const { user, updateUser, theme, setGlobalTheme } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'appearance' | 'security'>('profile');
   const [displayName, setDisplayName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load current theme
-    const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
-    setTheme(currentTheme);
     if (user?.name) setDisplayName(user.name);
   }, [user]);
 
   const handleUpdateTheme = (newTheme: 'dark' | 'light') => {
-    setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('eyes-theme', newTheme);
+    setGlobalTheme(newTheme);
   };
 
   const handleUpdateProfile = async () => {
+    if (displayName === user?.name) return;
     setIsSaving(true);
     setSaveStatus(null);
     try {
-      // Logic to persist display name
-      console.log('Updating profile to:', displayName);
-      // Mock delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setSaveStatus('Profile updated successfully!');
+      const result = await updateUser({ name: displayName });
+      if (result.success) {
+        setSaveStatus('Profile updated successfully!');
+      } else {
+        setSaveStatus(result.message || 'Failed to update.');
+      }
     } catch (e) {
-      setSaveStatus('Failed to update.');
+      setSaveStatus('An unexpected error occurred.');
     } finally {
       setIsSaving(false);
     }

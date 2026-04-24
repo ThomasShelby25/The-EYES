@@ -28,6 +28,9 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
   supabase: ReturnType<typeof createClient>;
+  updateUser: (updates: Partial<User>) => Promise<AuthResult>;
+  theme: 'dark' | 'light';
+  setGlobalTheme: (theme: 'dark' | 'light') => void;
 }
 
 type AuthMetadata = {
@@ -181,6 +184,7 @@ async function quickFetch<T>(promise: PromiseLike<T> | Promise<T>, timeoutMs: nu
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [showAuthFallback, setShowAuthFallback] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -315,6 +319,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       });
     }, 12000);
+
+    // Initialize theme from storage
+    const savedTheme = localStorage.getItem('eyes-theme') as 'dark' | 'light';
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
 
     const initialize = async () => {
       try {
@@ -609,6 +620,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.replace('/login');
   }, [supabase, router]);
 
+  const updateUser = useCallback(async (updates: Partial<User>): Promise<AuthResult> => {
+    if (!user) return { success: false, message: 'Not authenticated' };
+
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ name: updates.name })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setUser(prev => prev ? { ...prev, ...updates } : null);
+      return { success: true };
+    } catch (err) {
+      return { success: false, message: getErrorMessage(err) };
+    }
+  }, [supabase, user]);
+
+  const setGlobalTheme = useCallback((newTheme: 'dark' | 'light') => {
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('eyes-theme', newTheme);
+  }, []);
+
   // Master Render
   if (isLoading && showAuthFallback) {
     return (
@@ -626,7 +661,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   if (user && isPublic) return null;
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, supabase }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, supabase, updateUser, theme, setGlobalTheme }}>
       {children}
     </AuthContext.Provider>
   );
