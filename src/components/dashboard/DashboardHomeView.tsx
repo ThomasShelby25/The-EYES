@@ -10,10 +10,18 @@ interface DashboardHomeViewProps {
 }
 
 export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
+  const [activeCategory, setActiveCategory] = React.useState<string>('All');
+  
   const connectedCount = platforms.filter(p => p.connected).length;
   const availableCount = ALL_POSSIBLE_PLATFORMS.length - connectedCount;
   const connectedList = platforms.filter(p => p.connected);
   const remainingPlatforms = ALL_POSSIBLE_PLATFORMS.filter(p => !platforms.find(ap => ap.id === p.id)?.connected);
+
+  const categories = ['All', 'Productivity', 'Development', 'Social', 'Creative', 'Health', 'Finance'];
+
+  const filteredRemaining = activeCategory === 'All' 
+    ? remainingPlatforms 
+    : remainingPlatforms.filter(p => (p as any).category === activeCategory);
 
   const handleDisconnect = async (platformId: string, platformName: string) => {
     if (!window.confirm(`Disconnect ${platformName} and remove its active tokens?`)) {
@@ -103,9 +111,24 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
       </div>
 
       <div className={styles.readinessSection}>
-        <h3 className={styles.subHeader}>● AVAILABLE CONNECTORS ({availableCount})</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 className={styles.subHeader} style={{ marginBottom: 0 }}>● AVAILABLE CONNECTORS ({filteredRemaining.length})</h3>
+          
+          <div className={styles.filterBar} style={{ borderBottom: 'none', marginBottom: 0, paddingBottom: 0 }}>
+            {categories.map(cat => (
+              <button 
+                key={cat}
+                className={`${styles.filterChip} ${activeCategory === cat ? styles.filterChipActive : ''}`}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className={styles.readinessGrid}>
-          {remainingPlatforms.map(p => {
+          {filteredRemaining.map(p => {
              const startAuth = () => {
                let startUrl = `/api/connect/${p.id}/start`;
                if (p.id === 'gmail' || p.id === 'google-calendar') {
