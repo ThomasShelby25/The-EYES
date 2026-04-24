@@ -23,7 +23,7 @@ type PlatformReadiness = {
   connected: boolean;
   status: 'idle' | 'connecting' | 'authenticating' | 'syncing' | 'connected' | 'error';
   syncProgress: number;
-  totalItems: number;
+  items: number;
   lastSyncAt: string | null;
   errorMessage: string | null;
 };
