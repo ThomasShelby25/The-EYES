@@ -104,7 +104,7 @@
   padding: 8px 0;
   margin-bottom: 24px;
   transition: color 0.2s, transform 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .backLink:hover {
@@ -167,7 +167,7 @@
   font-size: 28px;
   font-weight: 700;
   color: var(--text-primary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.5px;
 }
 
@@ -301,7 +301,7 @@
 .flowStepNumber {
   font-size: 14px;
   font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 .flowStepLabel {
@@ -402,7 +402,7 @@
   margin-top: 8px;
   font-size: 12px;
   color: #fda4af;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 /* ─── Section Tabs ─── */
@@ -423,7 +423,7 @@
   border-bottom: 2px solid transparent;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   letter-spacing: 0.3px;
 }
 
@@ -473,7 +473,7 @@
 .statValue {
   font-size: 28px;
   font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   line-height: 1;
   color: var(--text-primary);
   transition: color 0.3s;
@@ -558,7 +558,7 @@
 .activityMiniTime {
   font-size: 11px;
   color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 /* ─── Actions ─── */
@@ -580,7 +580,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
   background: var(--platform-gradient);
 }
@@ -602,7 +602,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   border-color: var(--platform-color-border);
   color: var(--platform-color);
 }
@@ -622,7 +622,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .disconnectBtn:hover {
@@ -833,7 +833,7 @@
 .settingValueMono {
   font-size: 12px;
   color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   white-space: nowrap;
 }
 
@@ -875,7 +875,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   white-space: nowrap;
 }
 
@@ -953,7 +953,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .modalCancel:hover {
@@ -970,7 +970,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .modalConfirm:hover {
@@ -985,7 +985,7 @@
   justify-content: center;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 .loadingInner {
@@ -1045,7 +1045,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .backBtn:hover {
@@ -1116,7 +1116,7 @@
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 20px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 .formFields {
@@ -1218,7 +1218,7 @@
   cursor: pointer;
   transition: all 0.2s;
   margin-left: auto;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .heroReconnectBtn {
