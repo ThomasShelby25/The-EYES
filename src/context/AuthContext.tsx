@@ -624,7 +624,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return { success: false, message: 'Not authenticated' };
 
     try {
-      const dbUpdates: any = { name: updates.name };
+      const dbUpdates: any = {};
+      const authUpdates: any = {};
+
+      if (updates.name) {
+        dbUpdates.name = updates.name;
+        authUpdates.name = updates.name;
+      }
       
       // If current avatar is just an initial, update it to match the new name's initial
       if (user.avatar.length <= 2 && updates.name) {
@@ -632,12 +638,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updates.avatar = dbUpdates.avatar;
       }
 
-      const { error } = await supabase
-        .from('user_profiles')
-        .update(dbUpdates)
-        .eq('user_id', user.id);
+      // Update Database and Auth Metadata in parallel
+      const [{ error: dbError }, { error: authError }] = await Promise.all([
+        supabase
+          .from('user_profiles')
+          .update(dbUpdates)
+          .eq('user_id', user.id),
+        supabase.auth.updateUser({
+          data: authUpdates
+        })
+      ]);
 
-      if (error) throw error;
+      if (dbError) throw dbError;
+      if (authError) throw authError;
 
       setUser(prev => prev ? { ...prev, ...updates } : null);
       return { success: true };
