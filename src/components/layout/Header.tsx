@@ -71,7 +71,6 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
             ) : (
               <span className={styles.avatarInitial}>{avatarInitial}</span>
             )}
-            <span className={styles.onlineDot} />
           </div>
         </button>
 
