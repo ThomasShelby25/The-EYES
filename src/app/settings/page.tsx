@@ -10,7 +10,10 @@ import { useAuth } from '@/context/AuthContext';
 export default function SettingsPage() {
   const router = useRouter();
   const { user, updateUser, theme, setGlobalTheme } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'appearance' | 'security'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'tuning' | 'appearance' | 'privacy' | 'security'>('profile');
+  const [riskSensitivity, setRiskSensitivity] = useState(65);
+  const [excludedSenders, setExcludedSenders] = useState<string[]>(['noreply@bank.com', 'promotions@spam.com']);
+  const [newSender, setNewSender] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
@@ -71,10 +74,22 @@ export default function SettingsPage() {
                 Profile Details
               </button>
               <button 
+                className={`${styles.tabBtn} ${activeTab === 'tuning' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('tuning')}
+              >
+                Neural Tuning
+              </button>
+              <button 
                 className={`${styles.tabBtn} ${activeTab === 'appearance' ? styles.tabActive : ''}`}
                 onClick={() => setActiveTab('appearance')}
               >
                 Neural Theme
+              </button>
+              <button 
+                className={`${styles.tabBtn} ${activeTab === 'privacy' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('privacy')}
+              >
+                Privacy Shields
               </button>
               <button 
                 className={`${styles.tabBtn} ${activeTab === 'security' ? styles.tabActive : ''}`}
@@ -114,6 +129,35 @@ export default function SettingsPage() {
                 </div>
               )}
 
+              {activeTab === 'tuning' && (
+                <div className={styles.tuningSection}>
+                  <div className={styles.fieldGroup}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <label>RISK SENSITIVITY</label>
+                      <span className={styles.statBadge}>{riskSensitivity}%</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="100" 
+                      value={riskSensitivity}
+                      onChange={(e) => setRiskSensitivity(parseInt(e.target.value))}
+                      className={styles.rangeInput} 
+                    />
+                    <p className={styles.fieldDesc}>Adjust how aggressive the neural flagger is in identifying potential risks.</p>
+                  </div>
+
+                  <div className={styles.fieldGroup}>
+                    <label>SYNC DEPTH</label>
+                    <select className={styles.select}>
+                      <option value="shallow">Shallow (Last 30 Days)</option>
+                      <option value="balanced">Balanced (Last 6 Months)</option>
+                      <option value="deep">Deep (Full History)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
               {activeTab === 'appearance' && (
                 <div className={styles.appearanceSection}>
                   <div className={styles.themeGrid}>
@@ -136,13 +180,84 @@ export default function SettingsPage() {
                 </div>
               )}
 
+              {activeTab === 'privacy' && (
+                <div className={styles.privacySection}>
+                  <div className={styles.fieldGroup}>
+                    <label>EXCLUDE SENDERS / DOMAINS</label>
+                    <p className={styles.fieldDesc}>These entries will never be indexed or scanned by the neural engine.</p>
+                    
+                    <div className={styles.listContainer}>
+                      {excludedSenders.map(sender => (
+                        <div key={sender} className={styles.listItem}>
+                          <span>{sender}</span>
+                          <button 
+                            className={styles.itemRemove}
+                            onClick={() => setExcludedSenders(prev => prev.filter(s => s !== sender))}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                      <input 
+                        type="text" 
+                        placeholder="Add email or domain..." 
+                        value={newSender}
+                        onChange={(e) => setNewSender(e.target.value)}
+                        className={styles.input}
+                      />
+                      <button 
+                        className={styles.addBtn}
+                        onClick={() => {
+                          if (newSender && !excludedSenders.includes(newSender)) {
+                            setExcludedSenders([...excludedSenders, newSender]);
+                            setNewSender('');
+                          }
+                        }}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {activeTab === 'security' && (
                 <div className={styles.securitySection}>
                   <div className={styles.securityInfo}>
                     <h3>OAuth Connections</h3>
                     <p>Your account is currently secured via GitHub.</p>
                   </div>
-                  <button className={styles.dangerBtn} disabled>Disconnect Account</button>
+                  
+                  <div className={styles.divider} style={{ margin: '32px 0' }} />
+
+                  <div className={styles.dangerZone}>
+                    <h3>Danger Zone</h3>
+                    <p className={styles.fieldDesc}>Actions here are permanent and cannot be undone.</p>
+                    
+                    <div className={styles.dangerAction}>
+                      <div>
+                        <strong>Purge Neural Archive</strong>
+                        <p>Wipe all indexed memories from all connected platforms.</p>
+                      </div>
+                      <button 
+                        className={styles.dangerBtnOutline}
+                        onClick={() => alert('Initiating global data purge...')}
+                      >
+                        Purge All Data
+                      </button>
+                    </div>
+
+                    <div className={styles.dangerAction} style={{ marginTop: '24px' }}>
+                      <div>
+                        <strong>Delete Account</strong>
+                        <p>Permanently remove your neural identity and all associated data.</p>
+                      </div>
+                      <button className={styles.dangerBtn}>Delete Account</button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
