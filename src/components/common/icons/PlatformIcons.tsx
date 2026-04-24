@@ -113,7 +113,7 @@ export function DropboxIconOfficial({ size = 40 }: { size?: number }) {
 
 export function OutlookIconOfficial({ size = 40 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+    <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path fill="#0072C6" d="M128 0c70.7 0 128 57.3 128 128s-57.3 128-128 128S0 198.7 0 128 57.3 0 128 0z"/>
       <path fill="#fff" d="M185 70h-94c-11 0-20 9-20 20v76c0 11 9 20 20 20h94c11 0 20-9 20-20V90c0-11-9-20-20-20zm-4 76l-43-30-43 30V90l43 30 43-30v56z"/>
     </svg>
@@ -122,50 +122,44 @@ export function OutlookIconOfficial({ size = 40 }: { size?: number }) {
 
 export function AsanaIconOfficial({ size = 40 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="128" cy="74" r="34" fill="#F06A6A"/>
-      <circle cx="78" cy="160" r="34" fill="#F06A6A"/>
-      <circle cx="178" cy="160" r="34" fill="#F06A6A"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#F95D5C" d="M12 1.621a5.19 5.19 0 10.001 10.38 5.19 5.19 0 00-.001-10.38zm-6.931 10.74a5.19 5.19 0 10.001 10.38 5.19 5.19 0 00-.001-10.38zm13.862 0a5.19 5.19 0 10.001 10.38 5.19 5.19 0 00-.001-10.38z"/>
     </svg>
   );
 }
 
 export function TrelloIconOfficial({ size = 40 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-      <rect width="256" height="256" rx="40" fill="#0079BF"/>
-      <rect x="40" y="40" width="70" height="140" rx="15" fill="#fff"/>
-      <rect x="146" y="40" width="70" height="80" rx="15" fill="#fff"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0079BF" d="M18.545 0H5.455C2.442 0 0 2.442 0 5.455v13.09C0 21.558 2.442 24 5.455 24h13.09C21.558 24 24 21.558 24 18.545V5.455C24 2.442 21.558 0 18.545 0zM9.545 16.145c0 1.137-.921 2.059-2.059 2.059H5.182c-1.138 0-2.059-.922-2.059-2.059V5.455c0-1.137.921-2.059 2.059-2.059h2.304c1.138 0 2.059.922-2.059 2.059v10.69zM18.818 11.5c0 1.137-.921 2.059-2.059 2.059h-2.304c-1.138 0-2.059-.922-2.059-2.059V5.455c0-1.137.921-2.059 2.059-2.059h2.304c1.138 0 2.059.922-2.059 2.059V11.5z"/>
     </svg>
   );
 }
 
 export function LinearIconOfficial({ size = 40 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-      <rect width="256" height="256" rx="40" fill="#5E6AD2"/>
-      <path d="M70 70h116v116H70z" fill="#fff" opacity="0.2"/>
-      <path d="M70 70l116 116h-116z" fill="#fff"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#5E6AD2" d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 1.5c5.8 0 10.5 4.7 10.5 10.5S17.8 22.5 12 22.5 1.5 17.8 1.5 12 6.2 1.5 12 1.5zm-5.25 4.5l-1.06 1.06 10.5 10.5 1.06-1.06L6.75 6zm0 4.5l-1.06 1.06 6 6 1.06-1.06-6-6zm4.5-4.5l-1.06 1.06 6 6 1.06-1.06-6-6z"/>
     </svg>
   );
 }
 
 export function ClickUpIconOfficial({ size = 40 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-      <path d="M128 30l110 60v120l-110-60L18 90z" fill="#7B68EE"/>
-      <path d="M128 226l-110-60V46l110 60 110-60v120z" fill="#FF00DF" opacity="0.3"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#7B68EE" d="M12 0l-5.4 4.8 1.2 1.2 4.2-3.6 4.2 3.6 1.2-1.2L12 0zm-7.2 12c0 4.2 3.6 7.2 7.2 7.2s7.2-3 7.2-7.2h-2.4c0 3-1.8 4.8-4.8 4.8s-4.8-1.8-4.8-4.8H4.8z"/>
     </svg>
   );
 }
 
 export function VercelIconOfficial({ size = 40 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-      <path fill="var(--text-primary)" d="M128 0L256 221.7H0L128 0z"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#000000" d="M24 22.525H0L12 1.475l12 21.05z"/>
     </svg>
   );
 }
+
 
 export function NetlifyIconOfficial({ size = 40 }: { size?: number }) {
   return (
@@ -178,19 +172,20 @@ export function NetlifyIconOfficial({ size = 40 }: { size?: number }) {
 
 export function SupabaseIconOfficial({ size = 40 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-      <path fill="#3ECF8E" d="M128 0l110 128-110 128L18 128z"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#3ECF8E" d="M21.362 9.354H12V.396L2.638 14.646H12v8.958l9.362-14.25z"/>
     </svg>
   );
 }
 
 export function SentryIconOfficial({ size = 40 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-      <path fill="#362D59" d="M128 0C57.3 0 0 57.3 0 128s57.3 128 128 128 128-57.3 128-128S198.7 0 128 0zm0 186.7c-32.4 0-58.7-26.3-58.7-58.7s26.3-58.7 58.7-58.7 58.7 26.3 58.7 58.7-26.3 58.7-58.7 58.7z"/>
+    <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#362D59" d="M11.983 0l-2.616 1.341-3.328 1.708L0 6.13l.366 3.012 3.12 1.624 3.011-1.545-2.094-.486-.33-1.63 3.328-1.707 3.328-1.708 3.328 1.708 3.328 1.707-1.127 5.568h3.328L24 6.13l-6.04-3.081-3.328-1.708L12.016 0h-.033zM10.42 10.373l-1.127 5.568h3.328l1.127-5.568h-3.328zm-3.328 1.707l-1.127 5.568h3.328l1.127-5.568h-3.328z"/>
     </svg>
   );
 }
+
 
 export function PostHogIconOfficial({ size = 40 }: { size?: number }) {
   return (
