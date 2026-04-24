@@ -29,26 +29,26 @@
 }
 
 [data-theme='light'] {
-  /* SALT AND PEPPER PALETTE (High-Contrast Neutral) */
+  /* SALT AND PEPPER PALETTE (Refined High-Contrast) */
   --bg-primary: #FFFFFF;
-  --bg-secondary: #F9F9F9;
+  --bg-secondary: #F2F2F2; /* Darker than #F9F9F9 for better card separation */
   --bg-card: #FFFFFF;
-  --bg-card-hover: #FDFDFD;
+  --bg-card-hover: #FAFAFA;
 
-  --text-primary: #2B2B2B;
-  --text-secondary: #B3B3B3;
-  --text-muted: #D4D4D4;
+  --text-primary: #1A1A1A; /* Sharper black */
+  --text-secondary: #555555; /* Much darker than #B3B3B3 */
+  --text-muted: #888888; /* Much darker than #D4D4D4 */
 
-  --accent-primary: #2B2B2B;
-  --accent-primary-soft: #444444;
+  --accent-primary: #000000; /* Pure 'Pepper' for primary elements */
+  --accent-primary-soft: #333333;
   --accent-vital: #006272;
-  --accent-green: #10B981;
-  --accent-red: #EF4444;
+  --accent-green: #059669;
+  --accent-red: #DC2626;
 
-  --border-primary: #D4D4D4;
-  --border-subtle: #F0F0F0;
+  --border-primary: #CCCCCC; /* More defined border */
+  --border-subtle: #E5E5E5;
 
-  --glass-blur: blur(20px);
+  --glass-blur: blur(12px); /* Reduced blur for sharper feel */
 }
 
 * {

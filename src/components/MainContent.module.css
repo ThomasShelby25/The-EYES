@@ -201,9 +201,10 @@
 
 .aiMsg {
   align-self: flex-start;
-  background: var(--bg-secondary);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .citationStrip {
@@ -1094,7 +1095,7 @@
   gap: 16px;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 10px 30px rgba(0, 0, 0, 0.02);
   animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   position: relative;
   overflow: hidden;
@@ -1102,8 +1103,8 @@
 
 .readinessCard:hover {
   background: var(--bg-primary);
-  border-color: var(--accent-vital);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
+  border-color: var(--accent-primary);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
   transform: translateY(-4px);
 }
 
@@ -1306,7 +1307,8 @@ input:checked + .slider:before {
 }
 
 .connectedCard {
-  border-color: rgba(0, 0, 0, 0.05);
+  border-color: var(--border-subtle);
+  border-width: 1.5px;
 }
 
 .connectedCard:hover {
@@ -1591,7 +1593,7 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02), 0 10px 30px rgba(0,0,0,0.03);
   animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -1629,7 +1631,7 @@ input:checked + .slider:before {
 .brandDisplayTitle {
   font-family: var(--font-serif);
   font-size: 88px;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--text-primary);
   letter-spacing: -3px;
   margin-bottom: 12px;
