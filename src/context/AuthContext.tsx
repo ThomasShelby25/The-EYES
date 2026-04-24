@@ -635,26 +635,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If current avatar is just an initial, update it to match the new name's initial
       if (user.avatar.length <= 2 && updates.name) {
         dbUpdates.avatar = updates.name.charAt(0).toUpperCase();
-        updates.avatar = dbUpdates.avatar;
       }
 
-      // Update Database and Auth Metadata in parallel
-      const [{ error: dbError }, { error: authError }] = await Promise.all([
-        supabase
-          .from('user_profiles')
-          .update(dbUpdates)
-          .eq('user_id', user.id),
-        supabase.auth.updateUser({
-          data: authUpdates
-        })
-      ]);
-
-      if (dbError) throw dbError;
+      // 1. Update Auth Metadata first to ensure identity is consistent
+      const { error: authError } = await supabase.auth.updateUser({
+        data: authUpdates
+      });
       if (authError) throw authError;
 
-      setUser(prev => prev ? { ...prev, ...updates } : null);
+      // 2. Update Database and GET the confirmed record back
+      const { data: confirmed, error: dbError } = await supabase
+        .from('user_profiles')
+        .update(dbUpdates)
+        .eq('user_id', user.id)
+        .select('name,avatar,plan,joined_date,memories_indexed')
+        .single();
+
+      if (dbError) throw dbError;
+
+      // 3. Update local state with the CONFIRMED data from the DB
+      if (confirmed) {
+        setUser(prev => prev ? {
+          ...prev,
+          name: confirmed.name,
+          avatar: confirmed.avatar || confirmed.name.charAt(0).toUpperCase(),
+          plan: confirmed.plan || prev.plan,
+          memoriesIndexed: confirmed.memories_indexed || prev.memoriesIndexed
+        } : null);
+      }
+      
       return { success: true };
     } catch (err) {
+      console.error('[Auth] Update failed:', err);
       return { success: false, message: getErrorMessage(err) };
     }
   }, [supabase, user]);
