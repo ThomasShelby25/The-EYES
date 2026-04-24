@@ -7,6 +7,7 @@ import type { AuditSummary, PlatformStatus, FeedItem, Message } from '@/types/da
 
 // Modular View Components
 import { DashboardHomeView } from './dashboard/DashboardHomeView';
+import { SourceReadinessView } from './dashboard/SourceReadinessView';
 import { MemoryFeedView } from './dashboard/MemoryFeedView';
 import { TimelineView } from './dashboard/TimelineView';
 import { AuditView } from './dashboard/AuditView';
@@ -214,9 +215,11 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
         <HistoryView onBack={() => setView('dashboard')} />
       )}
 
+      {activeView === 'readiness' && (
+        <SourceReadinessView platforms={platforms} />
+      )}
 
-
-      {(activeView === 'readiness' || activeView === 'connectors') && (
+      {activeView === 'connectors' && (
         <DashboardHomeView platforms={platforms} />
       )}
     </main>

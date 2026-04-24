@@ -1,0 +1,148 @@
+'use client';
+
+import React from 'react';
+import styles from '../MainContent.module.css';
+import { ALL_POSSIBLE_PLATFORMS } from '@/config/platforms';
+import type { PlatformStatus } from '@/types/dashboard';
+
+interface SourceReadinessViewProps {
+  platforms: PlatformStatus[];
+}
+
+export function SourceReadinessView({ platforms }: SourceReadinessViewProps) {
+  const connectedCount = platforms.filter(p => p.connected).length;
+  const connectedList = platforms.filter(p => p.connected);
+
+  // Mock health score calculation
+  const healthScore = connectedCount === 0 ? 100 : Math.round((platforms.filter(p => p.status === 'ready').length / connectedCount) * 100);
+
+  const handleDisconnect = async (platformId: string, platformName: string) => {
+    if (!window.confirm(`Disconnect ${platformName} and remove its active tokens?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/data/platform/${platformId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ disconnect: true }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to disconnect (${response.status})`);
+      }
+
+      // Trigger a global UI refresh
+      window.dispatchEvent(new CustomEvent('eyes-realtime-refresh'));
+    } catch (error) {
+      console.error('Disconnect error:', error);
+      alert('Failed to disconnect platform.');
+    }
+  };
+
+  const handleForceSync = async (id: string) => {
+    console.log(`[Diagnostic] Force pulsing link: ${id}`);
+    // Mock sync logic
+    alert(`Initiating prioritized sync for ${id}...`);
+  };
+
+  return (
+    <div className={styles.readinessContainer}>
+      {/* Header with Health Score */}
+      <div className={styles.readinessHeader} style={{ alignItems: 'center' }}>
+        <div className={styles.readinessTitle}>
+          <h1 className={styles.pageHeroTitle} style={{ marginBottom: '4px' }}>Network Integrity</h1>
+          <p className={styles.pageHeroSub}>Diagnostic overview of active neural links and data ingestion status.</p>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+           <div style={{ fontSize: '48px', fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{healthScore}%</div>
+           <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--accent-green)', letterSpacing: '2px' }}>SYSTEM OPTIMAL</div>
+        </div>
+      </div>
+
+      {/* Stats Summary */}
+      <div className={styles.kpiGrid}>
+        <div className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>ACTIVE SOURCES</span>
+          <span className={styles.kpiValue}>{connectedCount}</span>
+          <span className={styles.kpiDesc}>Currently providing data to your memory.</span>
+        </div>
+        <div className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>NEURAL COVERAGE</span>
+          <span className={styles.kpiValue}>{Math.round((connectedCount / ALL_POSSIBLE_PLATFORMS.length) * 100)}%</span>
+          <span className={styles.kpiDesc}>Percentage of available ecosystem indexed.</span>
+        </div>
+        <div className={`${styles.kpiCard} ${styles.kpiCardFocus}`}>
+          <span className={styles.kpiLabel}>TOTAL MEMORIES</span>
+          <span className={styles.kpiValue}>{connectedList.reduce((acc, p) => acc + (p.items || 0), 0).toLocaleString()}</span>
+          <span className={styles.kpiDesc}>Total records extracted and processed.</span>
+        </div>
+      </div>
+
+      {/* Management Grid */}
+      <div className={styles.readinessSection}>
+        <h3 className={styles.subHeader}>● MANAGED CONNECTIONS ({connectedCount})</h3>
+        
+        {connectedList.length === 0 ? (
+          <div className={styles.emptyState}>No active neural links detected. Go to the Connectors Hub to expand your network.</div>
+        ) : (
+          <div className={styles.readinessGrid}>
+            {connectedList.map(p => {
+               const isSyncing = p.status === 'syncing';
+               const isError = p.status === 'error';
+               const config = ALL_POSSIBLE_PLATFORMS.find(ap => ap.id === p.id);
+               
+               return (
+                <div key={p.id} className={`${styles.readinessCard} ${styles.connectedCard} ${isSyncing ? styles.cardSyncing : ''} ${isError ? styles.cardError : ''}`} style={{ cursor: 'default' }}>
+                  <div className={styles.cardHeader}>
+                    <div className={styles.readinessIcon}>
+                      {config?.icon ? React.cloneElement(config.icon as React.ReactElement<any>, { size: 24 }) : null}
+                    </div>
+                    <div className={styles.readinessInfo}>
+                      <strong>{p.name}</strong>
+                      <span className={isError ? styles.errorStatusText : (isSyncing ? styles.syncStatusText : styles.readyStatusText)}>
+                        {isError ? 'Link Fractured' : (isSyncing ? 'Synchronizing Pulse...' : 'Optimal Neural Link')}
+                      </span>
+                    </div>
+                    {isSyncing && <div className={styles.syncPulse} />}
+                  </div>
+
+                  <div style={{ margin: '12px 0', padding: '12px', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '8px' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>LAST SYNC</span>
+                        <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>4 mins ago</span>
+                     </div>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '8px' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>RECORDS</span>
+                        <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{p.items || 0}</span>
+                     </div>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>LATENCY</span>
+                        <span style={{ color: 'var(--accent-green)', fontWeight: 700 }}>Low (8ms)</span>
+                     </div>
+                  </div>
+
+                  <div className={styles.cardActions} style={{ marginTop: 'auto' }}>
+                     <button 
+                       className={styles.miniSyncBtn}
+                       onClick={() => handleForceSync(p.id)}
+                       disabled={isSyncing}
+                     >
+                       Force Sync
+                     </button>
+                     <button 
+                       className={styles.inlineDisconnectBtn} 
+                       onClick={() => handleDisconnect(p.id, p.name)}
+                     >
+                       Disconnect
+                     </button>
+                  </div>
+                </div>
+               );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

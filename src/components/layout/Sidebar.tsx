@@ -100,7 +100,7 @@ export default function Sidebar() {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.readinessCard} onClick={() => navigateToView('connectors')}>
+        <div className={styles.readinessCard} onClick={() => navigateToView('readiness')}>
           <div className={styles.readinessHeader}>
              <span className={styles.readinessIcon}><EyeIconSmall /></span>
              <span className={styles.readinessTitle}>SOURCE READINESS</span>
