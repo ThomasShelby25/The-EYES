@@ -14,7 +14,7 @@ const SUPPORTED_PLATFORMS = new Set([
   'discord', 'slack', 'twitter', 'dropbox', 'outlook', 'asana', 'trello', 
   'linear', 'clickup', 'vercel', 'netlify', 'supabase', 'sentry', 'posthog', 
   'webflow', 'devin', 'cursor', 'canva', 'granola', 'strava', 'fitbit', 
-  'oura', 'withings', 'mercury', 'ramp', 'navan', 'sonos', 'philips-hue'
+  'withings', 'mercury', 'ramp', 'navan', 'sonos', 'philips-hue'
 ]);
 
 function toDbPlatform(platform: string) {

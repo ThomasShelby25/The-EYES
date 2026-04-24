@@ -7,7 +7,7 @@ type PlatformId =
   | 'outlook' | 'asana' | 'trello' | 'linear' | 'clickup'
   | 'vercel' | 'netlify' | 'supabase' | 'sentry' | 'posthog' | 'webflow' | 'devin' | 'cursor'
   | 'canva' | 'granola'
-  | 'strava' | 'fitbit' | 'oura' | 'withings'
+  | 'strava' | 'fitbit' | 'withings'
   | 'mercury' | 'ramp' | 'navan'
   | 'sonos' | 'philips-hue';
 
@@ -192,12 +192,7 @@ const platformConfigs: Array<{
     env: ['FITBIT_CLIENT_ID', 'FITBIT_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
     scopes: ['activity', 'heartrate', 'profile', 'sleep'],
   },
-  {
-    id: 'oura',
-    name: 'Oura',
-    env: ['OURA_CLIENT_ID', 'OURA_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['personal', 'daily'],
-  },
+
   {
     id: 'withings',
     name: 'Withings',
