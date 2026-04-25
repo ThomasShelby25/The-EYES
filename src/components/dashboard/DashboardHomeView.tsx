@@ -13,7 +13,7 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
   const [activeCategory, setActiveCategory] = React.useState<string>('All');
   
   const remainingPlatforms = ALL_POSSIBLE_PLATFORMS.filter(p => !platforms.find(ap => ap.id === p.id)?.connected);
-  const categories = ['All', 'Productivity', 'Development', 'Social', 'Creative', 'Health', 'Finance'];
+  const categories = ['All', 'Productivity', 'Development', 'Social', 'Creative', 'Health'];
 
   const filteredRemaining = activeCategory === 'All' 
     ? remainingPlatforms 
