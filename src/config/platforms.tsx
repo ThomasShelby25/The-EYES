@@ -1,12 +1,10 @@
 import { 
-  RedditIconOfficial, 
   GitHubIconOfficial, 
   GmailIconOfficial, 
   CalendarIconOfficial, 
   NotionIconOfficial, 
   SlackIconOfficial, 
   DiscordIconOfficial,
-  OutlookIconOfficial,
   AsanaIconOfficial,
   TrelloIconOfficial,
   LinearIconOfficial,
@@ -20,23 +18,17 @@ import {
   DevinIconOfficial,
   CursorIconOfficial,
   CanvaIconOfficial,
-  GranolaIconOfficial,
   DropboxIconOfficial,
   XIconOfficial,
   StravaIconOfficial,
   FitbitIconOfficial,
-  WithingsIconOfficial,
-  MercuryIconOfficial,
-  RampIconOfficial,
-  NavanIconOfficial
+  WithingsIconOfficial
 } from '../components/common/icons/PlatformIcons';
 
 export const ALL_POSSIBLE_PLATFORMS = [
   { id: 'github', name: 'GitHub', icon: <GitHubIconOfficial />, category: 'Development', description: 'Sync repositories, pull requests, and code history.' },
   { id: 'gmail', name: 'Gmail', icon: <GmailIconOfficial />, category: 'Productivity', description: 'Index your entire email history and communications.' },
   { id: 'google-calendar', name: 'Google Calendar', icon: <CalendarIconOfficial />, category: 'Productivity', description: 'Track your meetings, events, and time allocation.' },
-  { id: 'outlook', name: 'Outlook', icon: <OutlookIconOfficial />, category: 'Productivity', description: 'Connect Microsoft 365 mail and calendar data.' },
-  { id: 'reddit', name: 'Reddit', icon: <RedditIconOfficial />, category: 'Social', description: 'Analyze your comments, posts, and saved history.' },
   { id: 'notion', name: 'Notion', icon: <NotionIconOfficial />, category: 'Productivity', description: 'Search through your pages, databases, and workspace.' },
   { id: 'slack', name: 'Slack', icon: <SlackIconOfficial />, category: 'Productivity', description: 'Index channel messages and direct communications.' },
   { id: 'discord', name: 'Discord', icon: <DiscordIconOfficial />, category: 'Social', description: 'Connect servers and private messaging history.' },
@@ -55,12 +47,8 @@ export const ALL_POSSIBLE_PLATFORMS = [
   { id: 'devin', name: 'Devin', icon: <DevinIconOfficial />, category: 'Development', description: 'Sync autonomous engineering agent task history.' },
   { id: 'cursor', name: 'Cursor', icon: <CursorIconOfficial />, category: 'Development', description: 'Track AI-assisted coding sessions and history.' },
   { id: 'canva', name: 'Canva', icon: <CanvaIconOfficial />, category: 'Creative', description: 'Index design projects and brand assets.' },
-  { id: 'granola', name: 'Granola', icon: <GranolaIconOfficial />, category: 'Creative', description: 'Sync AI-enhanced meeting notes and context.' },
   { id: 'strava', name: 'Strava', icon: <StravaIconOfficial />, category: 'Health', description: 'Connect athletic activities and fitness data.' },
   { id: 'fitbit', name: 'Fitbit', icon: <FitbitIconOfficial />, category: 'Health', description: 'Track steps, sleep, and biometric trends.' },
-  { id: 'withings', name: 'Withings', icon: <WithingsIconOfficial />, category: 'Health', description: 'Monitor weight, blood pressure, and health trends.' },
-  { id: 'mercury', name: 'Mercury', icon: <MercuryIconOfficial />, category: 'Finance', description: 'Connect corporate banking and transaction history.' },
-  { id: 'ramp', name: 'Ramp', icon: <RampIconOfficial />, category: 'Finance', description: 'Sync corporate spend and expense management.' },
-  { id: 'navan', name: 'Navan', icon: <NavanIconOfficial />, category: 'Finance', description: 'Track travel bookings and business expenses.' }
+  { id: 'withings', name: 'Withings', icon: <WithingsIconOfficial />, category: 'Health', description: 'Monitor weight, blood pressure, and health trends.' }
 ];
 

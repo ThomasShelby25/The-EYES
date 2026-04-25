@@ -3,12 +3,11 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
 type PlatformId = 
-  | 'reddit' | 'gmail' | 'github' | 'notion' | 'google-calendar' | 'discord' | 'slack' | 'twitter' | 'dropbox'
-  | 'outlook' | 'asana' | 'trello' | 'linear' | 'clickup'
+  | 'gmail' | 'github' | 'notion' | 'google-calendar' | 'discord' | 'slack' | 'twitter' | 'dropbox'
+  | 'asana' | 'trello' | 'linear' | 'clickup'
   | 'vercel' | 'netlify' | 'supabase' | 'sentry' | 'posthog' | 'webflow' | 'devin' | 'cursor'
-  | 'canva' | 'granola'
+  | 'canva'
   | 'strava' | 'fitbit' | 'withings'
-  | 'mercury' | 'ramp' | 'navan'
   | 'sonos' | 'philips-hue';
 
 type PlatformReadiness = {
@@ -52,19 +51,6 @@ const platformConfigs: Array<{
     name: 'Google Calendar',
     env: ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
     scopes: ['calendar.readonly', 'openid', 'email', 'profile'],
-  },
-  {
-    id: 'outlook',
-    name: 'Outlook',
-    env: ['OUTLOOK_CLIENT_ID', 'OUTLOOK_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['mail.read', 'calendars.read'],
-  },
-  {
-    id: 'reddit',
-    name: 'Reddit',
-    env: ['REDDIT_CLIENT_ID', 'REDDIT_CLIENT_SECRET', 'NEXT_PUBLIC_SITE_URL', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['identity', 'history', 'read', 'mysubreddits'],
-    optional: true,
   },
   {
     id: 'notion',
@@ -129,7 +115,7 @@ const platformConfigs: Array<{
   {
     id: 'netlify',
     name: 'Netlify',
-    env: ['NETLIFY_CLIENT_ID', 'NETLIFY_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
+    env: ['NETLIFY_API_TOKEN', 'TOKEN_ENCRYPTION_KEY'],
     scopes: ['read'],
   },
   {
@@ -175,12 +161,6 @@ const platformConfigs: Array<{
     scopes: ['read'],
   },
   {
-    id: 'granola',
-    name: 'Granola',
-    env: ['GRANOLA_API_KEY'],
-    scopes: ['read'],
-  },
-  {
     id: 'strava',
     name: 'Strava',
     env: ['STRAVA_CLIENT_ID', 'STRAVA_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
@@ -198,24 +178,6 @@ const platformConfigs: Array<{
     name: 'Withings',
     env: ['WITHINGS_CLIENT_ID', 'WITHINGS_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
     scopes: ['user.metrics'],
-  },
-  {
-    id: 'mercury',
-    name: 'Mercury',
-    env: ['MERCURY_API_KEY'],
-    scopes: ['read'],
-  },
-  {
-    id: 'ramp',
-    name: 'Ramp',
-    env: ['RAMP_CLIENT_ID', 'RAMP_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['read'],
-  },
-  {
-    id: 'navan',
-    name: 'Navan',
-    env: ['NAVAN_API_KEY'],
-    scopes: ['read'],
   },
 ];
 
