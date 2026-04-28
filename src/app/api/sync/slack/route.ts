@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { resolveSyncActor } from '@/utils/sync/actor';
-import { upsertSyncStatusSafely } from '@/utils/supabase/upsert';
+import { upsertSyncStatusSafely, upsertRawEventsSafely } from '@/utils/supabase/upsert';
 import { getValidSlackToken } from '@/utils/oauth';
 import { scoreSlackEvent } from '@/utils/risk/scorer';
 
