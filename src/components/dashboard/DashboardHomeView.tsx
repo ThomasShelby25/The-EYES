@@ -64,23 +64,6 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
         </div>
       </div>
 
-      {/* The "First 60 Seconds" Onboarding Flow */}
-      {platforms.filter(p => p.connected).length === 0 && (
-        <div style={{ background: 'var(--bg-secondary)', padding: '48px', borderRadius: '24px', marginBottom: '48px', border: '2px solid var(--text-primary)', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 900, marginBottom: '16px', color: 'var(--text-primary)' }}>Welcome to The EYES</h2>
-          <p style={{ fontSize: '16px', color: 'var(--text-secondary)', marginBottom: '32px', maxWidth: '600px', margin: '0 auto 32px' }}>
-            Your neural archive is currently empty. To unleash the full power of your digital memory, connect your primary communication stream to begin the deep-sync process.
-          </p>
-          <button 
-            onClick={() => { window.location.href = '/api/connect/google/start?platform=gmail'; }}
-            style={{ padding: '16px 32px', fontSize: '16px', fontWeight: '800', background: 'var(--text-primary)', color: 'var(--bg-primary)', border: 'none', borderRadius: '12px', cursor: 'pointer', transition: 'transform 0.2s' }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            Connect Google (Gmail & Calendar)
-          </button>
-        </div>
-      )}
 
       {/* Discovery Hub Layout */}
       <div className={styles.readinessSection}>
