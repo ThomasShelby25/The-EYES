@@ -10,7 +10,7 @@ export async function POST() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Danger Zone: Delete all memories for the user
+    // Danger Zone: Delete all memories, vectors, and sync cursors for the user
     const { error: eventError } = await supabase
       .from('raw_events')
       .delete()
@@ -18,7 +18,19 @@ export async function POST() {
 
     if (eventError) throw eventError;
 
-    // Optional: We could also wipe connections, but for the MVP "Wipe Neural Archive", clearing events is enough.
+    const { error: embeddingError } = await supabase
+      .from('embeddings')
+      .delete()
+      .eq('user_id', user.id);
+      
+    if (embeddingError) throw embeddingError;
+
+    const { error: syncError } = await supabase
+      .from('sync_status')
+      .delete()
+      .eq('user_id', user.id);
+
+    if (syncError) throw syncError;
 
     return NextResponse.json({ success: true });
   } catch (error) {

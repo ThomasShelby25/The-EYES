@@ -139,16 +139,34 @@ function extractDateRange(query: string): { start_date: string | null, end_date:
   let start_date = null;
   let end_date = null;
 
-  if (q.includes('yesterday')) {
+  if (q.includes('today')) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    start_date = d.toISOString();
+    d.setHours(23, 59, 59, 999);
+    end_date = d.toISOString();
+  } else if (q.includes('yesterday')) {
     const d = new Date();
     d.setDate(now.getDate() - 1);
     d.setHours(0, 0, 0, 0);
     start_date = d.toISOString();
     d.setHours(23, 59, 59, 999);
     end_date = d.toISOString();
+  } else if (q.includes('this week')) {
+    const d = new Date();
+    d.setDate(now.getDate() - now.getDay()); // Sunday as start of week
+    d.setHours(0, 0, 0, 0);
+    start_date = d.toISOString();
+    end_date = now.toISOString();
   } else if (q.includes('last week')) {
     const d = new Date();
     d.setDate(now.getDate() - 7);
+    start_date = d.toISOString();
+    end_date = now.toISOString();
+  } else if (q.includes('this month')) {
+    const d = new Date();
+    d.setDate(1);
+    d.setHours(0, 0, 0, 0);
     start_date = d.toISOString();
     end_date = now.toISOString();
   } else if (q.includes('last month')) {
