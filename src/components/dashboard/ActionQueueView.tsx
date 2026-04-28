@@ -73,10 +73,9 @@ export function ActionQueueView({ onBack }: ActionQueueViewProps) {
   };
 
   return (
-    <div className={styles.soloView}>
+     <div className={styles.soloView}>
        <div className={styles.viewHeader}>
           <div className={styles.headerTop}>
-             <button className={styles.backBtn} onClick={onBack}>← Back</button>
              <h1 className={styles.soloTitle}>AUTONOMOUS ACTION QUEUE</h1>
           </div>
        </div>

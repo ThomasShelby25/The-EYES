@@ -22,13 +22,10 @@ export function MemoryFeedView({
 }: MemoryFeedViewProps) {
   return (
     <div className={styles.soloView}>
-       <div className={styles.viewHeader}>
-          <div className={styles.headerTop}>
-             <button className={styles.backBtn} onClick={onBack}>← Back</button>
-             <h1 className={styles.soloTitle}>MEMORY FEED</h1>
-          </div>
+       <div className={styles.viewHeader} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '32px' }}>
+          <h1 className={styles.soloTitle} style={{ margin: 0, whiteSpace: 'nowrap' }}>MEMORY FEED</h1>
           
-          <div className={styles.filterBar}>
+          <div className={styles.filterBar} style={{ margin: 0, padding: 0, borderBottom: 'none', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
              <button 
                className={`${styles.filterChip} ${filterPlatform === 'all' ? styles.filterChipActive : ''}`}
                onClick={() => setFilterPlatform('all')}
