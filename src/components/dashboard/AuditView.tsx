@@ -4,6 +4,8 @@ import React from 'react';
 import styles from '../MainContent.module.css';
 import type { AuditSummary } from '@/types/dashboard';
 import { ShieldIcon } from '../common/icons/PlatformIcons';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface AuditViewProps {
   onBack: () => void;
@@ -34,30 +36,56 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
   };
 
   const handleExport = () => {
-    const csvRows = [
-      ['ID', 'Severity', 'Platform', 'Date', 'Risk Detected', 'Content Snippet']
-    ];
+    const doc = new jsPDF();
+
+    // Document Header
+    doc.setFontSize(22);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Neural Reputation Audit Report', 14, 20);
     
-    items.forEach(item => {
-      csvRows.push([
-        item.id || '',
-        item.severity,
-        item.platform,
-        new Date(item.date).toISOString(),
-        item.reason ? item.reason.replace(/"/g, '""') : '',
-        (item.snippet || item.content || '').replace(/"/g, '""').replace(/\n/g, ' ')
-      ]);
+    // Metadata block
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+    doc.text(`Total Indexed Memories: ${summary.totalMemories}`, 14, 36);
+    doc.text(`Overall Health Score: ${healthScore}/100`, 14, 42);
+    
+    // Risk Summary
+    doc.text(`Risk Summary: ${summary.riskCounts.heavy} Heavy | ${summary.riskCounts.direct} Direct | ${summary.riskCounts.light} Light`, 14, 48);
+
+    const tableData = items.map(item => [
+      item.severity,
+      item.platform.toUpperCase(),
+      new Date(item.date).toLocaleDateString(),
+      item.reason || 'Flagged Risk',
+      (item.snippet || item.content || '').substring(0, 100) + '...'
+    ]);
+
+    autoTable(doc, {
+      startY: 56,
+      head: [['Severity', 'Platform', 'Date', 'Risk Detected', 'Content Snippet']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [0, 98, 114], textColor: [255, 255, 255] },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      columnStyles: {
+        0: { fontStyle: 'bold', cellWidth: 25 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 40 },
+        4: { cellWidth: 65 }
+      },
+      didParseCell: function (data) {
+        if (data.section === 'body' && data.column.index === 0) {
+          const val = data.cell.raw as string;
+          if (val === 'HEAVY') data.cell.styles.textColor = [220, 38, 38];
+          if (val === 'DIRECT') data.cell.styles.textColor = [217, 119, 6];
+          if (val === 'LIGHT') data.cell.styles.textColor = [5, 150, 105];
+        }
+      }
     });
 
-    const csvContent = csvRows.map(row => row.map(v => `"${v}"`).join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `neural-audit-export-${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    doc.save(`neural-audit-${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   return (
@@ -130,7 +158,7 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
                      letterSpacing: '1px'
                    }}
                  >
-                   EXPORT TO CSV
+                   EXPORT TO PDF
                  </button>
               </div>
               <div className={styles.flaggedList}>
