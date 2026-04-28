@@ -22,7 +22,8 @@ import {
   XIconOfficial,
   StravaIconOfficial,
   FitbitIconOfficial,
-  WithingsIconOfficial
+  WithingsIconOfficial,
+  RedditIconOfficial
 } from '../components/common/icons/PlatformIcons';
 
 export const ALL_POSSIBLE_PLATFORMS = [
@@ -33,6 +34,7 @@ export const ALL_POSSIBLE_PLATFORMS = [
   { id: 'slack', name: 'Slack', icon: <SlackIconOfficial />, category: 'Productivity', description: 'Index channel messages and direct communications.', color: '#e01e5a' },
   { id: 'discord', name: 'Discord', icon: <DiscordIconOfficial />, category: 'Social', description: 'Connect servers and private messaging history.', color: '#5865f2' },
   { id: 'twitter', name: 'Twitter (X)', icon: <XIconOfficial />, category: 'Social', description: 'Sync your tweets, mentions, and social footprint.', color: 'var(--text-primary)' },
+  { id: 'reddit', name: 'Reddit', icon: <RedditIconOfficial />, category: 'Social', description: 'Index your subreddits, comments, and posts.', color: '#FF4500' },
   { id: 'dropbox', name: 'Dropbox', icon: <DropboxIconOfficial />, category: 'Productivity', description: 'Search and index your cloud files and metadata.', color: '#0061ff' },
   { id: 'asana', name: 'Asana', icon: <AsanaIconOfficial />, category: 'Productivity', description: 'Track project tasks, goals, and team progress.', color: '#F95D5C' },
   { id: 'trello', name: 'Trello', icon: <TrelloIconOfficial />, category: 'Productivity', description: 'Index boards, cards, and workflow history.', color: '#0079BF' },

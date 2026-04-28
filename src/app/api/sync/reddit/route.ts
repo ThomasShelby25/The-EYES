@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { upsertRawEventsSafely, upsertSyncStatusSafely } from '@/utils/supabase/upsert';
-import { decryptToken } from '@/utils/tokens';
+import { getValidRedditToken } from '@/utils/oauth';
 import { scoreRedditEvent } from '@/utils/risk/scorer';
 import { resolveSyncActor } from '@/utils/sync/actor';
 
@@ -32,18 +32,24 @@ export async function POST(request: Request) {
 
     const { supabase, userId } = actor;
 
-    const { data: tokenRow } = await supabase
-      .from('oauth_tokens')
-      .select('access_token')
+    const { data: currentStatus } = await supabase
+      .from('sync_status')
+      .select('cursor, total_items')
       .eq('user_id', userId)
       .eq('platform', 'reddit')
       .maybeSingle();
 
-    if (!tokenRow?.access_token) {
-      return NextResponse.json({ error: 'Reddit is not connected yet.' }, { status: 400 });
-    }
+    await upsertSyncStatusSafely(supabase, {
+      user_id: userId,
+      platform: 'reddit',
+      status: 'syncing',
+      last_sync_at: new Date().toISOString(),
+    });
 
-    const accessToken = decryptToken(tokenRow.access_token);
+    const accessToken = await getValidRedditToken(supabase, userId);
+    if (!accessToken) {
+      return NextResponse.json({ error: 'Reddit session expired and refresh failed.' }, { status: 401 });
+    }
 
     const meResponse = await fetch('https://oauth.reddit.com/api/v1/me', {
       headers: {
@@ -61,13 +67,14 @@ export async function POST(request: Request) {
 
     const url = new URL(request.url);
     const depth = url.searchParams.get('depth') || 'shallow';
-    const maxTotalRequests = depth === 'deep' ? 100 : 10;
+    const maxTotalRequests = depth === 'deep' ? 1000 : 25;
     
     let allChildren: any[] = [];
-    let afterToken: string | undefined = undefined;
+    let afterToken: string | undefined = currentStatus?.cursor || undefined;
+    let hasMore = true;
 
     // --- PAGINATION LOOP ---
-    while (allChildren.length < maxTotalRequests) {
+    while (allChildren.length < maxTotalRequests && hasMore) {
       const fetchUrl = new URL(`https://oauth.reddit.com/user/${me.name}/comments`);
       fetchUrl.searchParams.set('limit', '50');
       if (afterToken) fetchUrl.searchParams.set('after', afterToken);
@@ -80,14 +87,23 @@ export async function POST(request: Request) {
         cache: 'no-store',
       });
 
-      if (!commentsResponse.ok) break;
+      if (!commentsResponse.ok) {
+        hasMore = false;
+        break;
+      }
 
       const body = (await commentsResponse.json()) as { data?: { children?: any[], after?: string | null } };
       const children = body.data?.children ?? [];
       allChildren = [...allChildren, ...children];
       
       afterToken = body.data?.after || undefined;
-      if (!afterToken) break;
+      if (!afterToken) {
+        hasMore = false;
+        break;
+      }
+      
+      // Respect Reddit API rate limit (1 req/sec)
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     const events = await Promise.all(allChildren.map(async (entry) => {
@@ -132,11 +148,12 @@ export async function POST(request: Request) {
       upsertSyncStatusSafely(supabase, {
         user_id: userId,
         platform: 'reddit',
-        status: 'connected',
-        sync_progress: 100,
-        total_items: events.length,
+        status: hasMore ? 'syncing' : 'connected',
+        sync_progress: hasMore ? 50 : 100,
+        total_items: (currentStatus?.total_items || 0) + events.length,
         last_sync_at: new Date().toISOString(),
         next_sync_at: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+        cursor: hasMore ? afterToken : null,
         error_message: null,
       }),
       supabase.from('user_profiles').update({
@@ -149,7 +166,11 @@ export async function POST(request: Request) {
       throw profileUpdate.error;
     }
 
-    return NextResponse.json({ ok: true, syncedComments: events.length });
+    return NextResponse.json({ 
+      ok: true, 
+      syncedComments: events.length,
+      hasMore 
+    });
   } catch (error) {
     console.error('reddit sync error:', error);
     return NextResponse.json({ error: 'Unable to sync Reddit data right now.' }, { status: 500 });

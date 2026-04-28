@@ -351,6 +351,88 @@ export async function getValidDiscordToken(
 }
 
 /**
+ * Checks if a Reddit OAuth access token is valid and refreshes it if necessary.
+ */
+export async function getValidRedditToken(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<string | null> {
+  const { data: tokenRow } = await supabase
+    .from('oauth_tokens')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('platform', 'reddit')
+    .maybeSingle();
+
+  if (!tokenRow || !tokenRow.access_token) return null;
+
+  const now = new Date();
+  const expiresAt = tokenRow.expires_at ? new Date(tokenRow.expires_at) : null;
+  
+  if (expiresAt && (expiresAt.getTime() - now.getTime()) > 5 * 60 * 1000) {
+    return decryptToken(tokenRow.access_token);
+  }
+
+  if (!tokenRow.refresh_token) {
+    console.warn(`[OAuth] Cannot refresh reddit for ${userId}: No refresh_token found.`);
+    return decryptToken(tokenRow.access_token);
+  }
+
+  const clientId = process.env.REDDIT_CLIENT_ID;
+  const clientSecret = process.env.REDDIT_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    console.warn('[OAuth] Missing Reddit credentials for token refresh.');
+    return decryptToken(tokenRow.access_token);
+  }
+
+  try {
+    const authHeader = btoa(`${clientId}:${clientSecret}`);
+    const response = await fetch('https://www.reddit.com/api/v1/access_token', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${authHeader}`
+      },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: decryptToken(tokenRow.refresh_token),
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`[OAuth] Reddit refresh failed (${response.status})`);
+      return null;
+    }
+
+    const payload = await response.json();
+    if (!payload.access_token) return null;
+
+    const newAccessToken = payload.access_token;
+    const newRefreshToken = payload.refresh_token || decryptToken(tokenRow.refresh_token);
+    const newExpiresAt = payload.expires_in 
+      ? new Date(Date.now() + payload.expires_in * 1000).toISOString()
+      : null;
+
+    await supabase
+      .from('oauth_tokens')
+      .update({
+        access_token: encryptToken(newAccessToken),
+        refresh_token: encryptToken(newRefreshToken),
+        expires_at: newExpiresAt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', userId)
+      .eq('platform', 'reddit');
+
+    return newAccessToken;
+  } catch (err) {
+    console.error('[OAuth] Reddit refresh error:', err);
+    return null;
+  }
+}
+
+/**
  * Retrieves a valid Slack token. Slack user tokens generally don't expire 
  * unless rotating tokens are enabled in the App settings.
  */
