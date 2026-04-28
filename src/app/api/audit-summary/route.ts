@@ -130,7 +130,7 @@ export async function GET() {
         .eq("user_id", userId)
         .eq("is_flagged", true)
         .order("timestamp", { ascending: false })
-        .limit(4),
+        .order("timestamp", { ascending: false })
     ]);
 
     if (syncStatusResult.error) {
@@ -157,7 +157,20 @@ export async function GET() {
       }
     });
 
-    const flaggedItems: FlaggedItem[] = (flaggedEventsResult.data ?? []).map((event) => {
+    const allFlaggedEvents = flaggedEventsResult.data ?? [];
+    
+    const riskCounts = allFlaggedEvents.reduce(
+      (acc, event) => {
+        const severity = (event.flag_severity?.toUpperCase() ?? "LOW");
+        if (severity === "HIGH") acc.high += 1;
+        if (severity === "MEDIUM") acc.med += 1;
+        if (severity === "LOW") acc.low += 1;
+        return acc;
+      },
+      { high: 0, med: 0, low: 0 }
+    );
+
+    const flaggedItems: FlaggedItem[] = allFlaggedEvents.slice(0, 4).map((event) => {
       const severity = (event.flag_severity?.toUpperCase() ?? "LOW") as FlaggedItem["severity"];
       return {
         id: event.id,
@@ -167,16 +180,6 @@ export async function GET() {
         content: event.content || "Flagged content unavailable.",
       };
     });
-
-    const riskCounts = flaggedItems.reduce(
-      (acc, item) => {
-        if (item.severity === "HIGH") acc.high += 1;
-        if (item.severity === "MEDIUM") acc.med += 1;
-        if (item.severity === "LOW") acc.low += 1;
-        return acc;
-      },
-      { high: 0, med: 0, low: 0 }
-    );
 
     const summary: AuditSummary = {
       totalMemories,

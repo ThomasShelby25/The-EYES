@@ -78,10 +78,10 @@ export async function POST(request: Request) {
     for (const { channel, messages, hasMore } of histories) {
       if (hasMore) hasMoreOverall = true;
 
-      messages.forEach((msg: any) => {
-        if (!msg.text || msg.subtype === 'bot_message') return;
+      for (const msg of messages) {
+        if (!msg.text || msg.subtype === 'bot_message') continue;
 
-        const risk = scoreSlackEvent({
+        const risk = await scoreSlackEvent({
           text: msg.text,
           channelName: channel.name,
           user: 'User' // We don't have the current user name here easily
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
         if (!updatedCursors[channel.id] || parseFloat(msg.ts) < parseFloat(updatedCursors[channel.id])) {
           updatedCursors[channel.id] = msg.ts;
         }
-      });
+      }
     }
 
     // 6. Save Events

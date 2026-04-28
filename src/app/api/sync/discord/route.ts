@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { resolveSyncActor } from '@/utils/sync/actor';
-import { upsertSyncStatusSafely } from '@/utils/supabase/upsert';
+import { upsertSyncStatusSafely, upsertRawEventsSafely } from '@/utils/supabase/upsert';
 import { getValidDiscordToken } from '@/utils/oauth';
 import { scoreDiscordEvent } from '@/utils/risk/scorer';
 
@@ -104,10 +104,10 @@ export async function POST(request: Request) {
     for (const { channel, messages } of dmHistories) {
       if (messages.length >= messageLimit) hasMoreOverall = true;
 
-      messages.forEach((msg: any) => {
-        if (!msg.content || msg.author?.bot) return;
+      for (const msg of messages) {
+        if (!msg.content || msg.author?.bot) continue;
 
-        const risk = scoreDiscordEvent({
+        const risk = await scoreDiscordEvent({
           text: msg.content,
           channelName: channel.name || 'Personal DM',
           user: discordUser.username
@@ -132,7 +132,7 @@ export async function POST(request: Request) {
         if (!updatedCursors[channel.id] || BigInt(msg.id) < BigInt(updatedCursors[channel.id])) {
           updatedCursors[channel.id] = msg.id;
         }
-      });
+      }
     }
 
     // 6. Save Events

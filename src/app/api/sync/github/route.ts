@@ -96,7 +96,7 @@ export async function POST(request: Request) {
 
     const now = new Date().toISOString();
 
-    const rawEvents = allRepos.map((repo) => {
+    const rawEvents = await Promise.all(allRepos.map(async (repo) => {
       const description = repo.description || 'No description provided.';
       const content = [
         description,
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
         `Repo: ${repo.html_url}`,
       ].join(' ');
 
-      const risk = scoreGithubEvent({
+      const risk = await scoreGithubEvent({
         title: repo.full_name,
         description,
         stars: repo.stargazers_count,
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
         flag_severity: risk.severity,
         flag_reason: risk.reasons[0] || null,
       };
-    });
+    }));
 
     await upsertRawEventsSafely(supabase, rawEvents);
 

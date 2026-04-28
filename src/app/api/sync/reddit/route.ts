@@ -90,10 +90,10 @@ export async function POST(request: Request) {
       if (!afterToken) break;
     }
 
-    const events = allChildren.map((entry) => {
+    const events = await Promise.all(allChildren.map(async (entry) => {
       const data = entry.data;
       const content = data.body || '';
-      const risk = scoreRedditEvent({
+      const risk = await scoreRedditEvent({
         body: content,
         subreddit: data.subreddit || '',
         score: data.score,
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
         flag_severity: risk.severity,
         flag_reason: risk.reasons[0] || null,
       };
-    });
+    }));
 
     await upsertRawEventsSafely(supabase, events);
 

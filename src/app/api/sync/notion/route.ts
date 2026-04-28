@@ -116,10 +116,10 @@ export async function POST(request: Request) {
       }
     }
 
-    const events = allResults.map((item) => {
+    const events = await Promise.all(allResults.map(async (item) => {
       const title = extractTitle(item);
       const content = `${title} ${item.url || ''}`.trim();
-      const risk = scoreNotionEvent({ title, content });
+      const risk = await scoreNotionEvent({ title, content });
 
       return {
         user_id: userId,
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
         flag_severity: risk.severity,
         flag_reason: risk.reasons.join(', '),
       };
-    });
+    }));
 
     await upsertRawEventsSafely(supabase, events);
 

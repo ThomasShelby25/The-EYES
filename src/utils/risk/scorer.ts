@@ -15,6 +15,8 @@ type RiskContext = {
   engagementScore?: number;
 };
 
+import OpenAI from 'openai';
+
 const sensitiveKeywords = [
   'password',
   'secret',
@@ -28,7 +30,6 @@ const sensitiveKeywords = [
   'otp',
 ];
 
-const harmfulKeywords = ['hate', 'violence', 'abuse', 'threat', 'harass'];
 const sensitiveSubreddits = ['politics', 'legaladvice', 'depression', 'relationships'];
 
 function clampScore(value: number) {
@@ -46,22 +47,24 @@ function countMatches(text: string, keywords: string[]) {
   return keywords.reduce((acc, keyword) => (lower.includes(keyword) ? acc + 1 : acc), 0);
 }
 
-function assessBaseRisk(context: RiskContext): RiskAssessment {
+// Optional singleton for OpenAI client if key is present
+const getOpenAIClient = () => {
+  if (process.env.OPENAI_API_KEY) {
+    return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return null;
+};
+
+async function assessBaseRisk(context: RiskContext): Promise<RiskAssessment> {
   const combined = `${context.title || ''} ${context.content || ''}`.trim();
   const sensitiveHits = countMatches(combined, sensitiveKeywords);
-  const harmfulHits = countMatches(combined, harmfulKeywords);
-
+  
   const reasons: string[] = [];
   let score = 5;
 
   if (sensitiveHits > 0) {
     score += sensitiveHits * 16;
     reasons.push(`Contains ${sensitiveHits} sensitive keyword signal(s)`);
-  }
-
-  if (harmfulHits > 0) {
-    score += harmfulHits * 14;
-    reasons.push(`Contains ${harmfulHits} harmful language signal(s)`);
   }
 
   if (context.exposureScore) {
@@ -78,6 +81,40 @@ function assessBaseRisk(context: RiskContext): RiskAssessment {
     reasons.push(...context.sourceHints);
   }
 
+  // NLP ML Moderation Integration
+  const openai = getOpenAIClient();
+  if (openai && combined.length > 0) {
+    try {
+      const modResponse = await openai.moderations.create({ input: combined });
+      const modResult = modResponse.results[0];
+      if (modResult.flagged) {
+        score += 50; // Major ML flag
+        reasons.push('OpenAI ML algorithmic scan flagged content as potentially harmful/unsafe');
+        
+        // Add specific categories flagged
+        const flaggedCategories = Object.entries(modResult.categories)
+          .filter(([_, isFlagged]) => isFlagged)
+          .map(([cat]) => cat);
+        
+        if (flaggedCategories.length > 0) {
+          reasons.push(`ML Categories: ${flaggedCategories.join(', ')}`);
+        }
+      } else {
+        // Even if not strictly flagged, we can look at category scores for nuanced risk
+        let maxSubScore = 0;
+        Object.values(modResult.category_scores).forEach((val) => {
+          if (val > maxSubScore) maxSubScore = val;
+        });
+        if (maxSubScore > 0.1) {
+           score += (maxSubScore * 20); // Adds up to 20 points based on confidence
+           reasons.push('Elevated NLP baseline risk score detected');
+        }
+      }
+    } catch (e) {
+      console.warn("OpenAI Moderation API failed, falling back to heuristic scoring", e);
+    }
+  }
+
   const normalized = clampScore(score);
   const severity = severityFromScore(normalized);
 
@@ -89,7 +126,7 @@ function assessBaseRisk(context: RiskContext): RiskAssessment {
   };
 }
 
-export function scoreGmailEvent(params: { subject: string; snippet: string; from: string }): RiskAssessment {
+export async function scoreGmailEvent(params: { subject: string; snippet: string; from: string }): Promise<RiskAssessment> {
   const externalSender = !/@(gmail\.com|outlook\.com|hotmail\.com|yahoo\.com)$/i.test(params.from);
   const sourceHints: string[] = [];
   let exposureScore = 0;
@@ -99,7 +136,7 @@ export function scoreGmailEvent(params: { subject: string; snippet: string; from
     sourceHints.push('Sender is from a non-personal or external domain');
   }
 
-  return assessBaseRisk({
+  return await assessBaseRisk({
     title: params.subject,
     content: params.snippet,
     sourceHints,
@@ -107,13 +144,13 @@ export function scoreGmailEvent(params: { subject: string; snippet: string; from
   });
 }
 
-export function scoreGithubEvent(params: {
+export async function scoreGithubEvent(params: {
   title: string;
   description: string;
   stars: number;
   forks: number;
   language: string | null;
-}): RiskAssessment {
+}): Promise<RiskAssessment> {
   const sourceHints: string[] = [];
   let exposureScore = 0;
 
@@ -135,7 +172,7 @@ export function scoreGithubEvent(params: {
     sourceHints.push('Shell repositories often contain operational secrets if mishandled');
   }
 
-  return assessBaseRisk({
+  return await assessBaseRisk({
     title: params.title,
     content: params.description,
     sourceHints,
@@ -143,7 +180,7 @@ export function scoreGithubEvent(params: {
   });
 }
 
-export function scoreRedditEvent(params: { body: string; subreddit: string; score: number | null | undefined }): RiskAssessment {
+export async function scoreRedditEvent(params: { body: string; subreddit: string; score: number | null | undefined }): Promise<RiskAssessment> {
   const sourceHints: string[] = [];
   let exposureScore = 0;
   let engagementScore = 0;
@@ -158,14 +195,14 @@ export function scoreRedditEvent(params: { body: string; subreddit: string; scor
     sourceHints.push('High engagement comment increases discoverability');
   }
 
-  return assessBaseRisk({
+  return await assessBaseRisk({
     content: params.body,
     sourceHints,
     exposureScore,
     engagementScore,
   });
 }
-export function scoreSlackEvent(params: { text: string; channelName: string; user: string }): RiskAssessment {
+export async function scoreSlackEvent(params: { text: string; channelName: string; user: string }): Promise<RiskAssessment> {
   const sourceHints: string[] = [];
   let exposureScore = 0;
 
@@ -174,7 +211,7 @@ export function scoreSlackEvent(params: { text: string; channelName: string; use
     sourceHints.push('Message is in a high-visibility public channel');
   }
 
-  return assessBaseRisk({
+  return await assessBaseRisk({
     content: params.text,
     title: `Slack Message in #${params.channelName}`,
     sourceHints,
@@ -182,7 +219,7 @@ export function scoreSlackEvent(params: { text: string; channelName: string; use
   });
 }
 
-export function scoreDiscordEvent(params: { text: string; channelName?: string; user: string }): RiskAssessment {
+export async function scoreDiscordEvent(params: { text: string; channelName?: string; user: string }): Promise<RiskAssessment> {
   const sourceHints: string[] = [];
   let exposureScore = 0;
 
@@ -191,7 +228,7 @@ export function scoreDiscordEvent(params: { text: string; channelName?: string; 
     sourceHints.push('Message is in a potentially sensitive internal channel');
   }
 
-  return assessBaseRisk({
+  return await assessBaseRisk({
     content: params.text,
     title: `Discord Message in ${params.channelName || 'Private Channel'}`,
     sourceHints,
@@ -199,7 +236,7 @@ export function scoreDiscordEvent(params: { text: string; channelName?: string; 
   });
 }
 
-export function scoreNotionEvent(params: { title: string; content?: string }): RiskAssessment {
+export async function scoreNotionEvent(params: { title: string; content?: string }): Promise<RiskAssessment> {
   const sourceHints: string[] = [];
   let exposureScore = 0;
 
@@ -208,14 +245,14 @@ export function scoreNotionEvent(params: { title: string; content?: string }): R
     sourceHints.push('Document title contains sensitive category keywords');
   }
 
-  return assessBaseRisk({
+  return await assessBaseRisk({
     content: params.content || params.title,
     title: params.title,
     sourceHints,
     exposureScore,
   });
 }
-export function scoreDropboxEvent(params: { name: string; path?: string }): RiskAssessment {
+export async function scoreDropboxEvent(params: { name: string; path?: string }): Promise<RiskAssessment> {
   const sourceHints: string[] = [];
   let exposureScore = 0;
 
@@ -224,7 +261,7 @@ export function scoreDropboxEvent(params: { name: string; path?: string }): Risk
     sourceHints.push('File appears to be an archive or backup');
   }
 
-  return assessBaseRisk({
+  return await assessBaseRisk({
     content: params.path || params.name,
     title: `Dropbox File: ${params.name}`,
     sourceHints,
@@ -232,7 +269,7 @@ export function scoreDropboxEvent(params: { name: string; path?: string }): Risk
   });
 }
 
-export function scoreTwitterEvent(params: { text: string; reach?: number }): RiskAssessment {
+export async function scoreTwitterEvent(params: { text: string; reach?: number }): Promise<RiskAssessment> {
   const sourceHints: string[] = [];
   let exposureScore = 0;
 
@@ -241,7 +278,7 @@ export function scoreTwitterEvent(params: { text: string; reach?: number }): Ris
     sourceHints.push('High social reach increases reputation impact');
   }
 
-  return assessBaseRisk({
+  return await assessBaseRisk({
     content: params.text,
     title: 'X/Twitter Post',
     sourceHints,

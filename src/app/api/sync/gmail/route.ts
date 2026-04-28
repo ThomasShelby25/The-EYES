@@ -130,12 +130,12 @@ export async function POST(request: Request) {
       }
     }
 
-    const events = messages.map((message) => {
+    const events = await Promise.all(messages.map(async (message) => {
       const subject = getHeader(message.payload?.headers, 'Subject') || 'No subject';
       const from = getHeader(message.payload?.headers, 'From') || 'Unknown sender';
       const content = `${subject} ${message.snippet || ''}`.trim();
       const ts = message.internalDate ? new Date(Number(message.internalDate)).toISOString() : new Date().toISOString();
-      const risk = scoreGmailEvent({
+      const risk = await scoreGmailEvent({
         subject,
         snippet: message.snippet || '',
         from,
@@ -159,7 +159,7 @@ export async function POST(request: Request) {
         flag_severity: risk.severity,
         flag_reason: risk.reasons[0] || null,
       };
-    });
+    }));
 
     await upsertRawEventsSafely(supabase, events);
 
