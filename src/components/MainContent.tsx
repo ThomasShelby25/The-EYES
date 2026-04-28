@@ -35,8 +35,14 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
   const [filterPlatform, setFilterPlatform] = useState<string>('all');
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [threadId, setThreadId] = useState<string>('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [, setIsLoading] = useState(true);
+
+  // Initialize thread ID on client
+  useEffect(() => {
+    setThreadId(Math.random().toString(36).substring(7));
+  }, []);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const activeStreamRef = useRef<AbortController | null>(null);
@@ -98,6 +104,29 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (!isStreaming && messages.length > 0 && threadId) {
+      try {
+        const saved = JSON.parse(localStorage.getItem('eyes_chat_history') || '[]');
+        const existingIndex = saved.findIndex((t: any) => t.id === threadId);
+        const newThread = {
+          id: threadId,
+          title: messages[0].content.slice(0, 40) + '...',
+          timestamp: new Date().toLocaleDateString() + ", " + new Date().toLocaleTimeString(),
+          turns: Math.ceil(messages.length / 2),
+          snippet: messages[0].content,
+          assistantReplied: messages.length > 1 ? messages[1].content.slice(0, 100) : '',
+          messages: messages
+        };
+        if (existingIndex >= 0) saved[existingIndex] = newThread;
+        else saved.unshift(newThread);
+        localStorage.setItem('eyes_chat_history', JSON.stringify(saved));
+      } catch (e) {
+        console.error("Failed to save chat", e);
+      }
+    }
+  }, [messages, isStreaming, threadId]);
 
   const setView = (v: string) => {
     router.push(`?view=${v}`, { scroll: false });
@@ -213,7 +242,14 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
       )}
 
       {activeView === 'history' && (
-        <HistoryView onBack={() => setView('dashboard')} />
+        <HistoryView 
+          onBack={() => setView('dashboard')} 
+          onLoadThread={(msgs) => {
+            setMessages(msgs);
+            setThreadId(Math.random().toString(36).substring(7)); // branch out a new thread if continued
+            setView('dashboard');
+          }}
+        />
       )}
 
       {activeView === 'readiness' && (

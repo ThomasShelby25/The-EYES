@@ -10,32 +10,44 @@ interface SavedThread {
   turns: number;
   snippet?: string;
   assistantReplied?: string;
+  messages: any[];
 }
 
-export function HistoryView({ onBack }: { onBack: () => void }) {
+export function HistoryView({ onBack, onLoadThread }: { onBack: () => void, onLoadThread: (msgs: any[]) => void }) {
   const [history, setHistory] = useState<SavedThread[]>([]);
 
-  // Simulate loading from local history or API
   useEffect(() => {
-    // Mocking the specific data from your screenshot for the 'Exact UI' look
-    setHistory([
-      {
-        id: '1',
-        title: "Recent GitHub Activity Summary",
-        timestamp: new Date().toLocaleDateString() + ", " + new Date().toLocaleTimeString(),
-        turns: 2,
-        snippet: "what you know about me according recent github data",
-        assistantReplied: "Based on your recent GitHub activity, you have been actively committing to 'The-EYES' repository, specifically working on the risk scoring engine and refactoring the UI components for the new Audit View."
+    try {
+      const saved = localStorage.getItem('eyes_chat_history');
+      if (saved) {
+        setHistory(JSON.parse(saved));
       }
-    ]);
+    } catch (e) {
+      console.error("Failed to load history", e);
+    }
   }, []);
+
+  const handleClear = () => {
+    if (window.confirm("Are you sure you want to clear all chat history?")) {
+      localStorage.removeItem('eyes_chat_history');
+      setHistory([]);
+    }
+  };
 
   return (
     <div className={styles.soloView}>
 
 
-      <div className={styles.viewHeader}>
-        <h1 className={styles.soloTitle}>History</h1>
+      <div className={styles.viewHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 className={styles.soloTitle} style={{ margin: 0 }}>History</h1>
+        {history.length > 0 && (
+          <button 
+            onClick={handleClear}
+            style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--border-primary)', color: 'var(--text-secondary)', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}
+          >
+            Clear History
+          </button>
+        )}
       </div>
 
       <div className={styles.statsGrid}>
@@ -56,8 +68,11 @@ export function HistoryView({ onBack }: { onBack: () => void }) {
         <p className={styles.sectionDesc}>All questions and assistant responses from memory search.</p>
 
         <div className={styles.threadList}>
+          {history.length === 0 && (
+            <p style={{ color: 'var(--text-secondary)' }}>No chat history found.</p>
+          )}
           {history.map((thread) => (
-            <div key={thread.id} className={styles.threadCard} onClick={() => onBack()} style={{ cursor: 'pointer' }}>
+            <div key={thread.id} className={styles.threadCard} onClick={() => onLoadThread(thread.messages)} style={{ cursor: 'pointer' }}>
               <div className={styles.threadHeader}>
                 <h4 className={styles.threadTitle}>{thread.title}</h4>
                 <span className={styles.turnBadge}>{thread.turns} turns</span>
