@@ -25,6 +25,7 @@ import {
   WithingsIconOfficial
 } from '../components/common/icons/PlatformIcons';
 
+export const ALL_POSSIBLE_PLATFORMS = [
   { id: 'github', name: 'GitHub', icon: <GitHubIconOfficial />, category: 'Development', description: 'Sync repositories, pull requests, and code history.', color: 'var(--text-primary)' },
   { id: 'gmail', name: 'Gmail', icon: <GmailIconOfficial />, category: 'Productivity', description: 'Index your entire email history and communications.', color: '#ea4335' },
   { id: 'google-calendar', name: 'Google Calendar', icon: <CalendarIconOfficial />, category: 'Productivity', description: 'Track your meetings, events, and time allocation.', color: '#4285f4' },
