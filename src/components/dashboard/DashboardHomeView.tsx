@@ -120,7 +120,13 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
              return (
               <div key={p.id} className={styles.readinessCard} onClick={startAuth} style={!isLive ? { cursor: 'pointer' } : {}}>
                 <div className={styles.cardHeader}>
-                  <div className={styles.readinessIcon}>
+                  <div 
+                    className={styles.readinessIcon} 
+                    style={{ 
+                      backgroundColor: (p as any).color ? `${(p as any).color}15` : 'var(--bg-secondary)',
+                      border: (p as any).color ? `1px solid ${(p as any).color}30` : '1px solid var(--border-subtle)'
+                    }}
+                  >
                     {p.icon ? React.cloneElement(p.icon as React.ReactElement<any>, { size: 24 }) : null}
                   </div>
                   <div className={styles.readinessInfo}>
