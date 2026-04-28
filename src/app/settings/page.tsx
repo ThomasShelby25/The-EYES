@@ -64,6 +64,22 @@ export default function SettingsPage() {
     }
   };
 
+  const handleWipeArchive = async () => {
+    const confirm = window.prompt("Type 'WIPE' to completely purge all indexed memories. This cannot be undone.");
+    if (confirm !== 'WIPE') return;
+
+    try {
+      const res = await fetch('/api/user/wipe', { method: 'POST' });
+      if (res.ok) {
+        alert("Neural Archive successfully purged.");
+      } else {
+        alert("Failed to purge archive.");
+      }
+    } catch (e) {
+      alert("Error purging archive.");
+    }
+  };
+
   return (
     <div className={styles.pageRoot}>
       <div className="neural-bg" />
@@ -264,7 +280,7 @@ export default function SettingsPage() {
                       </div>
                       <button 
                         className={styles.dangerBtnOutline}
-                        onClick={() => alert('Initiating global data purge...')}
+                        onClick={handleWipeArchive}
                       >
                         Purge All Data
                       </button>

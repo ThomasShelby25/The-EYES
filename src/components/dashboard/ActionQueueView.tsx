@@ -41,13 +41,31 @@ export function ActionQueueView({ onBack }: ActionQueueViewProps) {
     fetchActions();
   }, []);
 
-  const handleApprove = (id: string) => {
-    setProcessingId(id);
-    // Simulate API execution
-    setTimeout(() => {
-      setActions((prev) => prev.filter(a => a.id !== id));
+  const handleApprove = async (action: ActionItem) => {
+    setProcessingId(action.id);
+    
+    try {
+      const response = await fetch('/api/actions/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(action)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 403) {
+          alert(`Execution Blocked:\n\n${errorData.details}`);
+        } else {
+          alert('Failed to execute action.');
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Network error while executing action.');
+    } finally {
+      setActions((prev) => prev.filter(a => a.id !== action.id));
       setProcessingId(null);
-    }, 1500);
+    }
   };
 
   const handleDismiss = (id: string) => {
@@ -121,7 +139,7 @@ export function ActionQueueView({ onBack }: ActionQueueViewProps) {
 
                              <div style={{ display: 'flex', gap: '12px' }}>
                                 <button 
-                                  onClick={() => handleApprove(action.id)}
+                                  onClick={() => handleApprove(action)}
                                   style={{ 
                                     background: 'var(--text-primary)', color: 'var(--bg-primary)', 
                                     border: 'none', padding: '10px 24px', borderRadius: '8px', 
