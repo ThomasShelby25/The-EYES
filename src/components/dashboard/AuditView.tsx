@@ -33,6 +33,33 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
     }
   };
 
+  const handleExport = () => {
+    const csvRows = [
+      ['ID', 'Severity', 'Platform', 'Date', 'Risk Detected', 'Content Snippet']
+    ];
+    
+    items.forEach(item => {
+      csvRows.push([
+        item.id || '',
+        item.severity,
+        item.platform,
+        new Date(item.date).toISOString(),
+        item.reason ? item.reason.replace(/"/g, '""') : '',
+        (item.snippet || item.content || '').replace(/"/g, '""').replace(/\n/g, ' ')
+      ]);
+    });
+
+    const csvContent = csvRows.map(row => row.map(v => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `neural-audit-export-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className={styles.soloView}>
         <button className={styles.backBtn} onClick={onBack}>← Back</button>
@@ -87,7 +114,25 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
            </div>
 
            <div className={styles.flaggedSection}>
-              <h2 className={styles.sectionHeader}>PRIORITY REMEDIATION QUEUE ({items.length})</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                 <h2 className={styles.sectionHeader} style={{ marginBottom: 0 }}>PRIORITY REMEDIATION QUEUE ({items.length})</h2>
+                 <button 
+                   onClick={handleExport}
+                   style={{ 
+                     background: 'transparent', 
+                     border: '1px solid var(--border-primary)', 
+                     color: 'var(--text-secondary)', 
+                     padding: '8px 16px', 
+                     borderRadius: '8px', 
+                     cursor: 'pointer', 
+                     fontSize: '12px', 
+                     fontWeight: 600,
+                     letterSpacing: '1px'
+                   }}
+                 >
+                   EXPORT TO CSV
+                 </button>
+              </div>
               <div className={styles.flaggedList}>
                   {items.map((item, idx) => (
                      <div key={item.id || idx} className={styles.flaggedCard}>
