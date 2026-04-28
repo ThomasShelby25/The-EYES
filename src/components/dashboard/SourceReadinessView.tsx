@@ -41,9 +41,27 @@ export function SourceReadinessView({ platforms }: SourceReadinessViewProps) {
   };
 
   const handleForceSync = async (id: string) => {
-    console.log(`[Diagnostic] Force pulsing link: ${id}`);
-    // Mock sync logic
-    alert(`Initiating prioritized sync for ${id}...`);
+    // Map the UI platform ID to the route platform (e.g., 'google-calendar' to 'google_calendar' handling if needed, though the API usually accepts hyphens or underscores)
+    const routePlatform = id === 'google-calendar' ? 'google-calendar' : id.replace(/_/g, '-');
+    
+    try {
+      // Trigger a global UI refresh to show the syncing state immediately
+      window.dispatchEvent(new CustomEvent('eyes-realtime-refresh'));
+
+      const response = await fetch(`/api/sync/${routePlatform}?depth=shallow`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Sync failed (${response.status})`);
+      }
+
+      // Trigger another refresh to show the updated data
+      window.dispatchEvent(new CustomEvent('eyes-realtime-refresh'));
+    } catch (error) {
+      console.error('Force sync error:', error);
+      alert(`Failed to manually sync ${id}.`);
+    }
   };
 
   return (
