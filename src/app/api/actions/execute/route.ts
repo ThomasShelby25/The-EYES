@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { getValidGoogleToken } from '@/utils/oauth';
 
 export async function POST(req: Request) {
   try {
@@ -14,15 +15,10 @@ export async function POST(req: Request) {
 
     if (actionType === 'CALENDAR') {
       // 1. Fetch Google Calendar Token
-      const { data: tokenData } = await supabase
-        .from('platform_tokens')
-        .select('access_token')
-        .eq('user_id', user.id)
-        .eq('platform', 'google-calendar')
-        .single();
+      const accessToken = await getValidGoogleToken(supabase, user.id, 'google_calendar');
 
-      if (!tokenData?.access_token) {
-        return NextResponse.json({ error: 'Google Calendar not connected' }, { status: 400 });
+      if (!accessToken) {
+        return NextResponse.json({ error: 'Google Calendar not connected or token expired' }, { status: 400 });
       }
 
       // 2. Build Event Payload
@@ -40,7 +36,7 @@ export async function POST(req: Request) {
       const gcalRes = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${tokenData.access_token}`,
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
