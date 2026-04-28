@@ -90,7 +90,6 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
 
   return (
     <div className={styles.soloView}>
-        <button className={styles.backBtn} onClick={onBack}>← Back</button>
         <h1 className={styles.soloTitle}>NEURAL REPUTATION AUDIT</h1>
         
         <div className={styles.auditGrid}>

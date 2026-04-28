@@ -41,7 +41,6 @@ export function TimelineView({ onBack }: TimelineViewProps) {
 
   return (
     <div className={styles.soloView}>
-      <button className={styles.backBtn} onClick={onBack}>← Back</button>
       <h2 className={styles.soloTitle}>TIME LINE</h2>
       
       {loading ? (
