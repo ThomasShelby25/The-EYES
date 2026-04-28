@@ -26,6 +26,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<AuthResult>;
   signup: (name: string, email: string, password: string) => Promise<AuthResult>;
+  loginWithGoogle: () => Promise<AuthResult>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<AuthResult>;
   supabase: ReturnType<typeof createClient>;
@@ -621,6 +622,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.replace('/login');
   }, [supabase, router]);
 
+  const loginWithGoogle = useCallback(async (): Promise<AuthResult> => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : undefined,
+      }
+    });
+    if (error) return { success: false, message: error.message };
+    return { success: true };
+  }, [supabase]);
+
   const resetPassword = useCallback(async (email: string): Promise<AuthResult> => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
@@ -703,7 +715,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   if (user && isPublic) return null;
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, resetPassword, supabase, updateUser, theme, setGlobalTheme }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, loginWithGoogle, logout, resetPassword, supabase, updateUser, theme, setGlobalTheme }}>
       {children}
     </AuthContext.Provider>
   );
