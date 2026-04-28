@@ -118,7 +118,7 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
              };
 
              return (
-              <div key={p.id} className={styles.readinessCard} onClick={startAuth} style={!isLive ? { opacity: 0.6 } : {}}>
+              <div key={p.id} className={styles.readinessCard} onClick={startAuth} style={!isLive ? { cursor: 'pointer' } : {}}>
                 <div className={styles.cardHeader}>
                   <div className={styles.readinessIcon}>
                     {p.icon ? React.cloneElement(p.icon as React.ReactElement<any>, { size: 24 }) : null}
