@@ -13,74 +13,78 @@ export async function POST(request: Request) {
   const { supabase, userId } = actor;
 
   try {
-    // 1. Get Valid Token
+    // 1. Get existing sync status to retrieve channel cursors from metadata
+    const { data: currentStatus } = await supabase
+      .from('sync_status')
+      .select('metadata, total_items')
+      .eq('user_id', userId)
+      .eq('platform', 'slack')
+      .maybeSingle();
+
+    const channelCursors = (currentStatus?.metadata?.channel_cursors || {}) as Record<string, string>;
+
+    // 2. Get Valid Token
     const accessToken = await getValidSlackToken(supabase, userId);
     if (!accessToken) return NextResponse.json({ error: 'No Slack token found' }, { status: 404 });
 
-    // 2. Fetch Slack Context
-    const [authResponse, channelsResponse] = await Promise.all([
-      fetch('https://slack.com/api/auth.test', {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        cache: 'no-store',
-      }),
-      fetch('https://slack.com/api/conversations.list?types=public_channel,private_channel', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        cache: 'no-store',
-      })
-    ]);
+    // Mark as 'syncing'
+    await upsertSyncStatusSafely(supabase, {
+      user_id: userId,
+      platform: 'slack',
+      status: 'syncing',
+      last_sync_at: new Date().toISOString(),
+    });
 
-    const authData = await authResponse.json();
+    // 3. Fetch Slack Context
+    const channelsResponse = await fetch('https://slack.com/api/conversations.list?types=public_channel,private_channel', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    });
+
     const channelData = await channelsResponse.json();
+    if (!channelData.ok) throw new Error(`Slack API error: ${channelData.error}`);
 
-    if (!authData.ok) {
-        throw new Error(`Slack Auth Test failed: ${authData.error}`);
-    }
-
-    // 3. Fetch History for each channel (Concurrent with batch limit)
     const url = new URL(request.url);
     const depth = url.searchParams.get('depth') || 'shallow';
-    const channelLimit = depth === 'deep' ? 15 : 5;
+    const channelLimit = depth === 'deep' ? 20 : 5;
     const messageLimit = depth === 'deep' ? 100 : 20;
 
     const activeChannels = (channelData.channels || []).filter((c: any) => c.is_member).slice(0, channelLimit);
+    
+    // 4. Fetch History for each channel (using cursors for deep sync)
     const historyPromises = activeChannels.map(async (channel: any) => {
-      const resp = await fetch(`https://slack.com/api/conversations.history?channel=${channel.id}&limit=${messageLimit}`, {
+      // Use the stored timestamp (cursor) as the 'latest' parameter to pull OLDER messages
+      const latest = channelCursors[channel.id] || null;
+      const fetchUrl = new URL('https://slack.com/api/conversations.history');
+      fetchUrl.searchParams.set('channel', channel.id);
+      fetchUrl.searchParams.set('limit', messageLimit.toString());
+      if (latest) fetchUrl.searchParams.set('latest', latest);
+
+      const resp = await fetch(fetchUrl.toString(), {
         headers: { Authorization: `Bearer ${accessToken}` },
         cache: 'no-store',
       });
       const data = await resp.json();
-      return { channel, messages: data.ok ? data.messages : [] };
+      return { channel, messages: data.ok ? data.messages : [], hasMore: data.has_more };
     });
 
-    const Histories = await Promise.all(historyPromises);
+    const histories = await Promise.all(historyPromises);
 
-    // 4. Transform to Events
-    const events: any[] = [
-      {
-        user_id: userId,
-        platform: 'slack',
-        platform_id: `team_${authData.team_id}`,
-        event_type: 'workspace',
-        title: `Slack Workspace: ${authData.team}`,
-        content: `Connected to Slack workspace "${authData.team}" (ID: ${authData.team_id}) as user "${authData.user}" (ID: ${authData.user_id}).`,
-        author: authData.user,
-        timestamp: new Date().toISOString(),
-        metadata: { ...authData }
-      }
-    ];
+    // 5. Transform to Events
+    const events: any[] = [];
+    const updatedCursors = { ...channelCursors };
+    let hasMoreOverall = false;
 
-    for (const { channel, messages } of Histories) {
+    for (const { channel, messages, hasMore } of histories) {
+      if (hasMore) hasMoreOverall = true;
+
       messages.forEach((msg: any) => {
         if (!msg.text || msg.subtype === 'bot_message') return;
 
         const risk = scoreSlackEvent({
           text: msg.text,
           channelName: channel.name,
-          user: authData.user
+          user: 'User' // We don't have the current user name here easily
         });
 
         events.push({
@@ -97,17 +101,20 @@ export async function POST(request: Request) {
           flag_reason: risk.reasons.join(', '),
           metadata: { ...msg, channel_id: channel.id, channel_name: channel.name }
         });
+        
+        // Update the cursor for this channel to the oldest message in this batch
+        if (!updatedCursors[channel.id] || parseFloat(msg.ts) < parseFloat(updatedCursors[channel.id])) {
+          updatedCursors[channel.id] = msg.ts;
+        }
       });
     }
 
-    // 5. Save Events
-    const { error: eventError } = await supabase
-      .from('raw_events')
-      .upsert(events, { onConflict: 'user_id,platform,platform_id' });
+    // 6. Save Events
+    if (events.length > 0) {
+      await upsertRawEventsSafely(supabase, events);
+    }
 
-    if (eventError) throw eventError;
-
-    // 5. Update Sync Status & Profile
+    // 7. Update Sync Status & Profile
     const { count: totalMemories } = await supabase
       .from('raw_events')
       .select('id', { count: 'exact', head: true })
@@ -118,11 +125,12 @@ export async function POST(request: Request) {
       upsertSyncStatusSafely(supabase, {
         user_id: userId,
         platform: 'slack',
-        status: 'connected',
-        sync_progress: 100,
-        total_items: events.length,
+        status: hasMoreOverall ? 'syncing' : 'connected',
+        sync_progress: hasMoreOverall ? 50 : 100,
+        total_items: (currentStatus?.total_items || 0) + events.length,
         last_sync_at: now,
-        next_sync_at: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+        next_sync_at: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
+        metadata: { channel_cursors: updatedCursors },
         error_message: null,
       }),
       supabase.from('user_profiles').update({
@@ -131,7 +139,12 @@ export async function POST(request: Request) {
       }).eq('user_id', userId),
     ]);
 
-    return NextResponse.json({ success: true, count: events.length });
+    return NextResponse.json({ 
+      success: true, 
+      count: events.length, 
+      hasMore: hasMoreOverall,
+      totalMemories 
+    });
   } catch (err) {
     console.error('Slack Sync Error:', err);
     return NextResponse.json({ error: 'Sync failed' }, { status: 500 });

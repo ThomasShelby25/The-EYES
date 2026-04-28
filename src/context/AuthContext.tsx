@@ -27,6 +27,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<AuthResult>;
   signup: (name: string, email: string, password: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<AuthResult>;
   supabase: ReturnType<typeof createClient>;
   updateUser: (updates: Partial<User>) => Promise<AuthResult>;
   theme: 'dark' | 'light';
@@ -620,6 +621,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.replace('/login');
   }, [supabase, router]);
 
+  const resetPassword = useCallback(async (email: string): Promise<AuthResult> => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) return { success: false, message: error.message };
+    return { success: true };
+  }, [supabase]);
+
   const updateUser = useCallback(async (updates: Partial<User>): Promise<AuthResult> => {
     if (!user) return { success: false, message: 'Not authenticated' };
 
@@ -694,7 +703,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   if (user && isPublic) return null;
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, supabase, updateUser, theme, setGlobalTheme }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, resetPassword, supabase, updateUser, theme, setGlobalTheme }}>
       {children}
     </AuthContext.Provider>
   );

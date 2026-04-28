@@ -133,6 +133,50 @@ function citationsHeaderValue(citations: ChatCitation[]) {
   return Buffer.from(JSON.stringify(compact), 'utf8').toString('base64url');
 }
 
+function extractDateRange(query: string): { start_date: string | null, end_date: string | null } {
+  const q = query.toLowerCase();
+  const now = new Date();
+  let start_date = null;
+  let end_date = null;
+
+  if (q.includes('yesterday')) {
+    const d = new Date();
+    d.setDate(now.getDate() - 1);
+    d.setHours(0, 0, 0, 0);
+    start_date = d.toISOString();
+    d.setHours(23, 59, 59, 999);
+    end_date = d.toISOString();
+  } else if (q.includes('last week')) {
+    const d = new Date();
+    d.setDate(now.getDate() - 7);
+    start_date = d.toISOString();
+    end_date = now.toISOString();
+  } else if (q.includes('last month')) {
+    const d = new Date();
+    d.setMonth(now.getMonth() - 1);
+    start_date = d.toISOString();
+    end_date = now.toISOString();
+  } else if (q.includes('last year')) {
+    const d = new Date();
+    d.setFullYear(now.getFullYear() - 1);
+    start_date = d.toISOString();
+    end_date = now.toISOString();
+  }
+
+  return { start_date, end_date };
+}
+
+function maskPII(text: string): string {
+  let masked = text;
+  // Mask 16 digit numbers (credit cards)
+  masked = masked.replace(/\b(?:\d[ -]*?){13,16}\b/g, '[REDACTED_CARD]');
+  // Mask SSN-like numbers
+  masked = masked.replace(/\b\d{3}[-.]?\d{2}[-.]?\d{4}\b/g, '[REDACTED_SSN]');
+  // Mask potential passwords
+  masked = masked.replace(/(password|pwd|passcode)\s*[:=]\s*([^\s]+)/gi, '$1: [REDACTED]');
+  return masked;
+}
+
 /**
  * AI Chat API: 'Ask Your Memory'
  * Implements RAG (Retrieval-Augmented Generation) to answer user questions
@@ -175,6 +219,7 @@ export async function POST(request: Request) {
     // 1. Generate embedding for the user's question
     const retrievalStartedAt = Date.now();
     const queryResult = await generateEmbedding(message);
+    const dateRange = extractDateRange(message);
     let context = '';
     let citations: ChatCitation[] = [];
     let retrievalError: string | null = null;
@@ -190,23 +235,22 @@ export async function POST(request: Request) {
     };
 
     if (queryResult) {
-      // 2. Perform vector similarity search in Supabase
-      const { data: matches, error: matchError } = await supabase.rpc('match_embeddings', {
+      // 2. Perform HYBRID similarity search in Supabase (Vector + Keyword)
+      const { data: matches, error: matchError } = await supabase.rpc('hybrid_search', {
+        query_text: message,
         query_embedding: queryResult.embedding,
-        match_threshold: 0.5, // Only relevant memories
-        match_count: 5,        // Top 5 context pieces
-        user_id_arg: user.id
+        match_count: 15, // Pull more for reranking
+        user_id_arg: user.id,
+        start_date: dateRange.start_date,
+        end_date: dateRange.end_date
       });
 
       if (matchError) {
-        console.warn('[Chat] Vector search failed (falling back to generic AI):', matchError.message);
+        console.warn('[Chat] Hybrid search failed:', matchError.message);
         retrievalError = matchError.message;
       } else if (matches && matches.length > 0) {
-        const rerankedRows = rerankMatches(
-          message,
-          (matches as MatchEmbeddingRow[])
-          .filter((row) => typeof row.id === 'string' && typeof row.content === 'string')
-        ).slice(0, 8);
+        // Use the scores directly from the hybrid_search RPC
+        const rerankedRows = (matches as any[]).sort((a, b) => b.combined_score - a.combined_score).slice(0, 8);
 
         const embeddingIds = rerankedRows.map((row) => row.id);
         const { data: embeddingRows } = await supabase
@@ -251,18 +295,20 @@ export async function POST(request: Request) {
             author: source?.author ?? null,
             timestamp: source?.timestamp ?? null,
             similarity: Number((match.similarity ?? 0).toFixed(4)),
-            rerankScore: Number((match.rerankScore ?? 0).toFixed(4)),
-            snippet: match.content.slice(0, 260),
+            rerankScore: Number((match.combined_score ?? 0).toFixed(4)),
+            snippet: maskPII((match.content || '').slice(0, 420)), // Masked and increased snippet
           };
         });
 
         context = citations
           .map((citation) => {
-            const title = citation.title ? ` | title: ${citation.title}` : '';
-            const timestamp = citation.timestamp ? ` | time: ${citation.timestamp}` : '';
-            return `[source:${citation.sourceId} platform:${citation.platform}${timestamp}${title}]\n${citation.snippet}`;
+            const platform = citation.platform.toUpperCase();
+            const date = citation.timestamp ? new Date(citation.timestamp).toLocaleDateString() : 'Unknown Date';
+            const author = citation.author ? ` | sender: ${citation.author}` : '';
+            const title = citation.title ? ` | subject: ${citation.title}` : '';
+            return `[MEMORY ${citation.sourceId}] [${platform}] [${date}${author}${title}]\n${citation.snippet}`;
           })
-          .join('\n---\n');
+          .join('\n\n---\n\n');
       }
     }
 
@@ -278,20 +324,21 @@ export async function POST(request: Request) {
 
     // 3. Construct the prompt for GPT-4o
     const systemPrompt = `
-      You are the EYES Memory Assistant, an elite AI that helps users explore their digital past.
-      You have access to the user's indexed memories from Gmail, GitHub, and other platforms.
+      You are the EYES Neural Assistant, a high-performance Digital Memory OS.
+      Your purpose is to help the user navigate their digital past with absolute accuracy.
       
       User Identity: ${user.user_metadata?.name || 'User'}
+      Current Time: ${new Date().toLocaleString()}
       
-      When answering:
-      1. Use the provided "Memory Context" to be factual.
-      2. Reference supporting sources inline using [source:N] where N is the source number from memory context.
-      3. If you don't find the answer in the context, say so, but suggest what they might search for.
-      4. Be concise, professional, and slightly futuristic.
-      5. Grounding rubric: prefer evidence-backed claims, avoid speculation, and use at least one [source:N] citation when context exists.
+      OPERATING PROTOCOLS:
+      1. DATA GROUNDING: Use the provided "MEMORY CONTEXT" to answer. If a memory contains a specific date, name, or detail, prioritize it.
+      2. SOURCE ATTRIBUTION: Reference supporting memories inline using [MEMORY N]. You MUST provide at least one citation if relevant context exists.
+      3. HALLUCINATION SHIELD: If the memory context does not contain the answer, state that you don't have that specific record, but suggest related terms they could search for.
+      4. TONE: Professional, slightly futuristic, and efficient.
+      5. PRIVACY: Never reveal the internal IDs or raw metadata (like platform_id) unless asked.
       
-      Memory Context:
-      ${context || 'No relevant local memories found for this specific query.'}
+      MEMORY CONTEXT:
+      ${context || 'The neural archive is currently empty or contains no relevant records for this query.'}
     `.trim();
 
     const messages: ChatHistoryMessage[] = [

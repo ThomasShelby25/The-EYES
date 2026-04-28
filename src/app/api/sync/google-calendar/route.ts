@@ -25,16 +25,13 @@ export async function POST(request: Request) {
 
     const { supabase, userId } = actor;
 
-    const { data: tokenRow } = await supabase
-      .from('oauth_tokens')
-      .select('id')
+    // 1. Get existing sync status to find the cursor
+    const { data: currentStatus } = await supabase
+      .from('sync_status')
+      .select('cursor, total_items')
       .eq('user_id', userId)
       .eq('platform', 'google_calendar')
       .maybeSingle();
-
-    if (!tokenRow?.id) {
-      return NextResponse.json({ error: 'Google Calendar is not connected yet.' }, { status: 400 });
-    }
 
     const accessToken = await getValidGoogleToken(supabase, userId, 'google_calendar');
     if (!accessToken) {
@@ -43,32 +40,50 @@ export async function POST(request: Request) {
 
     const url = new URL(request.url);
     const depth = url.searchParams.get('depth') || 'shallow';
-    const maxResults = depth === 'deep' ? 250 : 20;
-    const historyDays = depth === 'deep' ? 365 : 120;
+    const maxResults = depth === 'deep' ? 500 : 50;
+    const historyDays = depth === 'deep' ? 1095 : 180; // 3 years vs 6 months
     const timeMin = new Date(Date.now() - 1000 * 60 * 60 * 24 * historyDays).toISOString();
 
-    const eventsResponse = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=${maxResults}&singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(timeMin)}`,
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        cache: 'no-store',
-      }
-    );
+    // Mark as 'syncing'
+    await upsertSyncStatusSafely(supabase, {
+      user_id: userId,
+      platform: 'google_calendar',
+      status: 'syncing',
+      last_sync_at: new Date().toISOString(),
+    });
 
-    if (!eventsResponse.ok) {
-      const providerError = await eventsResponse.text();
-      const status = [401, 403].includes(eventsResponse.status) ? eventsResponse.status : 502;
-      return NextResponse.json(
-        {
-          error: `Calendar API request failed (${eventsResponse.status})`,
-          detail: providerError.slice(0, 400),
-        },
-        { status }
-      );
+    let allEvents: any[] = [];
+    let nextPageToken: string | undefined = currentStatus?.cursor || undefined;
+    let hasMore = true;
+
+    // --- PAGINATION LOOP ---
+    // Fetch a batch of events
+    const fetchUrl = new URL('https://www.googleapis.com/calendar/v3/calendars/primary/events');
+    fetchUrl.searchParams.set('maxResults', maxResults.toString());
+    fetchUrl.searchParams.set('singleEvents', 'true');
+    fetchUrl.searchParams.set('orderBy', 'startTime');
+    fetchUrl.searchParams.set('timeMin', timeMin);
+    if (nextPageToken) fetchUrl.searchParams.set('pageToken', nextPageToken);
+
+    const response = await fetch(fetchUrl.toString(), {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const providerError = await response.text();
+      return NextResponse.json({ 
+        error: `Calendar API failed (${response.status})`, 
+        detail: providerError.slice(0, 300) 
+      }, { status: 502 });
     }
 
-    const body = (await eventsResponse.json()) as CalendarEventsResponse;
-    const events = (body.items ?? []).map((item) => {
+    const body = (await response.json()) as { items?: any[], nextPageToken?: string };
+    allEvents = body.items ?? [];
+    nextPageToken = body.nextPageToken;
+    hasMore = !!nextPageToken;
+
+    const events = allEvents.map((item) => {
       const title = item.summary || 'Untitled event';
       const description = item.description || '';
       const ts = item.start?.dateTime || item.start?.date || new Date().toISOString();
@@ -102,15 +117,17 @@ export async function POST(request: Request) {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userId);
 
+    // Update status and save cursor
     const [, profileUpdate] = await Promise.all([
       upsertSyncStatusSafely(supabase, {
         user_id: userId,
         platform: 'google_calendar',
-        status: 'connected',
-        sync_progress: 100,
-        total_items: events.length,
+        status: hasMore ? 'syncing' : 'connected',
+        sync_progress: hasMore ? 50 : 100,
+        total_items: (currentStatus?.total_items || 0) + events.length,
         last_sync_at: new Date().toISOString(),
-        next_sync_at: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+        next_sync_at: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
+        cursor: hasMore ? nextPageToken : null,
         error_message: null,
       }),
       supabase.from('user_profiles').update({
@@ -119,11 +136,14 @@ export async function POST(request: Request) {
       }).eq('user_id', userId),
     ]);
 
-    if (profileUpdate.error) {
-      throw profileUpdate.error;
-    }
+    if (profileUpdate.error) throw profileUpdate.error;
 
-    return NextResponse.json({ ok: true, syncedEvents: events.length });
+    return NextResponse.json({ 
+      ok: true, 
+      syncedEvents: events.length,
+      totalMemories,
+      hasMore 
+    });
   } catch (error) {
     console.error('google-calendar sync error:', error);
     return NextResponse.json({ error: 'Unable to sync Google Calendar data right now.' }, { status: 500 });

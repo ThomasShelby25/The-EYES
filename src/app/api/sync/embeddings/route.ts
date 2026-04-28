@@ -16,59 +16,67 @@ export async function POST(request: Request) {
 
     const { supabase, userId } = actor;
 
-    // Find events that don't have embeddings yet using a left join approach
-    // Note: In Supabase/Postgrest, we can filter by 'embeddings!left' where 'id' is null
+    // 1. Find events that don't have embeddings yet
+    // Using the 'id' field of the joined 'embeddings' table to check for null
     const { data: events, error: fetchError } = await supabase
       .from('raw_events')
       .select('id, platform, event_type, title, content, embeddings(id)')
       .eq('user_id', userId)
       .not('content', 'is', null)
-      .is('embeddings.id', null) // Only those without embeddings
-      .limit(50); // Increased batch size for faster cold-starts
+      .limit(40); // Process in smaller chunks to avoid timeouts
 
     if (fetchError) throw fetchError;
-    if (!events || events.length === 0) {
+
+    // Filter manually for rows where embeddings array is empty
+    const pendingEvents = (events || []).filter(e => !e.embeddings || (Array.isArray(e.embeddings) && e.embeddings.length === 0));
+
+    if (pendingEvents.length === 0) {
       return NextResponse.json({ message: 'Neural index is current.', count: 0 });
     }
 
-    console.log(`[AI-Brain] Indexing ${events.length} memories for user ${userId}`);
+    console.log(`[AI-Brain] Found ${pendingEvents.length} new events. Indexing memories for user ${userId}...`);
 
     const indexResults = await Promise.all(
-      events.map(async (event) => {
-        const chunks = buildDeterministicChunks({
-          platform: event.platform,
-          eventType: event.event_type,
-          title: event.title,
-          content: event.content || '',
-        });
+      pendingEvents.map(async (event) => {
+        try {
+          const chunks = buildDeterministicChunks({
+            platform: event.platform,
+            eventType: event.event_type,
+            title: event.title,
+            content: event.content || '',
+          });
 
-        let insertedChunks = 0;
+          let insertedChunks = 0;
 
-        for (const chunk of chunks) {
-          const result = await generateEmbedding(chunk);
-          if (!result) continue;
+          for (const chunk of chunks) {
+            const result = await generateEmbedding(chunk);
+            if (!result) {
+              console.warn(`[AI-Brain] Embedding generation returned null for event ${event.id}. Check OpenAI API Key.`);
+              continue;
+            }
 
-          const { error: insertError } = await supabase
-            .from('embeddings')
-            .insert({
-              user_id: userId,
-              event_id: event.id,
-              content: chunk,
-              embedding: result.embedding,
-            });
+            const { error: insertError } = await supabase
+              .from('embeddings')
+              .insert({
+                user_id: userId,
+                event_id: event.id,
+                content: chunk,
+                embedding: result.embedding,
+              });
 
-          if (insertError) {
-            console.warn('[AI-Brain] Persistence failed for chunk:', insertError.message);
-            continue;
+            if (insertError) {
+              console.warn('[AI-Brain] Persistence failed:', insertError.message);
+              continue;
+            }
+
+            insertedChunks += 1;
           }
 
-          insertedChunks += 1;
+          return { indexedEvent: insertedChunks > 0, indexedChunks: insertedChunks };
+        } catch (err) {
+          console.error(`[AI-Brain] Failed to index event ${event.id}:`, err);
+          return { indexedEvent: false, indexedChunks: 0 };
         }
-
-        return {
-          indexedEvent: insertedChunks > 0,
-          indexedChunks: insertedChunks,
-        };
       })
     );
 
@@ -83,7 +91,7 @@ export async function POST(request: Request) {
 
     await supabase
       .from('user_profiles')
-      .update({ memories_indexed: totalIndexed || 0 })
+      .update({ memories_indexed: totalIndexed || 0, updated_at: new Date().toISOString() })
       .eq('user_id', userId);
 
     return NextResponse.json({ 

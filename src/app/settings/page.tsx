@@ -44,6 +44,26 @@ export default function SettingsPage() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    const confirm1 = window.confirm("WARNING: This will permanently delete your account and all associated data. Are you sure?");
+    if (!confirm1) return;
+    
+    const confirm2 = window.prompt("Type 'DELETE' to confirm.");
+    if (confirm2 !== "DELETE") return;
+
+    try {
+      const res = await fetch('/api/user/delete', { method: 'DELETE' });
+      if (res.ok) {
+        alert("Account deleted.");
+        window.location.href = '/login';
+      } else {
+        alert("Failed to delete account. Please try again or contact support.");
+      }
+    } catch (e) {
+      alert("Error deleting account.");
+    }
+  };
+
   return (
     <div className={styles.pageRoot}>
       <div className="neural-bg" />
@@ -255,7 +275,7 @@ export default function SettingsPage() {
                         <strong>Delete Account</strong>
                         <p>Permanently remove your neural identity and all associated data.</p>
                       </div>
-                      <button className={styles.dangerBtn}>Delete Account</button>
+                      <button className={styles.dangerBtn} onClick={handleDeleteAccount}>Delete Account</button>
                     </div>
                   </div>
                 </div>

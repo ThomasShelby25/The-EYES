@@ -13,6 +13,7 @@
     "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
     "jszip": "^3.10.1",

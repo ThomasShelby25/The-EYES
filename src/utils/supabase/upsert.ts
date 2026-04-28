@@ -39,6 +39,8 @@ export type SyncStatusUpsertRow = {
   last_sync_at?: string;
   next_sync_at?: string;
   error_message?: string | null;
+  cursor?: string | null;
+  metadata?: Record<string, unknown>;
 };
 
 export async function upsertRawEventsSafely(supabase: SupabaseClient, events: RawEventUpsertRow[]) {

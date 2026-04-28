@@ -32,6 +32,14 @@ export async function POST(request: Request) {
 
     const { supabase, userId, userEmail, userName } = actor;
 
+    // 1. Get existing sync status to find the current page cursor
+    const { data: currentStatus } = await supabase
+      .from('sync_status')
+      .select('cursor, total_items')
+      .eq('user_id', userId)
+      .eq('platform', 'github')
+      .maybeSingle();
+
     const accessToken = await getValidGithubToken(supabase, userId);
 
     if (!accessToken) {
@@ -41,30 +49,49 @@ export async function POST(request: Request) {
     const url = new URL(request.url);
     const depth = url.searchParams.get('depth') || 'shallow';
     const perPage = 100;
-    const maxTotal = depth === 'deep' ? 300 : 20;
+    const maxTotal = depth === 'deep' ? 500 : 30;
+
+    // Mark as 'syncing'
+    await upsertSyncStatusSafely(supabase, {
+      user_id: userId,
+      platform: 'github',
+      status: 'syncing',
+      last_sync_at: new Date().toISOString(),
+    });
 
     let allRepos: GitHubRepo[] = [];
-    let page = 1;
+    let page = parseInt(currentStatus?.cursor || '1');
+    let hasMore = true;
 
     // --- PAGINATION LOOP ---
-    while (allRepos.length < maxTotal) {
+    while (allRepos.length < maxTotal && hasMore) {
       const repoResponse = await fetch(`https://api.github.com/user/repos?sort=updated&per_page=${perPage}&page=${page}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           Accept: 'application/vnd.github+json',
+          'User-Agent': 'EYES-Memory-Engine', // GitHub requires User-Agent
           'X-GitHub-Api-Version': '2022-11-28',
         },
         cache: 'no-store',
       });
 
-      if (!repoResponse.ok) break;
+      if (!repoResponse.ok) {
+        hasMore = false;
+        break;
+      }
 
       const repos = (await repoResponse.json()) as GitHubRepo[];
-      if (!repos || repos.length === 0) break;
+      if (!repos || repos.length === 0) {
+        hasMore = false;
+        break;
+      }
 
       allRepos = [...allRepos, ...repos];
       page += 1;
-      if (repos.length < perPage) break;
+      if (repos.length < perPage) {
+        hasMore = false;
+        break;
+      }
     }
 
     const now = new Date().toISOString();
@@ -113,24 +140,22 @@ export async function POST(request: Request) {
 
     await upsertRawEventsSafely(supabase, rawEvents);
 
-    const { count: totalMemories, error: countError } = await supabase
+    const { count: totalMemories } = await supabase
       .from('raw_events')
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userId);
 
-    if (countError) {
-      throw countError;
-    }
-
+    // Save the next page for the next run
     const [, profileUpdate] = await Promise.all([
       upsertSyncStatusSafely(supabase, {
         user_id: userId,
         platform: 'github',
-        status: 'connected',
-        sync_progress: 100,
-        total_items: rawEvents.length,
+        status: hasMore ? 'syncing' : 'connected',
+        sync_progress: hasMore ? 60 : 100,
+        total_items: (currentStatus?.total_items || 0) + rawEvents.length,
         last_sync_at: now,
-        next_sync_at: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+        next_sync_at: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
+        cursor: hasMore ? String(page) : null,
         error_message: null,
       }),
       supabase.from('user_profiles').update({
@@ -139,14 +164,13 @@ export async function POST(request: Request) {
       }).eq('user_id', userId),
     ]);
 
-    if (profileUpdate.error) {
-      throw profileUpdate.error;
-    }
+    if (profileUpdate.error) throw profileUpdate.error;
 
     return NextResponse.json({
       ok: true,
       syncedRepos: rawEvents.length,
       totalMemories: totalMemories ?? rawEvents.length,
+      hasMore
     });
   } catch (error: unknown) {
     const detail = error instanceof Error ? error.message : String(error);

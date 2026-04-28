@@ -59,8 +59,14 @@ function parseResponsePayload(rawBody: string) {
 }
 
 /**
+ * Support manual sync triggers via browser GET requests
+ */
+export async function GET(request: Request) {
+  return POST(request);
+}
+
+/**
  * Unified entry point to sync all connected platforms for the current user.
- * This can be triggered from the dashboard or a client-side timer.
  */
 export async function POST(request: Request) {
   const url = new URL(request.url);
@@ -204,12 +210,24 @@ export async function POST(request: Request) {
     }
 
     const results = await Promise.all(tokens.map((token) => runPlatformSync(token.platform)));
+    
+    // Trigger embeddings sync to ensure new data is searchable immediately
+    try {
+      await fetch(`${appBaseUrl}/api/sync/embeddings`, {
+        method: 'POST',
+        headers: subHeaders,
+        cache: 'no-store'
+      });
+    } catch (e) {
+      console.warn('[Sync All] Neural indexing trigger failed:', e);
+    }
+
     const successCount = results.filter((result) => result.success).length;
 
     return NextResponse.json({
       accepted: true,
       mode: 'blocking',
-      message: `Sync completed for ${results.length} platforms.`,
+      message: `Sync and neural indexing completed for ${results.length} platforms.`,
       successCount,
       failedCount: results.length - successCount,
       results,

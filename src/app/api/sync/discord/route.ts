@@ -13,11 +13,29 @@ export async function POST(request: Request) {
   const { supabase, userId } = actor;
 
   try {
-    // 1. Get Valid Token
+    // 1. Get existing sync status to retrieve channel cursors from metadata
+    const { data: currentStatus } = await supabase
+      .from('sync_status')
+      .select('metadata, total_items')
+      .eq('user_id', userId)
+      .eq('platform', 'discord')
+      .maybeSingle();
+
+    const channelCursors = (currentStatus?.metadata?.channel_cursors || {}) as Record<string, string>;
+
+    // 2. Get Valid Token
     const accessToken = await getValidDiscordToken(supabase, userId);
     if (!accessToken) return NextResponse.json({ error: 'No Discord token found or refresh failed' }, { status: 404 });
 
-    // 2. Fetch User Profile & Guilds
+    // Mark as 'syncing'
+    await upsertSyncStatusSafely(supabase, {
+      user_id: userId,
+      platform: 'discord',
+      status: 'syncing',
+      last_sync_at: new Date().toISOString(),
+    });
+
+    // 3. Fetch User Profile & Guilds
     const [userResponse, guildsResponse] = await Promise.all([
       fetch('https://discord.com/api/v10/users/@me', {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -34,7 +52,7 @@ export async function POST(request: Request) {
     const discordUser = await userResponse.json();
     const discordGuilds = guildsResponse.ok ? await guildsResponse.json() : [];
 
-    // 3. Fetch Private Channels (DMs) & Recent Messages
+    // 4. Fetch Private Channels (DMs) & History using cursors
     const dmResponse = await fetch('https://discord.com/api/v10/users/@me/channels', {
       headers: { Authorization: `Bearer ${accessToken}` },
       cache: 'no-store',
@@ -43,13 +61,19 @@ export async function POST(request: Request) {
     const dmChannels = dmResponse.ok ? await dmResponse.json() : [];
     const url = new URL(request.url);
     const depth = url.searchParams.get('depth') || 'shallow';
-    const dmLimit = depth === 'deep' ? 15 : 5;
+    const dmLimit = depth === 'deep' ? 20 : 5;
     const messageLimit = depth === 'deep' ? 100 : 20;
 
     const activeDMs = dmChannels.slice(0, dmLimit);
 
     const messagePromises = activeDMs.map(async (channel: any) => {
-      const resp = await fetch(`https://discord.com/api/v10/channels/${channel.id}/messages?limit=${messageLimit}`, {
+      // Use the stored message ID as 'before' to pull OLDER messages
+      const beforeId = channelCursors[channel.id] || null;
+      const fetchUrl = new URL(`https://discord.com/api/v10/channels/${channel.id}/messages`);
+      fetchUrl.searchParams.set('limit', messageLimit.toString());
+      if (beforeId) fetchUrl.searchParams.set('before', beforeId);
+
+      const resp = await fetch(fetchUrl.toString(), {
         headers: { Authorization: `Bearer ${accessToken}` },
         cache: 'no-store',
       });
@@ -59,7 +83,7 @@ export async function POST(request: Request) {
 
     const dmHistories = await Promise.all(messagePromises);
 
-    // 4. Transform to Events
+    // 5. Transform to Events
     const events: any[] = [
       {
         user_id: userId,
@@ -71,21 +95,15 @@ export async function POST(request: Request) {
         author: discordUser.username,
         timestamp: new Date().toISOString(),
         metadata: { ...discordUser }
-      },
-      ...discordGuilds.slice(0, 5).map((guild: any) => ({
-        user_id: userId,
-        platform: 'discord',
-        platform_id: `guild_${guild.id}`,
-        event_type: 'guild',
-        title: `Discord Server: ${guild.name}`,
-        content: `Member of Discord server "${guild.name}". Permissions: ${guild.permissions}. Owner: ${guild.owner}.`,
-        author: discordUser.username,
-        timestamp: new Date().toISOString(),
-        metadata: { ...guild }
-      }))
+      }
     ];
 
+    const updatedCursors = { ...channelCursors };
+    let hasMoreOverall = false;
+
     for (const { channel, messages } of dmHistories) {
+      if (messages.length >= messageLimit) hasMoreOverall = true;
+
       messages.forEach((msg: any) => {
         if (!msg.content || msg.author?.bot) return;
 
@@ -109,17 +127,20 @@ export async function POST(request: Request) {
           flag_reason: risk.reasons.join(', '),
           metadata: { ...msg, channel_id: channel.id }
         });
+
+        // Update the cursor to the oldest message in this batch (smallest ID)
+        if (!updatedCursors[channel.id] || BigInt(msg.id) < BigInt(updatedCursors[channel.id])) {
+          updatedCursors[channel.id] = msg.id;
+        }
       });
     }
 
-    // 5. Save Events
-    const { error: eventError } = await supabase
-      .from('raw_events')
-      .upsert(events, { onConflict: 'user_id,platform,platform_id' });
+    // 6. Save Events
+    if (events.length > 0) {
+      await upsertRawEventsSafely(supabase, events);
+    }
 
-    if (eventError) throw eventError;
-
-    // 5. Update Sync Status & Profile
+    // 7. Update Sync Status & Profile
     const { count: totalMemories } = await supabase
       .from('raw_events')
       .select('id', { count: 'exact', head: true })
@@ -130,11 +151,12 @@ export async function POST(request: Request) {
       upsertSyncStatusSafely(supabase, {
         user_id: userId,
         platform: 'discord',
-        status: 'connected',
-        sync_progress: 100,
-        total_items: events.length,
+        status: hasMoreOverall ? 'syncing' : 'connected',
+        sync_progress: hasMoreOverall ? 50 : 100,
+        total_items: (currentStatus?.total_items || 0) + events.length,
         last_sync_at: now,
-        next_sync_at: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+        next_sync_at: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
+        metadata: { channel_cursors: updatedCursors },
         error_message: null,
       }),
       supabase.from('user_profiles').update({
@@ -143,7 +165,12 @@ export async function POST(request: Request) {
       }).eq('user_id', userId),
     ]);
 
-    return NextResponse.json({ success: true, count: events.length });
+    return NextResponse.json({ 
+      success: true, 
+      count: events.length,
+      hasMore: hasMoreOverall,
+      totalMemories
+    });
   } catch (err) {
     console.error('Discord Sync Error:', err);
     return NextResponse.json({ error: 'Sync failed' }, { status: 500 });

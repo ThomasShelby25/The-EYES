@@ -31,7 +31,20 @@ export async function POST(request: Request) {
 
     const { supabase, userId } = actor;
 
-    // 1. Mark as 'syncing' immediately for UI feedback
+    // 1. Get existing sync status to find the cursor
+    const { data: currentStatus } = await supabase
+      .from('sync_status')
+      .select('cursor, total_items')
+      .eq('user_id', userId)
+      .eq('platform', 'gmail')
+      .maybeSingle();
+
+    const url = new URL(request.url);
+    const depth = url.searchParams.get('depth') || 'shallow';
+    const maxResultsPerPage = 100; 
+    const maxTotalResults = depth === 'deep' ? 500 : 20; // Increased for better "Engine" feel
+
+    // Mark as 'syncing'
     await upsertSyncStatusSafely(supabase, {
       user_id: userId,
       platform: 'gmail',
@@ -40,21 +53,17 @@ export async function POST(request: Request) {
     });
 
     const accessToken = await getValidGoogleToken(supabase, userId, 'gmail');
-    
     if (!accessToken) {
       return NextResponse.json({ error: 'Gmail session expired and refresh failed.' }, { status: 401 });
     }
 
-    const url = new URL(request.url);
-    const depth = url.searchParams.get('depth') || 'shallow';
-    const maxResultsPerPage = 50; 
-    const maxTotalResults = depth === 'deep' ? 200 : 10; // Batch limit per cron run
-
     let allMessageIds: string[] = [];
-    let nextPageToken: string | undefined = undefined;
+    let nextPageToken: string | undefined = currentStatus?.cursor || undefined;
+    let hasMore = true;
 
     // --- PAGINATION LOOP ---
-    while (allMessageIds.length < maxTotalResults) {
+    // We continue from where we left off (nextPageToken)
+    while (allMessageIds.length < maxTotalResults && hasMore) {
       const fetchUrl = new URL('https://gmail.googleapis.com/gmail/v1/users/me/messages');
       fetchUrl.searchParams.set('maxResults', Math.min(maxResultsPerPage, maxTotalResults - allMessageIds.length).toString());
       if (nextPageToken) fetchUrl.searchParams.set('pageToken', nextPageToken);
@@ -64,26 +73,62 @@ export async function POST(request: Request) {
         cache: 'no-store',
       });
 
-      if (!listResponse.ok) break;
+      if (!listResponse.ok) {
+        hasMore = false;
+        break;
+      }
 
       const listBody = (await listResponse.json()) as { messages?: Array<{ id: string }>, nextPageToken?: string };
       const pageIds = (listBody.messages ?? []).map((m) => m.id);
       allMessageIds = [...allMessageIds, ...pageIds];
       
       nextPageToken = listBody.nextPageToken;
-      if (!nextPageToken) break;
+      if (!nextPageToken) {
+        hasMore = false;
+        break;
+      }
     }
 
-    const messageResponses = await Promise.all(
-      allMessageIds.map((id) =>
-        fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=Subject&metadataHeaders=From`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-          cache: 'no-store',
-        }).then((response) => (response.ok ? response.json() : null))
-      )
-    );
+    const messages: GmailMessageResponse[] = [];
+    const chunkSize = 25; // 25 requests = 125 quota units (Safe limit is 250/sec)
 
-    const messages = messageResponses.filter(Boolean) as GmailMessageResponse[];
+    // --- RATE LIMIT SHIELD ---
+    for (let i = 0; i < allMessageIds.length; i += chunkSize) {
+      const chunkIds = allMessageIds.slice(i, i + chunkSize);
+      let attempt = 0;
+      let success = false;
+
+      while (attempt < 3 && !success) {
+        try {
+          const chunkResponses = await Promise.all(
+            chunkIds.map(async (id) => {
+              const res = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=metadata&metadataHeaders=Subject&metadataHeaders=From`, {
+                headers: { Authorization: `Bearer ${accessToken}` },
+                cache: 'no-store',
+              });
+              
+              if (res.status === 429) throw new Error('RATE_LIMIT');
+              return res.ok ? res.json() : null;
+            })
+          );
+          
+          messages.push(...(chunkResponses.filter(Boolean) as GmailMessageResponse[]));
+          success = true;
+          
+          if (i + chunkSize < allMessageIds.length) {
+            await new Promise(resolve => setTimeout(resolve, 800)); // Respect Google's 1-sec token bucket
+          }
+        } catch (err) {
+          attempt++;
+          console.warn(`[Gmail Sync] Rate limit hit. Backing off (Attempt ${attempt}/3)...`);
+          if (attempt >= 3) {
+            console.error('[Gmail Sync] Max retries hit. Saving progress and aborting run.');
+            break; 
+          }
+          await new Promise(resolve => setTimeout(resolve, attempt * 2500)); // Exponential backoff: 2.5s, 5s
+        }
+      }
+    }
 
     const events = messages.map((message) => {
       const subject = getHeader(message.payload?.headers, 'Subject') || 'No subject';
@@ -123,15 +168,17 @@ export async function POST(request: Request) {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userId);
 
+    // Save the new cursor (nextPageToken) back to Supabase
     const [, profileUpdate] = await Promise.all([
       upsertSyncStatusSafely(supabase, {
         user_id: userId,
         platform: 'gmail',
-        status: 'connected',
-        sync_progress: 100,
-        total_items: events.length,
+        status: hasMore ? 'syncing' : 'connected',
+        sync_progress: hasMore ? 50 : 100, // Visual hint that more is coming
+        total_items: (currentStatus?.total_items || 0) + events.length,
         last_sync_at: new Date().toISOString(),
-        next_sync_at: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+        next_sync_at: new Date(Date.now() + 1000 * 60 * 30).toISOString(), // Sync every 30m
+        cursor: hasMore ? nextPageToken : null, // Clear cursor if finished
         error_message: null,
       }),
       supabase.from('user_profiles').update({
@@ -140,11 +187,14 @@ export async function POST(request: Request) {
       }).eq('user_id', userId),
     ]);
 
-    if (profileUpdate.error) {
-      throw profileUpdate.error;
-    }
+    if (profileUpdate.error) throw profileUpdate.error;
 
-    return NextResponse.json({ ok: true, syncedMessages: events.length, totalMemories });
+    return NextResponse.json({ 
+      ok: true, 
+      syncedMessages: events.length, 
+      totalMemories,
+      hasMore 
+    });
   } catch (error: unknown) {
     const detail = error instanceof Error ? error.message : String(error);
     console.error('gmail sync error:', error);

@@ -42,6 +42,14 @@ export async function POST(request: Request) {
 
     const { supabase, userId } = actor;
 
+    // 1. Get existing sync status to find the cursor
+    const { data: currentStatus } = await supabase
+      .from('sync_status')
+      .select('cursor, total_items')
+      .eq('user_id', userId)
+      .eq('platform', 'notion')
+      .maybeSingle();
+
     const { data: tokenRow } = await supabase
       .from('oauth_tokens')
       .select('access_token')
@@ -58,13 +66,22 @@ export async function POST(request: Request) {
     const url = new URL(request.url);
     const depth = url.searchParams.get('depth') || 'shallow';
     const maxResultsPerPage = 100;
-    const maxTotalResults = depth === 'deep' ? 300 : 50;
+    const maxTotalResults = depth === 'deep' ? 500 : 50;
+
+    // Mark as 'syncing'
+    await upsertSyncStatusSafely(supabase, {
+      user_id: userId,
+      platform: 'notion',
+      status: 'syncing',
+      last_sync_at: new Date().toISOString(),
+    });
 
     let allResults: NotionSearchResult[] = [];
-    let nextCursor: string | undefined = undefined;
+    let nextCursor: string | undefined = currentStatus?.cursor || undefined;
+    let hasMore = true;
 
     // --- PAGINATION LOOP ---
-    while (allResults.length < maxTotalResults) {
+    while (allResults.length < maxTotalResults && hasMore) {
       const searchResponse = await fetch('https://api.notion.com/v1/search', {
         method: 'POST',
         headers: {
@@ -73,7 +90,7 @@ export async function POST(request: Request) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          page_size: maxResultsPerPage,
+          page_size: Math.min(maxResultsPerPage, maxTotalResults - allResults.length),
           start_cursor: nextCursor,
           sort: {
             direction: 'descending',
@@ -83,14 +100,20 @@ export async function POST(request: Request) {
         cache: 'no-store',
       });
 
-      if (!searchResponse.ok) break;
+      if (!searchResponse.ok) {
+        hasMore = false;
+        break;
+      }
 
       const body = (await searchResponse.json()) as { results?: NotionSearchResult[], next_cursor?: string | null };
       const pageResults = body.results ?? [];
       allResults = [...allResults, ...pageResults];
       
       nextCursor = body.next_cursor || undefined;
-      if (!nextCursor) break;
+      if (!nextCursor) {
+        hasMore = false;
+        break;
+      }
     }
 
     const events = allResults.map((item) => {
@@ -124,15 +147,17 @@ export async function POST(request: Request) {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userId);
 
+    // Update status and save cursor
     const [, profileUpdate] = await Promise.all([
       upsertSyncStatusSafely(supabase, {
         user_id: userId,
         platform: 'notion',
-        status: 'connected',
-        sync_progress: 100,
-        total_items: events.length,
+        status: hasMore ? 'syncing' : 'connected',
+        sync_progress: hasMore ? 50 : 100,
+        total_items: (currentStatus?.total_items || 0) + events.length,
         last_sync_at: new Date().toISOString(),
-        next_sync_at: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+        next_sync_at: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
+        cursor: hasMore ? nextCursor : null,
         error_message: null,
       }),
       supabase.from('user_profiles').update({
@@ -141,11 +166,14 @@ export async function POST(request: Request) {
       }).eq('user_id', userId),
     ]);
 
-    if (profileUpdate.error) {
-      throw profileUpdate.error;
-    }
+    if (profileUpdate.error) throw profileUpdate.error;
 
-    return NextResponse.json({ ok: true, syncedItems: events.length });
+    return NextResponse.json({ 
+      ok: true, 
+      syncedItems: events.length, 
+      totalMemories,
+      hasMore 
+    });
   } catch (error) {
     console.error('notion sync error:', error);
     return NextResponse.json({ error: 'Unable to sync Notion data right now.' }, { status: 500 });

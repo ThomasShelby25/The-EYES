@@ -8,21 +8,23 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, resetPassword } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMsg('');
 
-    // Pre-flight Validations
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter your email and password.');
+    if (!email.trim() || (!isForgotPasswordMode && !password.trim())) {
+      setError(isForgotPasswordMode ? 'Please enter your email.' : 'Please enter your email and password.');
       return;
     }
 
@@ -34,20 +36,28 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const result = await login(email, password);
-
-      if (result.success) {
-        router.push('/');
+      if (isForgotPasswordMode) {
+        const result = await resetPassword(email);
+        if (result.success) {
+          setSuccessMsg('Check your email for the password reset link.');
+        } else {
+          setError(result.message || 'Failed to send reset email.');
+        }
       } else {
-        setError(result.message || 'Sign-in failed. Please check your credentials.');
-        setIsLoading(false);
+        const result = await login(email, password);
+        if (result.success) {
+          router.push('/');
+        } else {
+          setError(result.message || 'Sign-in failed. Please check your credentials.');
+        }
       }
     } catch (err) {
       setError('An unexpected network error occurred. Please try again.');
+      console.error('Auth Failure:', err);
+    } finally {
       setIsLoading(false);
-      console.error('Login Failure:', err);
     }
-  }, [email, password, login, router]);
+  }, [email, password, isForgotPasswordMode, login, resetPassword, router]);
 
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
@@ -104,6 +114,7 @@ export default function LoginPage() {
                 </div>
 
                 {error && <div className={styles.inlineError}>{error}</div>}
+                {successMsg && <div className={styles.inlineSuccess} style={{ color: 'var(--accent-green)', fontSize: '14px', marginBottom: '16px', background: 'rgba(16, 185, 129, 0.1)', padding: '12px', borderRadius: '8px' }}>{successMsg}</div>}
 
                 <div className={styles.inputStack}>
                   <div className={styles.fieldGroup}>
@@ -116,21 +127,34 @@ export default function LoginPage() {
                       disabled={isLoading}
                     />
                   </div>
-                  <div className={styles.fieldGroup}>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      className={styles.elegantInput}
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      disabled={isLoading}
-                    />
-                    <button
-                      type="button"
-                      className={styles.eyeToggle}
-                      onClick={() => setShowPassword(!showPassword)}
+                  
+                  {!isForgotPasswordMode && (
+                    <div className={styles.fieldGroup}>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        className={styles.elegantInput}
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        disabled={isLoading}
+                      />
+                      <button
+                        type="button"
+                        className={styles.eyeToggle}
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
+                  )}
+                  
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-8px', marginBottom: '8px' }}>
+                    <button 
+                      type="button" 
+                      onClick={() => { setIsForgotPasswordMode(!isForgotPasswordMode); setError(''); setSuccessMsg(''); }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}
                     >
-                      {showPassword ? 'Hide' : 'Show'}
+                      {isForgotPasswordMode ? 'Back to login' : 'Forgot password?'}
                     </button>
                   </div>
                 </div>
@@ -140,7 +164,7 @@ export default function LoginPage() {
                   className={styles.primaryAuthBtn}
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Connecting...' : 'Continue with email'}
+                  {isLoading ? 'Processing...' : (isForgotPasswordMode ? 'Send Reset Link' : 'Continue with email')}
                 </button>
               </form>
             </div>

@@ -7,7 +7,7 @@ import { createClient } from '@/utils/supabase/server';
 
 import { getBaseUrl } from '@/utils/url';
 
-const allowedPlatforms = new Set(['gmail', 'google-calendar']);
+const allowedPlatforms = new Set(['gmail', 'google-calendar', 'youtube']);
 
 const googleSharedScopes = [
   'openid',
@@ -15,6 +15,7 @@ const googleSharedScopes = [
   'profile',
   'https://www.googleapis.com/auth/gmail.readonly',
   'https://www.googleapis.com/auth/calendar.readonly',
+  'https://www.googleapis.com/auth/youtube.readonly',
 ];
 
 function googleRedirectUri(baseUrl: string) {

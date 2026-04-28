@@ -77,8 +77,12 @@ export function SynthesisView({
             <div className={styles.connectedPills}>
               {connected.map(p => {
                 const config = ALL_POSSIBLE_PLATFORMS.find(ap => ap.id === p.id);
+                // Simple heuristic: if sync_progress is 100, we assume it's healthy, else it might be degraded/syncing
+                const isHealthy = p.sync_progress === 100;
+                
                 return (
-                  <div key={p.id} className={styles.miniConnectionPill} onClick={() => setView('readiness')} style={{ cursor: 'pointer' }}>
+                  <div key={p.id} className={styles.miniConnectionPill} onClick={() => setView('readiness')} style={{ cursor: 'pointer' }} title={isHealthy ? 'Connection Healthy' : 'Action Required / Syncing'}>
+                    <div className={`${styles.statusDot} ${isHealthy ? styles.statusDotHealthy : styles.statusDotDegraded}`} />
                     {config?.icon ? React.cloneElement(config.icon as React.ReactElement<any>, { size: 16 }) : null}
                     <span style={{ textTransform: 'capitalize' }}>{p.id.replace('-', ' ')}</span>
                   </div>
@@ -100,14 +104,18 @@ export function SynthesisView({
                 {m.role === 'assistant' && m.citations && m.citations.length > 0 && (
                   <div className={styles.citationStrip}>
                     {m.citations.map((c) => (
-                      <div key={c.sourceId} className={styles.citationChip} title={c.snippet}>
-                        <span className={styles.sourceId}>[{c.sourceId}]</span>
-                        <span className={styles.sourcePlatform}>{c.platform}</span>
-                        {c.title && <span className={styles.sourceTitle}>- {c.title.slice(0, 20)}...</span>}
+                      <div key={c.sourceId} className={styles.citationCard} title="Source Reference">
+                        <div className={styles.citationCardHeader}>
+                          <span className={styles.citationCardId}>[{c.sourceId}]</span>
+                          <span className={styles.citationCardPlatform}>{c.platform}</span>
+                        </div>
+                        {c.title && <div className={styles.citationCardTitle}>{c.title}</div>}
+                        <div className={styles.citationCardBody}>"{c.snippet.length > 100 ? c.snippet.slice(0, 100) + '...' : c.snippet}"</div>
                       </div>
                     ))}
                   </div>
                 )}
+
              </div>
            ))}
            <div ref={messagesEndRef} />
