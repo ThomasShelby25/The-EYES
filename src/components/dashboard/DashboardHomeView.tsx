@@ -123,8 +123,8 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
                   <div 
                     className={styles.readinessIcon} 
                     style={{ 
-                      backgroundColor: (p as any).color ? `${(p as any).color}15` : 'var(--bg-secondary)',
-                      border: (p as any).color ? `1px solid ${(p as any).color}30` : '1px solid var(--border-subtle)'
+                      backgroundColor: (p as any).color?.startsWith('#') ? `${(p as any).color}15` : 'var(--bg-secondary)',
+                      border: (p as any).color?.startsWith('#') ? `1px solid ${(p as any).color}30` : '1px solid var(--border-subtle)'
                     }}
                   >
                     {p.icon ? React.cloneElement(p.icon as React.ReactElement<any>, { size: 24 }) : null}
