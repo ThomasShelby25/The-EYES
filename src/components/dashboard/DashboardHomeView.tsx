@@ -55,7 +55,7 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
              </div>
           </div>
           
-          {liveStatus?.isSyncing ? (
+          {liveStatus?.isSyncing && (
              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 24px', borderRadius: '99px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--text-primary)', fontSize: '14px', fontWeight: '700', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
                <span className={styles.typingCursor} style={{ background: '#10b981', width: '10px', height: '10px', borderRadius: '50%' }}></span>
                Engine Active: Syncing {liveStatus.activeSyncs.length} stream(s)...
