@@ -21,11 +21,11 @@ export function HistoryView({ onBack }: { onBack: () => void }) {
     setHistory([
       {
         id: '1',
-        title: "DZGXFCHGVJHKJLK;L';",
-        timestamp: '4/20/2026, 6:14:46 PM',
+        title: "Recent GitHub Activity Summary",
+        timestamp: new Date().toLocaleDateString() + ", " + new Date().toLocaleTimeString(),
         turns: 2,
         snippet: "what you know about me according recent github data",
-        assistantReplied: "[AI UNAVAILABLE] ANTHROPIC_API_KEY not configured."
+        assistantReplied: "Based on your recent GitHub activity, you have been actively committing to 'The-EYES' repository, specifically working on the risk scoring engine and refactoring the UI components for the new Audit View."
       }
     ]);
   }, []);

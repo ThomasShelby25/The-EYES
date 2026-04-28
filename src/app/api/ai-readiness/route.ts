@@ -41,23 +41,22 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T
   });
 }
 
-async function runAnthropicChatProbe(apiKey: string | undefined): Promise<ReadinessCheck> {
+async function runOpenAIChatProbe(apiKey: string | undefined): Promise<ReadinessCheck> {
   if (!apiKey) {
-    return { status: 'skip', latencyMs: 0, error: 'Missing ANTHROPIC_API_KEY.' };
+    return { status: 'skip', latencyMs: 0, error: 'Missing OPENAI_API_KEY.' };
   }
 
   const started = Date.now();
   try {
     const response = await withTimeout(
-      fetch('https://api.anthropic.com/v1/messages', {
+      fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
+          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
+          model: 'gpt-4o-mini',
           max_tokens: 4,
           messages: [{ role: 'user', content: 'hi' }],
         }),
@@ -70,18 +69,18 @@ async function runAnthropicChatProbe(apiKey: string | undefined): Promise<Readin
       return {
         status: 'fail',
         latencyMs: Date.now() - started,
-        error: `Anthropic chat probe failed (${response.status}): ${body.slice(0, 160)}`,
+        error: `OpenAI chat probe failed (${response.status}): ${body.slice(0, 160)}`,
       };
     }
 
     const data = await response.json();
-    if (data.content && data.content[0] && data.content[0].text) {
+    if (data.choices && data.choices[0] && data.choices[0].message) {
       return { status: 'pass', latencyMs: Date.now() - started };
     } else {
       return {
         status: 'fail',
         latencyMs: Date.now() - started,
-        error: 'Anthropic returned empty response',
+        error: 'OpenAI returned empty response',
       };
     }
   } catch (error) {
@@ -135,18 +134,18 @@ export async function GET() {
     return NextResponse.json(cachedResult.payload, { status: 200 });
   }
 
-  const anthropicChatCheck = await runAnthropicChatProbe(process.env.ANTHROPIC_API_KEY);
+  const openaiChatCheck = await runOpenAIChatProbe(process.env.OPENAI_API_KEY);
   const supabaseCheck = await runSupabaseProbe(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
   let status: ReadinessStatus = 'online';
-  let reason = 'Neural AI Core ready (Anthropic).';
-  let provider = 'Anthropic Claude';
-  let model = 'Claude-3 Haiku';
+  let reason = 'Neural AI Core ready (OpenAI).';
+  let provider = 'OpenAI';
+  let model = 'gpt-4o-mini';
 
-  if (anthropicChatCheck.status !== 'pass') {
+  if (openaiChatCheck.status !== 'pass') {
     status = 'offline';
     model = 'N/A';
-    reason = 'Neural AI Core offline. Verify ANTHROPIC_API_KEY.';
+    reason = 'Neural AI Core offline. Verify OPENAI_API_KEY.';
   }
 
   if (supabaseCheck.status === 'skip' || supabaseCheck.status === 'fail') {
@@ -162,7 +161,7 @@ export async function GET() {
     model,
     reason,
     checks: {
-      anthropicChat: anthropicChatCheck,
+      openaiChat: openaiChatCheck,
       supabase: supabaseCheck,
     } as any,
     lastCheckedAt: new Date().toISOString(),
