@@ -11,7 +11,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { user, updateUser, theme, setGlobalTheme } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'tuning' | 'appearance' | 'privacy' | 'security'>('profile');
-  const [riskSensitivity, setRiskSensitivity] = useState(65);
+  const [riskSensitivity, setRiskSensitivity] = useState('MEDIUM');
   const [excludedSenders, setExcludedSenders] = useState<string[]>(['noreply@bank.com', 'promotions@spam.com']);
   const [newSender, setNewSender] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -95,8 +95,6 @@ export default function SettingsPage() {
 
       <div className={styles.mainWrapper}>
         <div className={styles.container}>
-          <button className={styles.backBtn} onClick={() => router.back()}>← Back</button>
-          
           <h1 className={styles.title}>Account Settings</h1>
           <p className={styles.subtitle}>Manage your digital identity and neural interface preferences.</p>
 
@@ -170,16 +168,29 @@ export default function SettingsPage() {
                   <div className={styles.fieldGroup}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <label>RISK SENSITIVITY</label>
-                      <span className={styles.statBadge}>{riskSensitivity}%</span>
+                      <span className={styles.statBadge}>{riskSensitivity}</span>
                     </div>
-                    <input 
-                      type="range" 
-                      min="0" 
-                      max="100" 
-                      value={riskSensitivity}
-                      onChange={(e) => setRiskSensitivity(parseInt(e.target.value))}
-                      className={styles.rangeInput} 
-                    />
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '12px', marginBottom: '8px' }}>
+                      {['LOW', 'MEDIUM', 'HIGH'].map((level) => (
+                        <button
+                          key={level}
+                          onClick={() => setRiskSensitivity(level)}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            background: riskSensitivity === level ? 'var(--text-primary)' : 'var(--bg-secondary)',
+                            color: riskSensitivity === level ? 'var(--bg-primary)' : 'var(--text-primary)',
+                            border: '1px solid var(--border-primary)',
+                            borderRadius: '8px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
                     <p className={styles.fieldDesc}>Adjust how aggressive the neural flagger is in identifying potential risks.</p>
                   </div>
 

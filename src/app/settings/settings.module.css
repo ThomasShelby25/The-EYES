@@ -23,7 +23,6 @@
 
 .container {
   max-width: 900px;
-  margin: 0 auto;
 }
 
 .backBtn {
@@ -241,26 +240,7 @@
   font-weight: 800;
 }
 
-.rangeInput {
-  width: 100%;
-  height: 6px;
-  background: var(--bg-primary);
-  border-radius: 5px;
-  outline: none;
-  margin: 16px 0;
-  -webkit-appearance: none;
-  border: 1px solid var(--border-subtle);
-}
 
-.rangeInput::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  background: var(--accent-primary);
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-}
 
 .fieldDesc {
   font-size: 12px;
