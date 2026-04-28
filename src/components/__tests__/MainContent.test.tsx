@@ -24,12 +24,12 @@ describe("MainContent", () => {
         return new Response(
           JSON.stringify({
             totalMemories: 20000,
-            overallRisk: "LOW",
-            riskCounts: { high: 0, med: 1, low: 3 },
+            overallRisk: "LIGHT",
+            riskCounts: { heavy: 0, direct: 1, light: 3 },
             flaggedItems: [
               {
                 id: "item-1",
-                severity: "LOW",
+                severity: "LIGHT",
                 platform: "GitHub",
                 date: "Jan 1, 2024",
                 content: "Example flagged item",

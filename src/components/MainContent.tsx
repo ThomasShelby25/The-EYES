@@ -24,8 +24,8 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
 
   const [summary, setSummary] = useState<AuditSummary>({ 
     totalMemories: 0, 
-    overallRisk: 'LOW', 
-    riskCounts: { high: 0, med: 0, low: 0 }, 
+    overallRisk: 'LIGHT', 
+    riskCounts: { heavy: 0, direct: 0, light: 0 }, 
     flaggedItems: [], 
     comparisonData: [] 
   });

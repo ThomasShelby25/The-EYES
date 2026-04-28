@@ -14,7 +14,7 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
   const [items, setItems] = React.useState(summary.flaggedItems);
   
   // Calculate a "Health Score" based on risk density
-  const totalRisks = summary.riskCounts.high * 3 + summary.riskCounts.med;
+  const totalRisks = summary.riskCounts.heavy * 3 + summary.riskCounts.direct;
   const healthScore = Math.max(0, 100 - Math.floor((totalRisks / (summary.totalMemories || 1)) * 500));
 
   const handleRemediate = async (id: string) => {
@@ -69,18 +69,18 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
 
               <div className={styles.riskMeterPanel}>
                  <div className={styles.meterItem}>
-                    <div className={styles.meterInfo}><span>CRITICAL EXPOSURE</span><span className={styles.meterValue}>{summary.riskCounts.high}</span></div>
-                    <div className={styles.meterBar}><div className={styles.meterFillRed} style={{ width: `${(summary.riskCounts.high / (summary.totalMemories || 1)) * 100}%` }} /></div>
+                    <div className={styles.meterInfo}><span>HEAVY EXPOSURE</span><span className={styles.meterValue}>{summary.riskCounts.heavy}</span></div>
+                    <div className={styles.meterBar}><div className={styles.meterFillRed} style={{ width: `${(summary.riskCounts.heavy / (summary.totalMemories || 1)) * 100}%` }} /></div>
                     <div className={styles.meterDesc}>Leaked PII, credentials, or dangerous data.</div>
                  </div>
                  <div className={styles.meterItem}>
-                    <div className={styles.meterInfo}><span>UNPROFESSIONAL TONE</span><span className={styles.meterValue}>{summary.riskCounts.med}</span></div>
-                    <div className={styles.meterBar}><div className={styles.meterFillYellow} style={{ width: `${(summary.riskCounts.med / (summary.totalMemories || 1)) * 100}%` }} /></div>
+                    <div className={styles.meterInfo}><span>DIRECT EXPOSURE</span><span className={styles.meterValue}>{summary.riskCounts.direct}</span></div>
+                    <div className={styles.meterBar}><div className={styles.meterFillYellow} style={{ width: `${(summary.riskCounts.direct / (summary.totalMemories || 1)) * 100}%` }} /></div>
                     <div className={styles.meterDesc}>Aggressive or controversial communications.</div>
                  </div>
                  <div className={styles.meterItem}>
-                    <div className={styles.meterInfo}><span>GENERAL PRIVACY</span><span className={styles.meterValue}>{summary.riskCounts.low}</span></div>
-                    <div className={styles.meterBar}><div className={styles.meterFillGreen} style={{ width: `${(summary.riskCounts.low / (summary.totalMemories || 1)) * 100}%` }} /></div>
+                    <div className={styles.meterInfo}><span>LIGHT EXPOSURE</span><span className={styles.meterValue}>{summary.riskCounts.light}</span></div>
+                    <div className={styles.meterBar}><div className={styles.meterFillGreen} style={{ width: `${(summary.riskCounts.light / (summary.totalMemories || 1)) * 100}%` }} /></div>
                     <div className={styles.meterDesc}>Sensitive personal or employer information.</div>
                  </div>
               </div>

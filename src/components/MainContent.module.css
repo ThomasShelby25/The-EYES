@@ -913,19 +913,19 @@
   letter-spacing: 1px;
 }
 
-.riskHIGH {
+.riskHEAVY {
   background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
   border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
-.riskMEDIUM {
+.riskDIRECT {
   background: rgba(245, 158, 11, 0.2);
   color: #f59e0b;
   border: 1px solid rgba(245, 158, 11, 0.4);
 }
 
-.riskLOW {
+.riskLIGHT {
   background: rgba(34, 197, 94, 0.2);
   color: #22c55e;
   border: 1px solid rgba(34, 197, 94, 0.4);

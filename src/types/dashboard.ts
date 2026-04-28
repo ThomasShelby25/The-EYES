@@ -1,7 +1,7 @@
 
 export interface FlaggedItem {
   id: string;
-  severity: "HIGH" | "MEDIUM" | "LOW";
+  severity: "HEAVY" | "DIRECT" | "LIGHT";
   platform: string;
   date: string;
   content: string;
@@ -16,11 +16,11 @@ export interface ComparisonRow {
 
 export interface AuditSummary {
   totalMemories: number;
-  overallRisk: "HIGH" | "MEDIUM" | "LOW";
+  overallRisk: "HEAVY" | "DIRECT" | "LIGHT";
   riskCounts: {
-    high: number;
-    med: number;
-    low: number;
+    heavy: number;
+    direct: number;
+    light: number;
   };
   flaggedItems: FlaggedItem[];
   comparisonData: ComparisonRow[];

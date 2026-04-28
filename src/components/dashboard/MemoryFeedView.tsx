@@ -66,7 +66,7 @@ export function MemoryFeedView({
                          <span className={styles.eventTime}>{e.timestamp ? new Date(e.timestamp).toLocaleDateString() : 'Recent'}</span>
                        </div>
                        {hasRisk && (
-                         <span className={`${styles.riskTag} ${styles['risk' + (e.flag_severity || 'LOW')]}`}>
+                         <span className={`${styles.riskTag} ${styles['risk' + (e.flag_severity || 'LIGHT')]}`}>
                            {e.flag_severity || 'FLAGGED'}
                          </span>
                        )}

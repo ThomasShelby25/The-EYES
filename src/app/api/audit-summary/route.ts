@@ -5,8 +5,8 @@ import type { AuditSummary, FlaggedItem } from "@/types/dashboard";
 
 const fallbackSummary: AuditSummary = {
   totalMemories: 0,
-  overallRisk: "LOW",
-  riskCounts: { high: 0, med: 0, low: 0 },
+  overallRisk: "LIGHT",
+  riskCounts: { heavy: 0, direct: 0, light: 0 },
   flaggedItems: [],
   comparisonData: [
     { eyes: "0 potentially sensitive items", recruiter: "No public results surfaced yet" },
@@ -30,10 +30,10 @@ type SyncStatusRow = {
   last_sync_at: string | null;
 };
 
-function getOverallRisk(high: number, med: number): AuditSummary["overallRisk"] {
-  if (high > 0 || med > 2) return "HIGH";
-  if (med > 0) return "MEDIUM";
-  return "LOW";
+function getOverallRisk(heavy: number, direct: number): AuditSummary["overallRisk"] {
+  if (heavy > 0 || direct > 2) return "HEAVY";
+  if (direct > 0) return "DIRECT";
+  return "LIGHT";
 }
 
 function formatAge(timestamp: string | null) {
@@ -161,20 +161,20 @@ export async function GET() {
     
     const riskCounts = allFlaggedEvents.reduce(
       (acc, event) => {
-        const severity = (event.flag_severity?.toUpperCase() ?? "LOW");
-        if (severity === "HIGH") acc.high += 1;
-        if (severity === "MEDIUM") acc.med += 1;
-        if (severity === "LOW") acc.low += 1;
+        const severity = (event.flag_severity?.toUpperCase() ?? "LIGHT");
+        if (severity === "HEAVY") acc.heavy += 1;
+        if (severity === "DIRECT") acc.direct += 1;
+        if (severity === "LIGHT") acc.light += 1;
         return acc;
       },
-      { high: 0, med: 0, low: 0 }
+      { heavy: 0, direct: 0, light: 0 }
     );
 
     const flaggedItems: FlaggedItem[] = allFlaggedEvents.slice(0, 4).map((event) => {
-      const severity = (event.flag_severity?.toUpperCase() ?? "LOW") as FlaggedItem["severity"];
+      const severity = (event.flag_severity?.toUpperCase() ?? "LIGHT") as FlaggedItem["severity"];
       return {
         id: event.id,
-        severity: severity === "HIGH" || severity === "MEDIUM" || severity === "LOW" ? severity : "LOW",
+        severity: severity === "HEAVY" || severity === "DIRECT" || severity === "LIGHT" ? severity : "LIGHT",
         platform: platformLabels[event.platform] ?? event.platform,
         date: event.timestamp ? new Date(event.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Unknown date",
         content: event.content || "Flagged content unavailable.",
@@ -183,7 +183,7 @@ export async function GET() {
 
     const summary: AuditSummary = {
       totalMemories,
-      overallRisk: getOverallRisk(riskCounts.high, riskCounts.med),
+      overallRisk: getOverallRisk(riskCounts.heavy, riskCounts.direct),
       riskCounts,
       flaggedItems,
       comparisonData: buildComparisonData({

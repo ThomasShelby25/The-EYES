@@ -58,7 +58,7 @@ const getOpenAIClient = () => {
 async function assessBaseRisk(context: RiskContext): Promise<RiskAssessment> {
   const combined = `${context.title || ''} ${context.content || ''}`.trim();
   const sensitiveHits = countMatches(combined, sensitiveKeywords);
-  
+
   const reasons: string[] = [];
   let score = 5;
 
@@ -90,12 +90,12 @@ async function assessBaseRisk(context: RiskContext): Promise<RiskAssessment> {
       if (modResult.flagged) {
         score += 50; // Major ML flag
         reasons.push('OpenAI ML algorithmic scan flagged content as potentially harmful/unsafe');
-        
+
         // Add specific categories flagged
         const flaggedCategories = Object.entries(modResult.categories)
           .filter(([_, isFlagged]) => isFlagged)
           .map(([cat]) => cat);
-        
+
         if (flaggedCategories.length > 0) {
           reasons.push(`ML Categories: ${flaggedCategories.join(', ')}`);
         }
@@ -106,8 +106,8 @@ async function assessBaseRisk(context: RiskContext): Promise<RiskAssessment> {
           if (val > maxSubScore) maxSubScore = val;
         });
         if (maxSubScore > 0.1) {
-           score += (maxSubScore * 20); // Adds up to 20 points based on confidence
-           reasons.push('Elevated NLP baseline risk score detected');
+          score += (maxSubScore * 20); // Adds up to 20 points based on confidence
+          reasons.push('Elevated NLP baseline risk score detected');
         }
       }
     } catch (e) {
