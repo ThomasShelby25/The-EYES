@@ -1,7 +1,7 @@
 /**
- * AI Brain Core: Groq (Llama 3)
- * Chat: Groq llama3-70b-8192 (Free Tier)
- * Embeddings: OpenAI text-embedding-3-small (Note: Requires valid OpenAI key for embeddings)
+ * AI Brain Core: Groq (Llama 3.1)
+ * Chat: Groq llama-3.1-8b-instant (High Stability Free Tier)
+ * Embeddings: OpenAI text-embedding-3-small
  */
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -72,7 +72,7 @@ export async function chatCompletion(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         max_tokens: 1024,
         temperature: 0.1,
         messages: messages
@@ -123,7 +123,7 @@ export async function chatCompletionStream(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         max_tokens: 1024,
         temperature: 0.1,
         stream: true,
