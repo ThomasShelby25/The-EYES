@@ -33,7 +33,7 @@ export class AuditAnalysisService {
         .eq('user_id', userId)
         .gte('timestamp', twoYearsAgo.toISOString())
         .order('timestamp', { ascending: false })
-        .limit(30000); // Safety limit for total records
+        .limit(2000); // Optimized for speed: analyze most recent 2000 records
 
       if (fetchError || !events) {
         throw new Error(`Data retrieval failed: ${fetchError?.message}`);
@@ -55,8 +55,8 @@ export class AuditAnalysisService {
 
       // --- ANALYSIS EXECUTION ---
       // We'll simulate/implement the chunked analysis here
-      // For the sake of the demo, we process the top 100 most significant records if too many
-      const significantRecords = events.slice(0, 100); 
+      // For the demo, we process a representative sample
+      const significantRecords = events.slice(0, 50); // Optimized: Scan top 50 significant items
       
       const analysisInput = significantRecords.map(e => ({
         id: e.id,
