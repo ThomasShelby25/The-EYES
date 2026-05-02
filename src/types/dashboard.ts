@@ -57,7 +57,7 @@ export interface ChatResponse {
 }
 
 export interface Citation {
-  sourceId: number;
+  sourceId: string;
   platform: string;
   title: string | null;
   snippet: string;
@@ -71,6 +71,39 @@ export interface Message {
   diagnostics?: {
     confidenceScore: number;
     latencyMs: number;
+  };
+}
+
+export interface Commitment {
+  text: string;
+  status: 'pending' | 'overdue' | 'completed';
+  citation: string;
+  platform: string;
+  date: string;
+}
+
+export interface ReputationAudit {
+  id: string;
+  status: 'pending' | 'analysis' | 'generating' | 'completed' | 'failed';
+  riskScore: number;
+  mentionsCount: number;
+  commitmentsCount: number;
+  summaryNarrative: string | null;
+  connectorsCovered: string[];
+  reportUrl: string | null;
+  createdAt: string;
+  metadata: {
+    sentimentBalance: number;
+    unfulfilledCommitments: number;
+    commitments: Commitment[];
+    opportunities: string[];
+    topEntities: string[];
+    riskFindings: Array<{
+      severity: 'Low' | 'Medium' | 'High';
+      finding: string;
+      evidence: string;
+      impact: string;
+    }>;
   };
 }
 

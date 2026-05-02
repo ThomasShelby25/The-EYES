@@ -147,6 +147,12 @@ const hoisted = vi.hoisted(() => {
         }
         return { data: null, error: null };
       }),
+      maybeSingle: vi.fn(async () => {
+        if (context.table === 'sync_status') {
+          return { data: { cursor: '1', total_items: 10 }, error: null };
+        }
+        return { data: null, error: null };
+      }),
       limit(value: number) {
         context.limitValue = value;
         return execute();
@@ -190,7 +196,7 @@ const hoisted = vi.hoisted(() => {
     from: vi.fn((table: string) => createQueryBuilder(table)),
     rpc: vi.fn(async (fnName: string, args: unknown) => {
       void args;
-      if (fnName !== 'match_embeddings') {
+      if (fnName !== 'hybrid_search' && fnName !== 'match_embeddings') {
         return { data: [], error: null };
       }
 
@@ -199,6 +205,7 @@ const hoisted = vi.hoisted(() => {
           id: row.id,
           content: row.content,
           similarity: 0.82,
+          combined_score: 0.82,
         })),
         error: null,
       };

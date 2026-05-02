@@ -107,6 +107,17 @@ export default function Sidebar() {
               <span className={styles.itemDesc}>Review runs and activity</span>
             </div>
           </div>
+
+          <div 
+            className={`${styles.item} ${activeView === 'audit' ? styles.itemActive : ''}`} 
+            onClick={() => navigateToView('audit')}
+          >
+            <div className={styles.itemIcon}><span style={{fontSize: '18px', filter: 'grayscale(1)'}}>🛡️</span></div>
+            <div className={styles.itemMain}>
+              <span className={styles.itemLabel}>Reputation Audit</span>
+              <span className={styles.itemDesc}>Clinical intelligence report</span>
+            </div>
+          </div>
         </div>
       </div>
 

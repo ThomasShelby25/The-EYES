@@ -15,7 +15,7 @@ describe("GET /api/audit-summary", () => {
       fallback?: {
         totalMemories: number;
         flaggedItems: Array<{ id: string }>;
-        riskCounts: { high: number; med: number; low: number };
+        riskCounts: { heavy: number; direct: number; light: number };
       };
     };
 
@@ -26,6 +26,6 @@ describe("GET /api/audit-summary", () => {
     expect(json.error).toContain("Supabase");
     expect(json.fallback?.totalMemories).toBe(0);
     expect(json.fallback?.flaggedItems).toHaveLength(0);
-    expect(json.fallback?.riskCounts).toEqual({ high: 0, med: 0, low: 0 });
+    expect(json.fallback?.riskCounts).toEqual({ heavy: 0, direct: 0, light: 0 });
   });
 });

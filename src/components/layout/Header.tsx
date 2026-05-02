@@ -55,7 +55,7 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
         <div className={styles.eyeIcon} onClick={() => router.push('/')} style={{ cursor: 'pointer' }}>
           <EyeIcon />
         </div>
-        <span className={styles.logoText} onClick={() => router.push('/')} style={{ cursor: 'pointer' }}>EYES</span>
+        <h1 className={styles.logoText} onClick={() => router.push('/')} style={{ cursor: 'pointer' }}>EYES</h1>
       </div>
 
       <div className={styles.right} ref={menuRef}>

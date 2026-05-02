@@ -14,11 +14,10 @@ type GitHubTokenResponse = {
 
 function getAppBaseUrl(request: Request) {
   const host = request.headers.get('host') || 'localhost:3000';
-  let protocol = 'https';
   if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    protocol = 'http';
+    return `http://${host}`;
   }
-  return process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
+  return process.env.NEXT_PUBLIC_SITE_URL || `https://${host}`;
 }
 
 function githubRedirectUri(request: Request) {

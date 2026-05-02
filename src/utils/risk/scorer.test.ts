@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { scoreGmailEvent, scoreGithubEvent, scoreRedditEvent } from '@/utils/risk/scorer';
 
 describe('risk scorer', () => {
-  it('scores sensitive Gmail content as flagged', () => {
-    const result = scoreGmailEvent({
+  it('scores sensitive Gmail content as flagged', async () => {
+    const result = await scoreGmailEvent({
       subject: 'Please rotate API key',
       snippet: 'The password and token are in this thread',
       from: 'security@corp.com',
@@ -15,8 +15,8 @@ describe('risk scorer', () => {
     expect(result.score).toBeGreaterThanOrEqual(45);
   });
 
-  it('scores high-visibility GitHub repo as flagged', () => {
-    const result = scoreGithubEvent({
+  it('scores high-visibility GitHub repo as flagged', async () => {
+    const result = await scoreGithubEvent({
       title: 'org/public-repo',
       description: 'production deployment scripts',
       stars: 700,
@@ -28,8 +28,8 @@ describe('risk scorer', () => {
     expect(result.severity).toBe('HIGH');
   });
 
-  it('scores benign Reddit comment as low risk', () => {
-    const result = scoreRedditEvent({
+  it('scores benign Reddit comment as low risk', async () => {
+    const result = await scoreRedditEvent({
       body: 'Had a great day building features.',
       subreddit: 'programming',
       score: 3,

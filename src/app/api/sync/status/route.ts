@@ -37,10 +37,14 @@ export async function GET(request: Request) {
       isSyncing: isAnySyncing,
       activeSyncs,
       platforms: statusRows || [],
+      observabilityReady: true,
       timestamp: new Date().toISOString()
     });
   } catch (err) {
     console.error('[Monitoring] Status API failure:', err);
-    return NextResponse.json({ error: 'Unable to fetch engine status.' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Unable to read sync status.',
+      observabilityReady: false 
+    }, { status: 500 });
   }
 }

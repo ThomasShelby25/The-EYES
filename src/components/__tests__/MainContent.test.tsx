@@ -77,11 +77,12 @@ describe("MainContent", () => {
 
     render(<MainContent />);
 
-    expect(await screen.findByRole("heading", { name: "EYES" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "The EYES" })).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Search digital memories...")).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText(/things you've said since 2018\./i)).toBeInTheDocument();
+      expect(screen.getByText(/indexed/i)).toBeInTheDocument();
+      expect(screen.getByText(/20,000/i)).toBeInTheDocument();
     });
 
     expect(screen.getByText("Memory Feed")).toBeInTheDocument();
