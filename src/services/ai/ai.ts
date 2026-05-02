@@ -1,7 +1,7 @@
 /**
- * AI Brain Core: OpenAI (gpt-4o-mini)
- * Chat: OpenAI gpt-4o-mini
- * Embeddings: OpenAI text-embedding-3-small
+ * AI Brain Core: Groq (Llama 3)
+ * Chat: Groq llama3-70b-8192 (Free Tier)
+ * Embeddings: OpenAI text-embedding-3-small (Note: Requires valid OpenAI key for embeddings)
  */
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -65,14 +65,14 @@ export async function chatCompletion(
   }
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'llama3-70b-8192',
         max_tokens: 1024,
         temperature: 0.1,
         messages: messages
@@ -84,7 +84,7 @@ export async function chatCompletion(
       return data.choices?.[0]?.message?.content || '';
     } else {
       const errBody = await response.json().catch(() => ({}));
-      console.error('[AI] OpenAI Chat API Error:', response.status, JSON.stringify(errBody));
+      console.error('[AI] Groq Chat API Error:', response.status, JSON.stringify(errBody));
       
       // Provide more specific error feedback in the string if possible
       if (response.status === 401) return '[AI UNAVAILABLE] Invalid OpenAI API Key.';
