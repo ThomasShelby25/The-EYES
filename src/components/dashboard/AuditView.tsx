@@ -168,7 +168,7 @@ export function AuditView({ onBack }: AuditViewProps) {
         <div style={{ textAlign: 'right' }}>
           <button 
             className={styles.downloadBtn} 
-            style={{ fontSize: '11px', padding: '6px 12px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', marginBottom: '10px' }}
+            style={{ fontSize: '11px', padding: '6px 12px', background: '#F0F0EE', color: '#1A1A1A', border: '1px solid #E5E5E0', marginBottom: '10px', width: 'auto' }}
             onClick={handleStartAudit}
             disabled={isInitiating}
           >
