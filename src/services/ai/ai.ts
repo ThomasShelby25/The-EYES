@@ -58,7 +58,9 @@ export async function generateEmbedding(text: string): Promise<EmbeddingResult |
 export async function chatCompletion(
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
 ): Promise<string> {
-  if (!OPENAI_API_KEY) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.error('[AI] chatCompletion failed: OPENAI_API_KEY is missing from environment.');
     return '[AI UNAVAILABLE] OPENAI_API_KEY not configured.';
   }
 
@@ -67,7 +69,7 @@ export async function chatCompletion(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
@@ -82,13 +84,17 @@ export async function chatCompletion(
       return data.choices?.[0]?.message?.content || '';
     } else {
       const errBody = await response.json().catch(() => ({}));
-      console.error('[AI] OpenAI Chat API Error:', response.status, errBody);
+      console.error('[AI] OpenAI Chat API Error:', response.status, JSON.stringify(errBody));
+      
+      // Provide more specific error feedback in the string if possible
+      if (response.status === 401) return '[AI UNAVAILABLE] Invalid OpenAI API Key.';
+      if (response.status === 429) return '[AI UNAVAILABLE] OpenAI Rate Limit or Insufficient Credits.';
     }
   } catch (err) {
     console.error('[AI] OpenAI Chat Fetch Error:', err);
   }
 
-  return '[AI UNAVAILABLE] Neural Core offline. Verify OPENAI_API_KEY.';
+  return '[AI UNAVAILABLE] Neural Core offline. Verify platform connectivity and credits.';
 }
 
 /**
