@@ -30,15 +30,17 @@ export async function POST(request: Request) {
       throw new Error(`Failed to create audit record: ${createError?.message}`);
     }
 
-    // 2. Fire and forget the analysis pipeline (Background processing)
-    // In a real app, this would be a background job (BullMQ, Vercel Background, etc.)
-    // For the demo, we trigger it asynchronously
+    // 2. Update status to 'analysis' immediately to prevent "pending" hang
+    await supabase
+      .from('reputation_audits')
+      .update({ status: 'analysis' })
+      .eq('id', audit.id);
+
+    // 3. Fire and forget the analysis pipeline
     (async () => {
       try {
         await AuditAnalysisService.runAnalysis(audit.id, user.id);
         console.log(`[Audit] Analysis complete for ${audit.id}`);
-        
-        // Note: PDF generation step would follow here
       } catch (err) {
         console.error(`[Audit] Async analysis failed for ${audit.id}:`, err);
       }

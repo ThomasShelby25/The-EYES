@@ -16,13 +16,7 @@ export class AuditAnalysisService {
     const supabase = await createClient();
     
     try {
-      // 1. Update status to 'analysis'
-      await supabase
-        .from('reputation_audits')
-        .update({ status: 'analysis' })
-        .eq('id', auditId);
-
-      // 2. Data Retrieval (Step 2)
+      // Data Retrieval (Step 2)
       // Pull raw_events for the last 2 years, up to 5,000 per platform
       const twoYearsAgo = new Date();
       twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);

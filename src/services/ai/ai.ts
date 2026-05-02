@@ -162,10 +162,13 @@ export async function chatCompletionStream(
           }
         }
       });
+      } else {
+        const errBody = await response.json().catch(() => ({}));
+        console.error('[AI] Groq Stream API Error:', response.status, JSON.stringify(errBody));
+      }
+    } catch (err) {
+      console.error('[AI] Groq Stream Fetch Error:', err);
     }
-  } catch (err) {
-    console.error('[AI] OpenAI Stream Error:', err);
-  }
 
   return new ReadableStream({
     start(controller) {
