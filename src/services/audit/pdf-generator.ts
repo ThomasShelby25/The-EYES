@@ -71,7 +71,7 @@ export class PDFGenerationService {
         };
 
         // --- PAGE 1: COVER ---
-        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(36).text('Reputation Audit\nCertificate', 50, 150);
+        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(36).text('Audit\nCertificate', 50, 150);
         doc.moveTo(50, 240).lineTo(150, 240).strokeColor(FOREST_GREEN).lineWidth(4).stroke();
         
         doc.fontSize(12).font(FONT_BODY).text(`Prepared for: [Authenticated Subject]`, 50, 280);

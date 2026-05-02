@@ -154,7 +154,7 @@ export function SynthesisView({
       <div className={styles.quickActions}>
          <div className={styles.actionCard} onClick={() => setView('feed')}><span>Memory Feed</span></div>
          <div className={styles.actionCard} onClick={() => setView('timeline')}><span>Time Line</span></div>
-         <div className={styles.actionCard} onClick={() => setView('audit')}><span>Reputation Audit</span></div>
+         <div className={styles.actionCard} onClick={() => setView('audit')}><span>Audit</span></div>
       </div>
     </div>
   );

@@ -109,7 +109,7 @@ export function AuditView({ onBack }: AuditViewProps) {
         <div className={styles.auditHeader}>
           <div>
             <div className={styles.wordmark}>EYES</div>
-            <h1 className={styles.auditTitle}>Reputation Audit</h1>
+            <h1 className={styles.auditTitle}>Audit</h1>
           </div>
         </div>
         
@@ -160,7 +160,7 @@ export function AuditView({ onBack }: AuditViewProps) {
       <header className={styles.auditHeader}>
         <div>
           <div className={styles.wordmark}>EYES</div>
-          <h1 className={styles.auditTitle}>Reputation Audit Certificate</h1>
+          <h1 className={styles.auditTitle}>Audit Certificate</h1>
           <div className={styles.auditMeta}>
             ID: {activeAudit.id.slice(0, 8).toUpperCase()} | {new Date(activeAudit.createdAt).toUTCString()}
           </div>
