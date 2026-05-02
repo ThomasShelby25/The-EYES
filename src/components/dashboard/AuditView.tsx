@@ -166,6 +166,14 @@ export function AuditView({ onBack }: AuditViewProps) {
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
+          <button 
+            className={styles.downloadBtn} 
+            style={{ fontSize: '11px', padding: '6px 12px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)', marginBottom: '10px' }}
+            onClick={handleStartAudit}
+            disabled={isInitiating}
+          >
+            {isInitiating ? 'INITIATING...' : 'RE-RUN AUDIT'}
+          </button>
           <div style={{ fontSize: '11px', color: '#8B2E2E', fontWeight: 700 }}>CONFIDENTIAL</div>
           <div style={{ fontSize: '11px', color: '#666' }}>Property of Subject</div>
         </div>
