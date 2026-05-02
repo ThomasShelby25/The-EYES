@@ -227,8 +227,14 @@ export function AuditView({ onBack }: AuditViewProps) {
             </p>
             <button 
               className={styles.downloadBtn}
-              onClick={() => window.open(activeAudit.reportUrl || '#', '_blank')}
-              disabled={!activeAudit.reportUrl}
+              onClick={() => {
+                if (activeAudit.reportUrl) {
+                  window.open(activeAudit.reportUrl, '_blank');
+                } else {
+                  alert('The PDF report is still being generated or failed to upload. Please wait a moment or try starting a new audit.');
+                }
+              }}
+              disabled={activeAudit.status === 'generating'}
             >
               DOWNLOAD FULL REPORT
             </button>

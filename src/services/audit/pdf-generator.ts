@@ -37,9 +37,13 @@ export class PDFGenerationService {
         const INK_BLACK = '#1A1A1A';
         const FOREST_GREEN = '#1F4D3F';
         const MUTED_RED = '#8B2E2E';
-        const FONT_BODY = 'Helvetica';
-        const FONT_BOLD = 'Helvetica-Bold';
-        const FONT_MONO = 'Courier';
+
+        // --- FONT PATH RESOLUTION ---
+        const path = require('path');
+        const dataDir = path.dirname(require.resolve('pdfkit/js/data/Helvetica.afm'));
+        const FONT_BODY = path.join(dataDir, 'Helvetica.afm');
+        const FONT_BOLD = path.join(dataDir, 'Helvetica-Bold.afm');
+        const FONT_MONO = path.join(dataDir, 'Courier.afm');
 
         // --- HELPER: HEADER & FOOTER ---
         const drawHeaderAndFooter = () => {
