@@ -38,9 +38,20 @@ export class PDFGenerationService {
         const FOREST_GREEN = '#1F4D3F';
         const MUTED_RED = '#8B2E2E';
 
-        // --- FONT PATH RESOLUTION (Vercel-Compatible) ---
+        // --- FONT PATH RESOLUTION (Vercel/Production Optimized) ---
         const path = require('path');
-        const dataDir = path.join(process.cwd(), 'node_modules', 'pdfkit', 'js', 'data');
+        let dataDir = path.join(process.cwd(), 'node_modules', 'pdfkit', 'js', 'data');
+        
+        // Check if we are in a Vercel-like environment where PWD might be different
+        if (process.env.VERCEL) {
+          dataDir = path.join(process.cwd(), '.next', 'server', 'chunks', 'node_modules', 'pdfkit', 'js', 'data');
+          // Fallback if the above tracing doesn't match exactly
+          try {
+            const resolved = path.dirname(require.resolve('pdfkit/js/data/Helvetica.afm'));
+            dataDir = resolved;
+          } catch (e) {}
+        }
+
         const FONT_BODY = path.join(dataDir, 'Helvetica.afm');
         const FONT_BOLD = path.join(dataDir, 'Helvetica-Bold.afm');
         const FONT_MONO = path.join(dataDir, 'Courier.afm');
