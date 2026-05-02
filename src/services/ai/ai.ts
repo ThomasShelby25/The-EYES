@@ -72,7 +72,7 @@ export async function chatCompletion(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'llama3-70b-8192',
+        model: 'llama-3.1-70b-versatile',
         max_tokens: 1024,
         temperature: 0.1,
         messages: messages
@@ -123,7 +123,7 @@ export async function chatCompletionStream(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'llama3-70b-8192',
+        model: 'llama-3.1-70b-versatile',
         max_tokens: 1024,
         temperature: 0.1,
         stream: true,
@@ -172,7 +172,7 @@ export async function chatCompletionStream(
 
   return new ReadableStream({
     start(controller) {
-      controller.enqueue(encoder.encode('[AI ERROR] Neural stream failed.'));
+      controller.enqueue(encoder.encode('[AI ERROR] Neural stream failed. Verify API configuration and rate limits.'));
       controller.close();
     }
   });
