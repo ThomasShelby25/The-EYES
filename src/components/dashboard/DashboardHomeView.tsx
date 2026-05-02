@@ -42,6 +42,50 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
     ? remainingPlatforms 
     : remainingPlatforms.filter(p => (p as any).category === activeCategory);
 
+  const primaryPlatformIds = ['gmail', 'google-calendar', 'notion', 'slack', 'github', 'discord'];
+  
+  const primaryRemaining = filteredRemaining.filter(p => primaryPlatformIds.includes(p.id));
+  const comingSoonPlatforms = filteredRemaining.filter(p => !primaryPlatformIds.includes(p.id));
+
+  const renderPlatformCard = (p: any) => {
+    const isLive = primaryPlatformIds.includes(p.id);
+
+    const startAuth = () => {
+      if (!isLive) {
+        alert(`The ${p.name} integration is currently in closed beta. Please check back soon!`);
+        return;
+      }
+
+      let startUrl = `/api/connect/${p.id}/start`;
+      if (p.id === 'gmail' || p.id === 'google-calendar') {
+        startUrl = `/api/connect/google/start?platform=${p.id}`;
+      }
+      window.location.href = startUrl;
+    };
+
+    return (
+      <div key={p.id} className={styles.readinessCard} onClick={startAuth} style={!isLive ? { cursor: 'pointer' } : {}}>
+        <div className={styles.cardHeader}>
+          <div 
+            className={styles.readinessIcon} 
+            style={{ 
+              backgroundColor: (p as any).color?.startsWith('#') ? `${(p as any).color}15` : 'var(--bg-secondary)',
+              border: (p as any).color?.startsWith('#') ? `1px solid ${(p as any).color}30` : '1px solid var(--border-subtle)'
+            }}
+          >
+            {p.icon ? React.cloneElement(p.icon as React.ReactElement<any>, { size: 24 }) : null}
+          </div>
+          <div className={styles.readinessInfo}>
+            <strong>{p.name}</strong>
+            <span className={styles.availStatusText}>{isLive ? 'Connect Now' : 'Coming Soon'}</span>
+          </div>
+          {isLive && <span className={styles.addIndicator}>+</span>}
+        </div>
+        <p className={styles.platformDesc}>{(p as any).description || 'Integrate this platform to expand your neural knowledge base.'}</p>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.readinessContainer}>
       {/* High-Contrast Live Indexing Counter Hero */}
@@ -68,7 +112,7 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
       {/* Discovery Hub Layout */}
       <div className={styles.readinessSection}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '16px' }}>
-          <h3 className={styles.subHeader} style={{ marginBottom: 0 }}>● BROWSE CONNECTORS ({filteredRemaining.length})</h3>
+          <h3 className={styles.subHeader} style={{ marginBottom: 0 }}>● PRIMARY CONNECTORS</h3>
           
           <div className={styles.filterBar} style={{ borderBottom: 'none', marginBottom: 0, paddingBottom: 0 }}>
             {categories.map(cat => (
@@ -84,46 +128,17 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
         </div>
 
         <div className={styles.readinessGrid}>
-          {filteredRemaining.map(p => {
-             const isLive = ['gmail', 'google-calendar', 'notion', 'slack', 'github', 'discord'].includes(p.id);
-
-             const startAuth = () => {
-               if (!isLive) {
-                 alert(`The ${p.name} integration is currently in closed beta. Please check back soon!`);
-                 return;
-               }
-
-               let startUrl = `/api/connect/${p.id}/start`;
-               if (p.id === 'gmail' || p.id === 'google-calendar') {
-                 startUrl = `/api/connect/google/start?platform=${p.id}`;
-               }
-               window.location.href = startUrl;
-             };
-
-             return (
-              <div key={p.id} className={styles.readinessCard} onClick={startAuth} style={!isLive ? { cursor: 'pointer' } : {}}>
-                <div className={styles.cardHeader}>
-                  <div 
-                    className={styles.readinessIcon} 
-                    style={{ 
-                      backgroundColor: (p as any).color?.startsWith('#') ? `${(p as any).color}15` : 'var(--bg-secondary)',
-                      border: (p as any).color?.startsWith('#') ? `1px solid ${(p as any).color}30` : '1px solid var(--border-subtle)'
-                    }}
-                  >
-                    {p.icon ? React.cloneElement(p.icon as React.ReactElement<any>, { size: 24 }) : null}
-                  </div>
-                  <div className={styles.readinessInfo}>
-                    <strong>{p.name}</strong>
-                    <span className={styles.availStatusText}>{isLive ? 'Connect Now' : 'Coming Soon'}</span>
-                  </div>
-                  {isLive && <span className={styles.addIndicator}>+</span>}
-                </div>
-                <p className={styles.platformDesc}>{(p as any).description || 'Integrate this platform to expand your neural knowledge base.'}</p>
-              </div>
-             );
-          })}
+          {primaryRemaining.map(renderPlatformCard)}
         </div>
 
+        {comingSoonPlatforms.length > 0 && (
+          <div style={{ marginTop: '64px' }}>
+            <h3 className={styles.subHeader} style={{ marginBottom: '32px', opacity: 0.6 }}>● COMING SOON</h3>
+            <div className={styles.readinessGrid} style={{ opacity: 0.7 }}>
+              {comingSoonPlatforms.map(renderPlatformCard)}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

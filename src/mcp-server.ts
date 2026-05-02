@@ -9,6 +9,8 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { createClient } from "@supabase/supabase-js";
 import * as dotenv from "dotenv";
+import { getValidGoogleToken } from "./utils/oauth.js";
+import { encryptToken, decryptToken } from "./utils/tokens.js";
 
 // Load environment variables for local execution
 dotenv.config();
@@ -54,6 +56,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             limit: { type: "number", description: "Number of results to return", default: 5 },
           },
           required: ["query"],
+        },
+      },
+      {
+        name: "manage_calendar_event",
+        description: "Create, Update, or Delete an event in the user's Google Calendar.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            method: { type: "string", enum: ["POST", "PATCH", "DELETE"], description: "The operation: POST (create), PATCH (update), DELETE (remove)" },
+            eventId: { type: "string", description: "The ID of the event (required for PATCH and DELETE)" },
+            title: { type: "string", description: "Event title" },
+            description: { type: "string", description: "Event description" },
+            date: { type: "string", description: "ISO 8601 date string for the event" },
+          },
+          required: ["method"],
         },
       },
     ],
@@ -103,6 +120,57 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     } catch (err: any) {
       return {
         content: [{ type: "text", text: `Error searching memories: ${err.message}` }],
+        isError: true,
+      };
+    }
+  }
+
+  if (request.params.name === "manage_calendar_event") {
+    const { method, eventId, title, description, date } = request.params.arguments as { 
+      method: 'POST' | 'PATCH' | 'DELETE'; 
+      eventId?: string;
+      title?: string;
+      description?: string;
+      date?: string;
+    };
+
+    try {
+      const userId = process.env.MCP_DEFAULT_USER_ID;
+      if (!userId) throw new Error("MCP_DEFAULT_USER_ID not configured.");
+
+      const accessToken = await getValidGoogleToken(supabase, userId, 'google_calendar');
+      if (!accessToken) throw new Error("Google Calendar not connected or token expired.");
+
+      let url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+      if (eventId) url += `/${eventId}`;
+
+      const payload = method !== 'DELETE' ? {
+        summary: title,
+        description: description,
+        start: date ? { dateTime: new Date(date).toISOString() } : undefined,
+        end: date ? { dateTime: new Date(new Date(date).getTime() + 3600000).toISOString() } : undefined,
+      } : undefined;
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: payload ? JSON.stringify(payload) : undefined,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Calendar API Error: ${errorText}`);
+      }
+
+      return {
+        content: [{ type: "text", text: `Successfully ${method === 'POST' ? 'created' : method === 'PATCH' ? 'updated' : 'deleted'} calendar event.` }],
+      };
+    } catch (err: any) {
+      return {
+        content: [{ type: "text", text: `Error managing calendar: ${err.message}` }],
         isError: true,
       };
     }

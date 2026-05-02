@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { actionId, actionType, title, description, date } = await req.json();
+    const { actionId, actionType, method = 'POST', eventId, title, description, date } = await req.json();
 
     if (actionType === 'CALENDAR') {
       // 1. Fetch Google Calendar Token
@@ -32,29 +32,42 @@ export async function POST(req: Request) {
         end: { dateTime: eventEnd.toISOString() }
       };
 
-      // 3. Execute Write to Google Calendar
-      const gcalRes = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-        method: 'POST',
+      // 3. Determine Endpoint and Method
+      let url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+      let fetchMethod = method;
+
+      if (method === 'UPDATE' || method === 'PATCH') {
+        if (!eventId) return NextResponse.json({ error: 'Missing eventId for update' }, { status: 400 });
+        url += `/${eventId}`;
+        fetchMethod = 'PATCH';
+      } else if (method === 'DELETE') {
+        if (!eventId) return NextResponse.json({ error: 'Missing eventId for delete' }, { status: 400 });
+        url += `/${eventId}`;
+        fetchMethod = 'DELETE';
+      }
+
+      // 4. Execute Write to Google Calendar
+      const gcalRes = await fetch(url, {
+        method: fetchMethod,
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload)
+        body: fetchMethod !== 'DELETE' ? JSON.stringify(payload) : undefined
       });
 
       if (!gcalRes.ok) {
         const errorText = await gcalRes.text();
-        console.error('Google Calendar Write Failed:', errorText);
+        console.error(`Google Calendar ${fetchMethod} Failed:`, errorText);
         
-        // Check for Scope Error (Insufficient Permissions)
         if (gcalRes.status === 403 || errorText.includes('insufficient')) {
           return NextResponse.json({ 
             error: 'Insufficient Scopes', 
-            details: 'Write permissions (calendar.events) are not enabled in your Google Cloud Console.' 
+            details: 'Write permissions are not enabled in your Google Cloud Console.' 
           }, { status: 403 });
         }
         
-        return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
+        return NextResponse.json({ error: `Failed to ${method.toLowerCase()} event` }, { status: 500 });
       }
 
       return NextResponse.json({ success: true });
