@@ -45,25 +45,23 @@ export async function chatCompletion(messages: { role: string; content: string }
   try {
     const model = getModel("gemini-1.5-flash");
     
-    // Convert OpenAI style messages to Gemini format
-    const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
-    const history = messages
-      .filter(m => m.role !== 'system' && m.role !== 'user')
-      .map(m => ({ role: "model", parts: [{ text: m.content }] }));
-    
+    // v1 Compatible: Merge system instruction into the first user message or as a separate turn
+    const systemPrompt = messages.find(m => m.role === 'system')?.content || "";
     const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || "";
+    
+    const combinedPrompt = systemPrompt 
+      ? `SYSTEM INSTRUCTION: ${systemPrompt}\n\nUSER REQUEST: ${lastUserMessage}`
+      : lastUserMessage;
 
     const chat = model.startChat({
-      history: history as any,
       generationConfig: { maxOutputTokens: 1024, temperature: 0.1 },
-      systemInstruction: systemInstruction ? { role: "system", parts: [{ text: systemInstruction }] } : undefined
     });
 
-    const result = await chat.sendMessage(lastUserMessage);
+    const result = await chat.sendMessage(combinedPrompt);
     return result.response.text();
-  } catch (err) {
+  } catch (err: any) {
     console.error('[AI] Gemini Chat Error:', err);
-    return 'The neural link was interrupted.';
+    return `Neural link failure: ${err?.message || 'Unknown error'}`;
   }
 }
 
@@ -85,27 +83,31 @@ export async function chatCompletionStream(messages: { role: string; content: st
   try {
     const model = getModel("gemini-1.5-flash");
     
-    const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
+    const systemPrompt = messages.find(m => m.role === 'system')?.content || "";
+    const lastUserMessage = messages[messages.length - 1].content;
+    
+    const combinedPrompt = systemPrompt 
+      ? `SYSTEM INSTRUCTION: ${systemPrompt}\n\nUSER REQUEST: ${lastUserMessage}`
+      : lastUserMessage;
+
+    // Filter out system and the last user message from history
     const history = messages
-      .slice(0, -1) // All but last
+      .slice(0, -1)
       .filter(m => m.role !== 'system')
       .map(m => ({ 
         role: m.role === 'assistant' ? 'model' : 'user', 
         parts: [{ text: m.content }] 
       }));
-    
-    const lastUserMessage = messages[messages.length - 1].content;
 
     const chat = model.startChat({
       history: history as any,
       generationConfig: { maxOutputTokens: 1024, temperature: 0.1 },
-      systemInstruction: systemInstruction ? { role: "system", parts: [{ text: systemInstruction }] } : undefined
     });
 
     return new ReadableStream({
       async start(controller) {
         try {
-          const result = await chat.sendMessageStream(lastUserMessage);
+          const result = await chat.sendMessageStream(combinedPrompt);
           for await (const chunk of result.stream) {
             const chunkText = chunk.text();
             if (chunkText) {
@@ -121,11 +123,11 @@ export async function chatCompletionStream(messages: { role: string; content: st
         }
       }
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('[AI] Gemini Stream Setup Error:', err);
     return new ReadableStream({
       start(controller) {
-        controller.enqueue(encoder.encode('[AI ERROR] Failed to initialize neural stream.'));
+        controller.enqueue(encoder.encode(`[AI ERROR] Setup failed: ${err?.message}`));
         controller.close();
       }
     });
