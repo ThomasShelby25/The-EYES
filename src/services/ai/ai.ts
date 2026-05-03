@@ -6,8 +6,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
  * Embeddings: text-embedding-004 (Free Tier)
  */
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY; // Fallback to OpenAI key slot if user pasted it there
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY; 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
+// Force v1 for stability
+const getModel = (name: string) => genAI.getGenerativeModel({ model: name }, { apiVersion: 'v1' });
 
 export type EmbeddingResult = {
   embedding: number[];
@@ -23,7 +25,7 @@ export async function generateEmbedding(text: string): Promise<EmbeddingResult |
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "embedding-001" });
+    const model = getModel("text-embedding-004");
     const result = await model.embedContent(text.slice(0, 8000));
     return {
       embedding: Array.from(result.embedding.values)
@@ -41,7 +43,7 @@ export async function chatCompletion(messages: { role: string; content: string }
   if (!GEMINI_API_KEY) return 'GEMINI_API_KEY not configured.';
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = getModel("gemini-1.5-flash");
     
     // Convert OpenAI style messages to Gemini format
     const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
@@ -81,7 +83,7 @@ export async function chatCompletionStream(messages: { role: string; content: st
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = getModel("gemini-1.5-flash");
     
     const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
     const history = messages
