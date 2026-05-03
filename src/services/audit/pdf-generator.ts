@@ -47,8 +47,8 @@ export class PDFGenerationService {
           dataDir = path.join(process.cwd(), '.next', 'server', 'chunks', 'node_modules', 'pdfkit', 'js', 'data');
           // Fallback if the above tracing doesn't match exactly
           try {
-            const resolved = path.dirname(require.resolve('pdfkit/js/data/Helvetica.afm'));
-            dataDir = resolved;
+            const resolved = path.dirname(require.resolve('pdfkit/package.json'));
+            dataDir = path.join(resolved, 'js', 'data');
           } catch (e) {}
         }
 
