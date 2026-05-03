@@ -149,18 +149,22 @@ export class PDFGenerationService {
 
         // --- PAGE 7: RISK FINDINGS ---
         doc.addPage();
-        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text('Risk Findings', 50, 100);
+        setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+        doc.fillColor(INK_BLACK).fontSize(20).text('Risk Findings', 50, 100);
         audit.metadata.riskFindings.forEach((f, idx) => {
           doc.rect(50, 140 + (idx * 110), 500, 100).stroke('#E5E5E0');
-          doc.fillColor(f.severity === 'High' ? MUTED_RED : FOREST_GREEN).font(FONT_BOLD).fontSize(10).text(`${f.severity.toUpperCase()} RISK`, 60, 150 + (idx * 110));
-          doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(12).text(f.finding, 60, 170 + (idx * 110));
-          doc.font(FONT_BODY).fontSize(10).text(f.impact, 60, 190 + (idx * 110), { width: 480 });
+          doc.fillColor(f.severity === 'High' ? MUTED_RED : FOREST_GREEN).fontSize(10).text(`${f.severity.toUpperCase()} RISK`, 60, 150 + (idx * 110));
+          doc.fillColor(INK_BLACK).fontSize(12).text(f.finding, 60, 170 + (idx * 110));
+          setSafeFont(FONT_BODY, 'Helvetica');
+          doc.fontSize(10).text(f.impact, 60, 190 + (idx * 110), { width: 480 });
         });
 
         // --- PAGE 8: CITATIONS & LEGAL ---
         doc.addPage();
-        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text('Legal Disclosure & GDPR Notice', 50, 100);
-        doc.font(FONT_BODY).fontSize(9).lineGap(6).text(`"This certificate has been generated using only the data sources you have explicitly authorized through OAuth. Citations referenced in this report are sourced from your authorized connectors only. EYES does not search the public web, query third-party data brokers, or enrich this report with information from sources outside your authorized scope."`, 50, 140, { width: 500, align: 'justify' });
+        setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+        doc.fillColor(INK_BLACK).fontSize(20).text('Legal Disclosure & GDPR Notice', 50, 100);
+        setSafeFont(FONT_BODY, 'Helvetica');
+        doc.fontSize(9).lineGap(6).text(`"This certificate has been generated using only the data sources you have explicitly authorized through OAuth. Citations referenced in this report are sourced from your authorized connectors only. EYES does not search the public web, query third-party data brokers, or enrich this report with information from sources outside your authorized scope."`, 50, 140, { width: 500, align: 'justify' });
         doc.text(`"Pursuant to Articles 15 and 20 of the General Data Protection Regulation (EU 2016/679), the data analysed in this report constitutes your personal data, processed on your instruction. You have the right to access, rectify, erase, and export this data at any time through your EYES account. EYES does not retain analysis artefacts beyond the audit delivery period and does not use your data to train any model without your separate, explicit, opt-in consent."`, 50, 240, { width: 500, align: 'justify' });
 
         // Finalize
