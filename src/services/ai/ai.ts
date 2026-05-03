@@ -76,7 +76,7 @@ export async function chatCompletion(messages: { role: string; content: string }
   if (GEMINI_API_KEY) {
     try {
       const model = genAI.getGenerativeModel({ 
-        model: GEMINI_MODEL,
+        model: "gemini-1.5-flash",
         systemInstruction: systemInstruction 
       });
       
@@ -140,7 +140,7 @@ export async function chatCompletionStream(messages: { role: string; content: st
             // EMERGENCY FALLBACK: If Claude fails mid-stream, try to get a quick answer from Gemini
             if (GEMINI_API_KEY) {
               try {
-                const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 const lastMessage = history[history.length - 1]?.content || "";
                 const result = await model.generateContent(lastMessage);
                 const text = result.response.text();
@@ -165,7 +165,7 @@ export async function chatCompletionStream(messages: { role: string; content: st
   if (GEMINI_API_KEY) {
     try {
       const model = genAI.getGenerativeModel({ 
-        model: GEMINI_MODEL,
+        model: "gemini-1.5-flash",
         systemInstruction: systemInstruction 
       });
 
