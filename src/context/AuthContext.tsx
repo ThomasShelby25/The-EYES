@@ -194,26 +194,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const supabase = useMemo(() => createClient(), []);
 
+  const syncInProgressRef = useRef(false);
+
   const syncProfile = useCallback(async (authUser: { id: string; email?: string; metadata?: AuthMetadata }): Promise<User> => {
+    if (syncInProgressRef.current) {
+      console.log('[Auth] Profile sync already in progress, skipping duplicate call.');
+      // Return a temporary user while the first call finishes
+      return {
+        id: authUser.id,
+        name: authUser.metadata?.name || authUser.email?.split('@')[0] || 'User',
+        email: authUser.email || '',
+        avatar: (authUser.metadata?.name || authUser.email?.split('@')[0] || 'U').charAt(0).toUpperCase(),
+        plan: 'Private Beta',
+        joinedDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+        memoriesIndexed: 0,
+      };
+    }
+
+    syncInProgressRef.current = true;
     console.log('[Auth] Syncing profile for:', authUser.id);
     const fallbackName = authUser.metadata?.name || authUser.email?.split('@')[0] || 'User';
     const initials = fallbackName.charAt(0).toUpperCase();
     const joinedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
 
     try {
-      // Use maybeSingle to avoid 406 errors. Wrap in timeout to prevent hangs.
-      const { data: profile } = await quickFetch<QueryResult<UserProfileRow>>(
+      // Increase timeout to 15s to handle DB load during syncs.
+      const fetchResult = await quickFetch<QueryResult<UserProfileRow>>(
         supabase
           .from('user_profiles')
           .select('name,avatar,plan,joined_date,memories_indexed')
           .eq('user_id', authUser.id)
           .maybeSingle()
           .then((result: SupabaseQueryLike<UserProfileRow>) => ({ data: result.data, error: result.error })),
-        5000,
+        15000,
         { data: null, error: { message: 'Timed out' } }
       );
 
+      const profile = fetchResult.data;
+      const isTimeout = fetchResult.error?.message === 'Timed out';
+
       if (profile) {
+        syncInProgressRef.current = false;
         return {
           id: authUser.id,
           name: profile.name,
@@ -225,8 +246,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
 
+      // ONLY create if it's definitely missing, NOT on timeouts
+      if (isTimeout) {
+        console.warn('[Auth] Profile fetch timed out. Using fallback user to avoid loop.');
+        syncInProgressRef.current = false;
+        return {
+          id: authUser.id,
+          name: fallbackName,
+          email: authUser.email || '',
+          avatar: initials,
+          plan: 'Private Beta',
+          joinedDate: joinedDate,
+          memoriesIndexed: 0,
+        };
+      }
+
       // Create profile if missing
-      console.log('[Auth] Profile missing, creating new record.');
+      console.log('[Auth] Profile confirmed missing, creating new record.');
       const newProfile = {
         user_id: authUser.id,
         name: fallbackName,
@@ -243,10 +279,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .select('name,avatar,plan,joined_date,memories_indexed')
           .maybeSingle()
           .then((result: SupabaseQueryLike<UserProfileRow>) => ({ data: result.data, error: result.error })),
-        5000,
+        15000,
         { data: null, error: null }
       );
 
+      syncInProgressRef.current = false;
       const final = inserted || newProfile;
       return {
         id: authUser.id,
@@ -258,6 +295,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         memoriesIndexed: 0,
       };
     } catch (err) {
+      syncInProgressRef.current = false;
       console.error('[Auth] Profile sync error:', err);
       // Return a valid fallback user so the app can continue
       return {
