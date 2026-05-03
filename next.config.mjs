@@ -6,7 +6,12 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  }
+  },
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/**/*': ['./node_modules/pdfkit/js/data/*.afm'],
+    },
+  },
 };
 
 export default nextConfig;

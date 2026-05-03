@@ -8,9 +8,9 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY; 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
-// Force v1 for stability
-const getModel = (name: string) => genAI.getGenerativeModel({ model: name }, { apiVersion: 'v1' });
-const CHAT_MODEL = "gemini-1.5-flash-latest";
+// Use v1beta for full feature support (System Instructions, text-embedding-004)
+const getModel = (name: string) => genAI.getGenerativeModel({ model: name });
+const CHAT_MODEL = "gemini-1.5-flash";
 const EMBED_MODEL = "text-embedding-004";
 
 export type EmbeddingResult = {
@@ -47,19 +47,20 @@ export async function chatCompletion(messages: { role: string; content: string }
   try {
     const model = getModel(CHAT_MODEL);
     
-    // v1 Compatible: Merge system instruction into the first user message or as a separate turn
-    const systemPrompt = messages.find(m => m.role === 'system')?.content || "";
-    const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || "";
+    const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
+    const history = messages
+      .filter(m => m.role !== 'system' && m.role !== 'user')
+      .map(m => ({ role: "model", parts: [{ text: m.content }] }));
     
-    const combinedPrompt = systemPrompt 
-      ? `SYSTEM INSTRUCTION: ${systemPrompt}\n\nUSER REQUEST: ${lastUserMessage}`
-      : lastUserMessage;
+    const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || "";
 
     const chat = model.startChat({
+      history: history as any,
       generationConfig: { maxOutputTokens: 1024, temperature: 0.1 },
+      systemInstruction: systemInstruction ? { role: "system", parts: [{ text: systemInstruction }] } : undefined
     });
 
-    const result = await chat.sendMessage(combinedPrompt);
+    const result = await chat.sendMessage(lastUserMessage);
     return result.response.text();
   } catch (err: any) {
     console.error('[AI] Gemini Chat Error:', err);
@@ -85,14 +86,7 @@ export async function chatCompletionStream(messages: { role: string; content: st
   try {
     const model = getModel(CHAT_MODEL);
     
-    const systemPrompt = messages.find(m => m.role === 'system')?.content || "";
-    const lastUserMessage = messages[messages.length - 1].content;
-    
-    const combinedPrompt = systemPrompt 
-      ? `SYSTEM INSTRUCTION: ${systemPrompt}\n\nUSER REQUEST: ${lastUserMessage}`
-      : lastUserMessage;
-
-    // Filter out system and the last user message from history
+    const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
     const history = messages
       .slice(0, -1)
       .filter(m => m.role !== 'system')
@@ -100,16 +94,19 @@ export async function chatCompletionStream(messages: { role: string; content: st
         role: m.role === 'assistant' ? 'model' : 'user', 
         parts: [{ text: m.content }] 
       }));
+    
+    const lastUserMessage = messages[messages.length - 1].content;
 
     const chat = model.startChat({
       history: history as any,
       generationConfig: { maxOutputTokens: 1024, temperature: 0.1 },
+      systemInstruction: systemInstruction ? { role: "system", parts: [{ text: systemInstruction }] } : undefined
     });
 
     return new ReadableStream({
       async start(controller) {
         try {
-          const result = await chat.sendMessageStream(combinedPrompt);
+          const result = await chat.sendMessageStream(lastUserMessage);
           for await (const chunk of result.stream) {
             const chunkText = chunk.text();
             if (chunkText) {
