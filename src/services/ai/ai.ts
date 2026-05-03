@@ -111,9 +111,10 @@ export async function chatCompletionStream(messages: { role: string; content: st
             }
           }
           controller.close();
-        } catch (err) {
-          console.error('[AI] Gemini Stream Error:', err);
-          controller.enqueue(encoder.encode('[AI ERROR] Neural stream failed. Check API key and quotas.'));
+        } catch (err: any) {
+          console.error('[AI] Gemini Stream Error Detail:', err);
+          const errorMsg = err?.message || 'Neural stream failed.';
+          controller.enqueue(encoder.encode(`[AI ERROR] ${errorMsg}. Verify API key permissions and quotas.`));
           controller.close();
         }
       }
