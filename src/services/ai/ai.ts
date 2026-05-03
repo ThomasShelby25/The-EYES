@@ -13,7 +13,7 @@ const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''; 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const CLAUDE_MODEL = "claude-3-5-sonnet-20240620";
-const GEMINI_MODEL = 'gemini-pro';
+const GEMINI_FALLBACK_MODELS = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
 const EMBED_MODEL = "gemini-embedding-001";
 
 export type EmbeddingResult = {
@@ -72,33 +72,34 @@ export async function chatCompletion(messages: { role: string; content: string }
     }
   }
 
-  // Gemini Fallback
+  // Gemini Fallback with aggressive retry
   if (GEMINI_API_KEY) {
-    try {
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: systemInstruction 
-      });
-      
-      const chat = model.startChat({
-        history: history.slice(0, -1).map(h => ({
-          role: h.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: h.content }]
-        }))
-      });
+    for (const modelName of GEMINI_FALLBACK_MODELS) {
+      try {
+        console.log(`[AI] Attempting Gemini fallback with model: ${modelName}`);
+        const model = genAI.getGenerativeModel({ 
+          model: modelName,
+          systemInstruction: systemInstruction 
+        });
+        
+        const chat = model.startChat({
+          history: history.slice(0, -1).map(h => ({
+            role: h.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: h.content }]
+          }))
+        });
 
-      const lastMessage = history[history.length - 1]?.content || "";
-      const result = await chat.sendMessage(lastMessage);
-      const text = result.response.text();
-      if (!text) throw new Error('Empty AI response');
-      return text;
-    } catch (geminiErr: any) {
-      console.error('[AI] Gemini Fallback Error:', geminiErr);
-      return `Neural link failure: ${geminiErr?.message || 'AI unavailable'}`;
+        const lastMessage = history[history.length - 1]?.content || "";
+        const result = await chat.sendMessage(lastMessage);
+        const text = result.response.text();
+        if (text) return text;
+      } catch (geminiErr: any) {
+        console.warn(`[AI] Gemini model ${modelName} failed, trying next...`, geminiErr.message);
+      }
     }
   }
 
-  return 'AI Service not configured correctly.';
+  return 'AI Service not configured correctly or all models failed.';
 }
 
 /**
@@ -163,39 +164,41 @@ export async function chatCompletionStream(messages: { role: string; content: st
 
   // Gemini Fallback
   if (GEMINI_API_KEY) {
-    try {
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        systemInstruction: systemInstruction 
-      });
+    for (const modelName of GEMINI_FALLBACK_MODELS) {
+      try {
+        const model = genAI.getGenerativeModel({ 
+          model: modelName,
+          systemInstruction: systemInstruction 
+        });
 
-      return new ReadableStream({
-        async start(controller) {
-          try {
-            const chat = model.startChat({
-              history: history.slice(0, -1).map(h => ({
-                role: h.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: h.content }]
-              }))
-            });
+        return new ReadableStream({
+          async start(controller) {
+            try {
+              const chat = model.startChat({
+                history: history.slice(0, -1).map(h => ({
+                  role: h.role === 'assistant' ? 'model' : 'user',
+                  parts: [{ text: h.content }]
+                }))
+              });
 
-            const lastMessage = history[history.length - 1]?.content || "";
-            const result = await chat.sendMessageStream(lastMessage);
+              const lastMessage = history[history.length - 1]?.content || "";
+              const result = await chat.sendMessageStream(lastMessage);
 
-            for await (const chunk of result.stream) {
-              const text = chunk.text();
-              controller.enqueue(encoder.encode(text));
+              for await (const chunk of result.stream) {
+                const text = chunk.text();
+                controller.enqueue(encoder.encode(text));
+              }
+              controller.close();
+            } catch (geminiErr: any) {
+              console.error(`[AI] Gemini Stream model ${modelName} failed:`, geminiErr);
+              controller.enqueue(encoder.encode(`[AI ERROR] Neural stream failed on ${modelName}.`));
+              controller.close();
             }
-            controller.close();
-          } catch (geminiErr: any) {
-            console.error('[AI] Gemini Stream Fallback Error:', geminiErr);
-            controller.enqueue(encoder.encode(`[AI ERROR] Neural stream failed: ${geminiErr?.message}`));
-            controller.close();
           }
-        }
-      });
-    } catch (err: any) {
-      console.error('[AI] Gemini Stream Setup Error:', err);
+        });
+      } catch (err: any) {
+        console.warn(`[AI] Gemini Stream setup for ${modelName} failed, trying next...`);
+      }
     }
   }
 
