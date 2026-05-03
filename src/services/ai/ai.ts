@@ -10,6 +10,8 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
 // Force v1 for stability
 const getModel = (name: string) => genAI.getGenerativeModel({ model: name }, { apiVersion: 'v1' });
+const CHAT_MODEL = "gemini-1.5-flash-latest";
+const EMBED_MODEL = "text-embedding-004";
 
 export type EmbeddingResult = {
   embedding: number[];
@@ -25,7 +27,7 @@ export async function generateEmbedding(text: string): Promise<EmbeddingResult |
   }
 
   try {
-    const model = getModel("text-embedding-004");
+    const model = getModel(EMBED_MODEL);
     const result = await model.embedContent(text.slice(0, 8000));
     return {
       embedding: Array.from(result.embedding.values)
@@ -43,7 +45,7 @@ export async function chatCompletion(messages: { role: string; content: string }
   if (!GEMINI_API_KEY) return 'GEMINI_API_KEY not configured.';
 
   try {
-    const model = getModel("gemini-1.5-flash");
+    const model = getModel(CHAT_MODEL);
     
     // v1 Compatible: Merge system instruction into the first user message or as a separate turn
     const systemPrompt = messages.find(m => m.role === 'system')?.content || "";
@@ -81,7 +83,7 @@ export async function chatCompletionStream(messages: { role: string; content: st
   }
 
   try {
-    const model = getModel("gemini-1.5-flash");
+    const model = getModel(CHAT_MODEL);
     
     const systemPrompt = messages.find(m => m.role === 'system')?.content || "";
     const lastUserMessage = messages[messages.length - 1].content;
