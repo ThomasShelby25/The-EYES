@@ -42,6 +42,10 @@ export function AuditView({ onBack }: AuditViewProps) {
       interval = setInterval(async () => {
         try {
           const res = await fetch(`/api/audit/${activeAudit.id}`);
+          if (res.status === 404) {
+             // If not found, just wait for next tick
+             return;
+          }
           if (res.ok) {
             const data = await res.json();
             setActiveAudit(data);
@@ -52,7 +56,7 @@ export function AuditView({ onBack }: AuditViewProps) {
         } catch (err) {
           console.error('Polling failed:', err);
         }
-      }, 3000);
+      }, 5000);
     }
     return () => clearInterval(interval);
   }, [activeAudit]);

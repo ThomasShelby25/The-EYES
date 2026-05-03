@@ -13,6 +13,7 @@ const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''; 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const CLAUDE_MODEL = "claude-3-5-sonnet-20240620";
+const GEMINI_MODEL = 'gemini-1.5-flash';
 const EMBED_MODEL = "gemini-embedding-001";
 
 export type EmbeddingResult = {
@@ -75,7 +76,7 @@ export async function chatCompletion(messages: { role: string; content: string }
   if (GEMINI_API_KEY) {
     try {
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash-latest",
+        model: GEMINI_MODEL,
         systemInstruction: systemInstruction 
       });
       
@@ -88,7 +89,9 @@ export async function chatCompletion(messages: { role: string; content: string }
 
       const lastMessage = history[history.length - 1]?.content || "";
       const result = await chat.sendMessage(lastMessage);
-      return result.response.text();
+      const text = result.response.text();
+      if (!text) throw new Error('Empty AI response');
+      return text;
     } catch (geminiErr: any) {
       console.error('[AI] Gemini Fallback Error:', geminiErr);
       return `Neural link failure: ${geminiErr?.message || 'AI unavailable'}`;
@@ -147,7 +150,7 @@ export async function chatCompletionStream(messages: { role: string; content: st
   if (GEMINI_API_KEY) {
     try {
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash-latest",
+        model: GEMINI_MODEL,
         systemInstruction: systemInstruction 
       });
 
