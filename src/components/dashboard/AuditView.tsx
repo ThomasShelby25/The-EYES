@@ -135,18 +135,42 @@ export function AuditView({ onBack }: AuditViewProps) {
     );
   }
 
-  // SCANNING STATE
-  if (activeAudit.status !== 'completed' && activeAudit.status !== 'failed') {
+  // SCANNING / FAILED STATE
+  if (activeAudit.status !== 'completed') {
+    const isFailed = activeAudit.status === 'failed';
+
     return (
       <div className={styles.auditContainer}>
+        <button onClick={onBack} style={{ marginBottom: '20px', cursor: 'pointer', background: 'none', border: 'none', color: '#1F4D3F', fontWeight: 700 }}>← BACK TO DASHBOARD</button>
         <div className={styles.scanningContainer}>
-          <div className={styles.neuralPulse} />
+          {isFailed ? (
+            <div style={{ color: '#8B2E2E', fontSize: '48px', marginBottom: '20px' }}>⚠️</div>
+          ) : (
+            <div className={styles.neuralPulse} />
+          )}
           <div className={styles.scanningText}>
-            {activeAudit.status === 'pending' && 'WAITING FOR QUEUE...'}
-            {activeAudit.status === 'analysis' && 'ANALYZING NEURAL TRACE...'}
-            {activeAudit.status === 'generating' && 'COMPILING REPORT...'}
+            {isFailed ? 'AUDIT FAILED' : 
+             activeAudit.status === 'pending' ? 'WAITING FOR QUEUE...' :
+             activeAudit.status === 'analysis' ? 'ANALYZING NEURAL TRACE...' :
+             'COMPILING REPORT...'}
           </div>
-          <p style={{ opacity: 0.6, fontSize: '12px' }}>This typically takes under 60 seconds.</p>
+          {isFailed ? (
+            <div style={{ textAlign: 'center', maxWidth: '400px' }}>
+              <p style={{ opacity: 0.8, fontSize: '14px', marginBottom: '20px' }}>
+                The neural link was interrupted during analysis. This may be due to an API service interruption or connectivity issues.
+              </p>
+              <button 
+                className={styles.downloadBtn} 
+                style={{ background: '#1F4D3F', color: 'white' }}
+                onClick={handleStartAudit}
+                disabled={isInitiating}
+              >
+                {isInitiating ? 'INITIATING...' : 'RE-TRY AUDIT'}
+              </button>
+            </div>
+          ) : (
+            <p style={{ opacity: 0.6, fontSize: '12px' }}>This typically takes under 60 seconds.</p>
+          )}
         </div>
       </div>
     );
@@ -189,15 +213,15 @@ export function AuditView({ onBack }: AuditViewProps) {
 
             <div className={styles.metricsRow}>
               <div className={styles.metricCard}>
-                <span className={styles.metricValue}>{activeAudit.mentionsCount}</span>
+                <span className={styles.metricValue}>{activeAudit.mentionsCount || 0}</span>
                 <span className={styles.metricLabel}>Mentions Discovered</span>
               </div>
               <div className={styles.metricCard}>
-                <span className={styles.metricValue}>{(activeAudit.metadata.sentimentBalance * 100).toFixed(0)}%</span>
+                <span className={styles.metricValue}>{((activeAudit.metadata?.sentimentBalance || 0) * 100).toFixed(0)}%</span>
                 <span className={styles.metricLabel}>Sentiment Balance</span>
               </div>
               <div className={styles.metricCard}>
-                <span className={styles.metricValue}>{activeAudit.commitmentsCount}</span>
+                <span className={styles.metricValue}>{activeAudit.commitmentsCount || 0}</span>
                 <span className={styles.metricLabel}>Unfulfilled Commitments</span>
               </div>
             </div>

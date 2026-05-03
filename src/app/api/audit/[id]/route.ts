@@ -27,7 +27,21 @@ export async function GET(
       return NextResponse.json({ error: 'Audit not found or access denied.' }, { status: 404 });
     }
 
-    return NextResponse.json(audit);
+    // Map DB fields to camelCase for the frontend
+    const mappedAudit = {
+      id: audit.id,
+      status: audit.status,
+      riskScore: Number(audit.risk_score || 0),
+      mentionsCount: audit.mentions_count || 0,
+      commitmentsCount: audit.commitments_count || 0,
+      summaryNarrative: audit.summary_narrative,
+      connectorsCovered: audit.connectors_covered || [],
+      reportUrl: audit.report_url,
+      createdAt: audit.created_at,
+      metadata: audit.metadata || {}
+    };
+
+    return NextResponse.json(mappedAudit);
 
   } catch (err) {
     console.error('[Audit Status API] Failure:', err);

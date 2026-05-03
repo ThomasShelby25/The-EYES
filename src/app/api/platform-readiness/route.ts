@@ -181,7 +181,22 @@ const platformConfigs: Array<{
   },
 ];
 
-const toDbPlatform = (id: PlatformId) => (id === 'google-calendar' ? 'google_calendar' : (id === 'twitter' ? 'twitter' : id));
+/**
+ * Helper to map between Frontend IDs (hyphenated) and Database IDs (underscored)
+ */
+const platformMappings: Record<string, string> = {
+  'google-calendar': 'google_calendar',
+  'google-gmail': 'gmail', // handle legacy or variations
+  'twitter': 'twitter',
+};
+
+const toDbPlatform = (id: string) => platformMappings[id] || id.replace(/-/g, '_');
+const fromDbPlatform = (dbPlatform: string) => {
+  for (const [id, dbId] of Object.entries(platformMappings)) {
+    if (dbId === dbPlatform) return id;
+  }
+  return dbPlatform.replace(/_/g, '-');
+};
 
 export async function GET() {
   try {
@@ -189,43 +204,33 @@ export async function GET() {
     const { data: authData } = await supabase.auth.getUser();
     const user = authData.user;
 
-    let tokenRows: Array<{ platform: string }> = [];
-    let syncRows: Array<{
-      platform: string;
-      status: string | null;
-      sync_progress: number | null;
-      total_items: number | null;
-      last_sync_at: string | null;
-      error_message: string | null;
-    }> = [];
-
-    if (user) {
-      const [{ data: tokens }, { data: sync }] = await Promise.all([
-        supabase
-          .from('oauth_tokens')
-          .select('platform')
-          .eq('user_id', user.id),
-        supabase
-          .from('sync_status')
-          .select('platform,status,sync_progress,total_items,last_sync_at,error_message')
-          .eq('user_id', user.id),
-      ]);
-
-      tokenRows = tokens ?? [];
-      syncRows = sync ?? [];
+    if (!user) {
+      return NextResponse.json({ platforms: [] }, { status: 200 });
     }
 
-    const tokenSet = new Set(tokenRows.map((row) => row.platform));
-    const syncMap = new Map(syncRows.map((row) => [row.platform, row]));
+    // Fetch both OAuth tokens and Sync Status in parallel
+    const [{ data: tokens }, { data: syncRows }] = await Promise.all([
+      supabase.from('oauth_tokens').select('platform').eq('user_id', user.id),
+      supabase.from('sync_status').select('platform, status, sync_progress, total_items, last_sync_at, error_message').eq('user_id', user.id),
+    ]);
+
+    const tokenPlatforms = new Set((tokens || []).map(t => t.platform));
+    const syncMap = new Map((syncRows || []).map(s => [s.platform, s]));
+
+    console.log(`[Readiness] Loading state for user ${user.id}. Found ${tokenPlatforms.size} tokens and ${syncMap.size} sync records.`);
 
     const platforms: PlatformReadiness[] = platformConfigs.map((cfg) => {
-      const missingEnv = cfg.env.filter((key) => !process.env[key]);
-      const configured = missingEnv.length === 0;
-      const deferred = Boolean(cfg.optional && !configured);
       const dbId = toDbPlatform(cfg.id);
       const sync = syncMap.get(dbId);
+      const hasToken = tokenPlatforms.has(dbId);
+      
       const status = (sync?.status ?? 'idle') as PlatformReadiness['status'];
-      const connected = tokenSet.has(dbId) || ['connected', 'syncing', 'authenticating', 'connecting'].includes(status);
+      
+      // A platform is connected if we have a token OR it has ever attempted a sync
+      const connected = hasToken || ['connected', 'syncing', 'authenticating', 'connecting', 'error'].includes(status);
+
+      const missingEnv = cfg.env.filter((key) => !process.env[key]);
+      const configured = missingEnv.length === 0;
 
       return {
         id: cfg.id,
@@ -233,7 +238,7 @@ export async function GET() {
         connectionType: cfg.env.some(e => e.includes('TOKEN') || e.includes('KEY')) ? 'APIKey' : 'OAuth',
         requiredScopes: cfg.scopes,
         optional: Boolean(cfg.optional),
-        deferred,
+        deferred: Boolean(cfg.optional && !configured),
         configured,
         missingEnv,
         connected,
@@ -247,7 +252,7 @@ export async function GET() {
 
     return NextResponse.json({ platforms }, { status: 200 });
   } catch (error) {
-    console.error('platform-readiness error:', error);
-    return NextResponse.json({ platforms: [] }, { status: 200 });
+    console.error('[Readiness] API Fatal Error:', error);
+    return NextResponse.json({ platforms: [], error: 'Internal Server Error' }, { status: 500 });
   }
 }
