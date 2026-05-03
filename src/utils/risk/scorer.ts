@@ -15,7 +15,7 @@ type RiskContext = {
   engagementScore?: number;
 };
 
-import OpenAI from 'openai';
+
 
 const sensitiveKeywords = [
   'password',
@@ -47,13 +47,6 @@ function countMatches(text: string, keywords: string[]) {
   return keywords.reduce((acc, keyword) => (lower.includes(keyword) ? acc + 1 : acc), 0);
 }
 
-// Optional singleton for OpenAI client if key is present
-const getOpenAIClient = () => {
-  if (process.env.OPENAI_API_KEY) {
-    return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  }
-  return null;
-};
 
 async function assessBaseRisk(context: RiskContext): Promise<RiskAssessment> {
   const combined = `${context.title || ''} ${context.content || ''}`.trim();
