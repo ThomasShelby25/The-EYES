@@ -37,135 +37,148 @@ export async function GET(request: Request) {
   const state = url.searchParams.get('state');
   const oauthError = url.searchParams.get('error');
 
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-
-  if (!clientId || !clientSecret) {
-    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=missing_google_env', await appBaseUrl(request)));
-  }
-
   const [requestedPlatformFromState] = (state || '').split(':');
   const platformFromState = requestedPlatformFromState === 'google-calendar' ? 'google-calendar' : 'gmail';
 
-  if (oauthError) {
-    const mappedReason = oauthError === 'access_denied' ? 'google_access_denied_unverified_or_not_tester' : `google_oauth_${oauthError}`;
-    return NextResponse.redirect(
-      new URL(`/connect/${platformFromState}?oauth=error&reason=${encodeURIComponent(mappedReason)}`, await appBaseUrl(request))
-    );
-  }
-
-  if (!code || !state) {
-    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=missing_code_or_state', await appBaseUrl(request)));
-  }
-
-  const cookieStore = await cookies();
-  const expectedState = cookieStore.get('google_oauth_state')?.value;
-
-  if (!expectedState || expectedState !== state) {
-    return NextResponse.redirect(new URL('/connect/gmail?oauth=error&reason=invalid_state', await appBaseUrl(request)));
-  }
-
-  cookieStore.delete('google_oauth_state');
-
-  const [requestedPlatform] = state.split(':');
-  const platform = requestedPlatform === 'google-calendar' ? 'google-calendar' : 'gmail';
-
-  const supabase = await createClient();
-  const { data: authData } = await supabase.auth.getUser();
-  if (!authData.user) {
-    return NextResponse.redirect(new URL('/login', await appBaseUrl(request)));
-  }
-
-  const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      code,
-      client_id: clientId,
-      client_secret: clientSecret,
-      redirect_uri: await googleRedirectUri(request),
-      grant_type: 'authorization_code',
-    }),
-    cache: 'no-store',
-  });
-
-  if (!tokenResponse.ok) {
-    return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=token_exchange_failed`, await appBaseUrl(request)));
-  }
-
-  const tokenBody = (await tokenResponse.json()) as {
-    access_token?: string;
-    refresh_token?: string;
-    scope?: string;
-    expires_in?: number;
-    error?: string;
-  };
-
-  if (!tokenBody.access_token) {
-    return NextResponse.redirect(
-      new URL(`/connect/${platform}?oauth=error&reason=${encodeURIComponent(tokenBody.error || 'no_access_token')}`, await appBaseUrl(request))
-    );
-  }
-
-  const userId = authData.user.id;
-  const now = new Date().toISOString();
-  const expiresAt = tokenBody.expires_in
-    ? new Date(Date.now() + tokenBody.expires_in * 1000).toISOString()
-    : null;
-
-  const accessToken = encryptToken(tokenBody.access_token);
-  const refreshToken = tokenBody.refresh_token ? encryptToken(tokenBody.refresh_token) : null;
-
-  const platforms = ['gmail', 'google_calendar'];
-
-  const tokenUpserts = platforms.map((dbPlatform) =>
-    supabase.from('oauth_tokens').upsert({
-      user_id: userId,
-      platform: dbPlatform,
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      scope: tokenBody.scope || 'gmail.readonly calendar.readonly',
-      expires_at: expiresAt,
-      created_at: now,
-      updated_at: now,
-    }, { onConflict: 'user_id,platform' })
-  );
-
-  const syncUpserts = platforms.map((dbPlatform) =>
-    supabase.from('sync_status').upsert({
-      user_id: userId,
-      platform: dbPlatform,
-      status: 'authenticating',
-      sync_progress: 5,
-      total_items: 0,
-      last_sync_at: null,
-      next_sync_at: null,
-      error_message: null,
-    }, { onConflict: 'user_id,platform' })
-  );
-
-  const results = await Promise.all([...tokenUpserts, ...syncUpserts]);
-  const hasError = results.some((result) => (result as { error?: unknown }).error);
-
-  if (hasError) {
-    return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=token_persist_failed`, await appBaseUrl(request)));
-  }
-
-  // Trigger immediate automatic background sync for Google platforms
   try {
-    const syncUrl = new URL('/api/sync/all?background=true', await appBaseUrl(request));
-    fetch(syncUrl.toString(), { 
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      console.error('[Google OAuth] Missing client ID or secret in environment variables.');
+      return NextResponse.redirect(new URL(`/connect/${platformFromState}?oauth=error&reason=missing_google_env`, await appBaseUrl(request)));
+    }
+
+    if (oauthError) {
+      const mappedReason = oauthError === 'access_denied' ? 'google_access_denied_unverified_or_not_tester' : `google_oauth_${oauthError}`;
+      return NextResponse.redirect(
+        new URL(`/connect/${platformFromState}?oauth=error&reason=${encodeURIComponent(mappedReason)}`, await appBaseUrl(request))
+      );
+    }
+
+    if (!code || !state) {
+      return NextResponse.redirect(new URL(`/connect/${platformFromState}?oauth=error&reason=missing_code_or_state`, await appBaseUrl(request)));
+    }
+
+    const cookieStore = await cookies();
+    const expectedState = cookieStore.get('google_oauth_state')?.value;
+
+    if (!expectedState || expectedState !== state) {
+      console.warn('[Google OAuth] State mismatch. Expected:', expectedState, 'Got:', state);
+      return NextResponse.redirect(new URL(`/connect/${platformFromState}?oauth=error&reason=invalid_state`, await appBaseUrl(request)));
+    }
+
+    cookieStore.delete('google_oauth_state');
+
+    const [requestedPlatform] = state.split(':');
+    const platform = requestedPlatform === 'google-calendar' ? 'google-calendar' : 'gmail';
+
+    const supabase = await createClient();
+    const { data: authData } = await supabase.auth.getUser();
+    if (!authData.user) {
+      return NextResponse.redirect(new URL('/login', await appBaseUrl(request)));
+    }
+
+    console.log('[Google OAuth] Exchanging code for tokens...');
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
-        'x-cron-user-id': userId,
-        'x-cron-secret': process.env.CRON_SECRET || ''
-      }
-    }).catch(e => console.error('[Auto Sync] Google initial trigger failed:', e));
-  } catch (e) {
-    console.warn('[Auto Sync] Google trigger error:', e);
-  }
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: await googleRedirectUri(request),
+        grant_type: 'authorization_code',
+      }),
+      cache: 'no-store',
+    });
 
-  return NextResponse.redirect(new URL(`/connect/${platform}?oauth=success`, await appBaseUrl(request)));
+    if (!tokenResponse.ok) {
+      const errorBody = await tokenResponse.text();
+      console.error('[Google OAuth] Token exchange failed:', errorBody);
+      return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=token_exchange_failed`, await appBaseUrl(request)));
+    }
+
+    const tokenBody = (await tokenResponse.json()) as {
+      access_token?: string;
+      refresh_token?: string;
+      scope?: string;
+      expires_in?: number;
+      error?: string;
+    };
+
+    if (!tokenBody.access_token) {
+      return NextResponse.redirect(
+        new URL(`/connect/${platform}?oauth=error&reason=${encodeURIComponent(tokenBody.error || 'no_access_token')}`, await appBaseUrl(request))
+      );
+    }
+
+    const userId = authData.user.id;
+    const now = new Date().toISOString();
+    const expiresAt = tokenBody.expires_in
+      ? new Date(Date.now() + tokenBody.expires_in * 1000).toISOString()
+      : null;
+
+    console.log('[Google OAuth] Encrypting tokens...');
+    const accessToken = encryptToken(tokenBody.access_token);
+    const refreshToken = tokenBody.refresh_token ? encryptToken(tokenBody.refresh_token) : null;
+
+    const platforms = ['gmail', 'google_calendar'];
+
+    console.log('[Google OAuth] Persisting to Supabase...');
+    const tokenUpserts = platforms.map((dbPlatform) =>
+      supabase.from('oauth_tokens').upsert({
+        user_id: userId,
+        platform: dbPlatform,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        scope: tokenBody.scope || 'gmail.readonly calendar.readonly',
+        expires_at: expiresAt,
+        created_at: now,
+        updated_at: now,
+      }, { onConflict: 'user_id,platform' })
+    );
+
+    const syncUpserts = platforms.map((dbPlatform) =>
+      supabase.from('sync_status').upsert({
+        user_id: userId,
+        platform: dbPlatform,
+        status: 'authenticating',
+        sync_progress: 5,
+        total_items: 0,
+        last_sync_at: null,
+        next_sync_at: null,
+        error_message: null,
+      }, { onConflict: 'user_id,platform' })
+    );
+
+    const results = await Promise.all([...tokenUpserts, ...syncUpserts]);
+    const errorResult = results.find((result) => (result as { error?: unknown }).error);
+
+    if (errorResult) {
+      console.error('[Google OAuth] Supabase upsert failed:', (errorResult as any).error);
+      return NextResponse.redirect(new URL(`/connect/${platform}?oauth=error&reason=token_persist_failed`, await appBaseUrl(request)));
+    }
+
+    // Trigger immediate automatic background sync
+    try {
+      const syncUrl = new URL('/api/sync/all?background=true', await appBaseUrl(request));
+      fetch(syncUrl.toString(), { 
+        method: 'POST',
+        headers: {
+          'x-cron-user-id': userId,
+          'x-cron-secret': process.env.CRON_SECRET || ''
+        }
+      }).catch(e => console.error('[Auto Sync] Google initial trigger failed:', e));
+    } catch (e) {
+      console.warn('[Auto Sync] Google trigger error:', e);
+    }
+
+    return NextResponse.redirect(new URL(`/connect/${platform}?oauth=success`, await appBaseUrl(request)));
+  } catch (err: any) {
+    console.error('[Google OAuth] Fatal Error:', err);
+    return NextResponse.redirect(new URL(`/connect/${platformFromState}?oauth=error&reason=internal_server_error&msg=${encodeURIComponent(err.message)}`, await appBaseUrl(request)));
+  }
 }
