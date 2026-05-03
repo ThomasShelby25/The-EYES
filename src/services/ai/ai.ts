@@ -23,7 +23,7 @@ export async function generateEmbedding(text: string): Promise<EmbeddingResult |
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+    const model = genAI.getGenerativeModel({ model: "embedding-001" });
     const result = await model.embedContent(text.slice(0, 8000));
     return {
       embedding: Array.from(result.embedding.values)
@@ -81,7 +81,7 @@ export async function chatCompletionStream(messages: { role: string; content: st
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     
     const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
     const history = messages
