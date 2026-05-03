@@ -13,7 +13,7 @@ const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''; 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const CLAUDE_MODEL = "claude-3-5-sonnet-20240620";
-const GEMINI_MODEL = 'gemini-1.5-flash';
+const GEMINI_MODEL = 'gemini-pro';
 const EMBED_MODEL = "gemini-embedding-001";
 
 export type EmbeddingResult = {
@@ -135,14 +135,29 @@ export async function chatCompletionStream(messages: { role: string; content: st
             }
             controller.close();
           } catch (err: any) {
-            console.error('[AI] Claude Stream Error:', err);
-            controller.enqueue(encoder.encode(`\n\n[NEURAL LINK INTERRUPTED: ${err?.message}]`));
+            console.error('[AI] Claude Stream Error, attempting emergency fallback:', err);
+            
+            // EMERGENCY FALLBACK: If Claude fails mid-stream, try to get a quick answer from Gemini
+            if (GEMINI_API_KEY) {
+              try {
+                const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+                const lastMessage = history[history.length - 1]?.content || "";
+                const result = await model.generateContent(lastMessage);
+                const text = result.response.text();
+                controller.enqueue(encoder.encode(text + "\n\n(Fallback AI used)"));
+              } catch (geminiErr) {
+                controller.enqueue(encoder.encode(`\n\n[NEURAL LINK FAILURE: ${err?.message}]`));
+              }
+            } else {
+              controller.enqueue(encoder.encode(`\n\n[NEURAL LINK INTERRUPTED: ${err?.message}]`));
+            }
             controller.close();
           }
         }
       });
     } catch (err: any) {
       console.warn('[AI] Claude Stream Setup Error, falling back to Gemini:', err.message);
+      // Fall through to Gemini logic below
     }
   }
 
