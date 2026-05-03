@@ -1,180 +1,130 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 /**
- * AI Brain Core: Groq (Llama 3.1)
- * Chat: Groq llama-3.1-8b-instant (High Stability Free Tier)
- * Embeddings: OpenAI text-embedding-3-small
+ * AI Brain Core: Google Gemini (Unified Brain)
+ * Chat: Gemini 1.5 Flash (Free Tier)
+ * Embeddings: text-embedding-004 (Free Tier)
  */
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY; // Fallback to OpenAI key slot if user pasted it there
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
 
-export interface EmbeddingResult {
+export type EmbeddingResult = {
   embedding: number[];
-  tokens: number;
-  provider: 'openai';
-}
+};
 
 /**
- * Generates pgvector embeddings using OpenAI text-embedding-3-small.
+ * Generate vector embeddings for search using Google Gemini
  */
 export async function generateEmbedding(text: string): Promise<EmbeddingResult | null> {
-  if (!OPENAI_API_KEY) {
-    console.warn('[AI] Open AI Key missing. Embeddings offline.');
+  if (!GEMINI_API_KEY) {
+    console.warn('[AI] GEMINI_API_KEY not configured.');
     return null;
   }
 
   try {
-    const response = await fetch('https://api.openai.com/v1/embeddings', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        input: text,
-        model: 'text-embedding-3-small',
-      }),
-    });
+    const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+    const result = await model.embedContent(text.slice(0, 8000));
+    return {
+      embedding: Array.from(result.embedding.values)
+    };
+  } catch (err) {
+    console.error('[AI] Gemini Embedding Error:', err);
+    return null;
+  }
+}
 
-    if (response.ok) {
-      const data = await response.json();
-      return {
-        embedding: data.data[0].embedding,
-        tokens: data.usage.total_tokens,
-        provider: 'openai',
-      };
-    }
+/**
+ * Standard Chat Completion (Non-streaming)
+ */
+export async function chatCompletion(messages: { role: string; content: string }[]): Promise<string | null> {
+  if (!GEMINI_API_KEY) return 'GEMINI_API_KEY not configured.';
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    const err = await response.json();
-    console.error('[AI] OpenAI Embedding Error:', err);
-    return null;
-  } catch (err) {
-    console.error('[AI] Neural Engine Failure:', err);
-    return null;
-  }
-}
+    // Convert OpenAI style messages to Gemini format
+    const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
+    const history = messages
+      .filter(m => m.role !== 'system' && m.role !== 'user')
+      .map(m => ({ role: "model", parts: [{ text: m.content }] }));
+    
+    const lastUserMessage = messages.filter(m => m.role === 'user').pop()?.content || "";
 
-/**
- * Chat completion using OpenAI.
- */
-export async function chatCompletion(
-  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
-): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    console.error('[AI] chatCompletion failed: OPENAI_API_KEY is missing from environment.');
-    return '[AI UNAVAILABLE] OPENAI_API_KEY not configured.';
-  }
-
-  try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
-        max_tokens: 1024,
-        temperature: 0.1,
-        messages: messages
-      }),
+    const chat = model.startChat({
+      history: history as any,
+      generationConfig: { maxOutputTokens: 1024, temperature: 0.1 },
+      systemInstruction: systemInstruction ? { role: "system", parts: [{ text: systemInstruction }] } : undefined
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      return data.choices?.[0]?.message?.content || '';
-    } else {
-      const errBody = await response.json().catch(() => ({}));
-      console.error('[AI] Groq Chat API Error:', response.status, JSON.stringify(errBody));
-      
-      // Provide more specific error feedback in the string if possible
-      if (response.status === 401) return '[AI UNAVAILABLE] Invalid OpenAI API Key.';
-      if (response.status === 429) return '[AI UNAVAILABLE] OpenAI Rate Limit or Insufficient Credits.';
-    }
+    const result = await chat.sendMessage(lastUserMessage);
+    return result.response.text();
   } catch (err) {
-    console.error('[AI] OpenAI Chat Fetch Error:', err);
+    console.error('[AI] Gemini Chat Error:', err);
+    return 'The neural link was interrupted.';
   }
-
-  return '[AI UNAVAILABLE] Neural Core offline. Verify platform connectivity and credits.';
 }
 
 /**
- * Streaming chat completion using OpenAI.
+ * Streaming Chat Completion
  */
-export async function chatCompletionStream(
-  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
-): Promise<ReadableStream<Uint8Array>> {
+export async function chatCompletionStream(messages: { role: string; content: string }[]): Promise<ReadableStream> {
   const encoder = new TextEncoder();
-  const apiKey = process.env.OPENAI_API_KEY;
-  
-  if (!apiKey) {
+
+  if (!GEMINI_API_KEY) {
     return new ReadableStream({
       start(controller) {
-        controller.enqueue(encoder.encode('[AI UNAVAILABLE] OPENAI_API_KEY not configured.'));
+        controller.enqueue(encoder.encode('[AI UNAVAILABLE] GEMINI_API_KEY not configured.'));
         controller.close();
       }
     });
   }
 
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
-        max_tokens: 1024,
-        temperature: 0.1,
-        stream: true,
-        messages: messages
-      }),
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
+    const history = messages
+      .slice(0, -1) // All but last
+      .filter(m => m.role !== 'system')
+      .map(m => ({ 
+        role: m.role === 'assistant' ? 'model' : 'user', 
+        parts: [{ text: m.content }] 
+      }));
+    
+    const lastUserMessage = messages[messages.length - 1].content;
+
+    const chat = model.startChat({
+      history: history as any,
+      generationConfig: { maxOutputTokens: 1024, temperature: 0.1 },
+      systemInstruction: systemInstruction ? { role: "system", parts: [{ text: systemInstruction }] } : undefined
     });
 
-    if (response.ok && response.body) {
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      return new ReadableStream({
-        async start(controller) {
-          try {
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              const chunk = decoder.decode(value, { stream: true });
-              const lines = chunk.split('\n');
-              for (const line of lines) {
-                const trimmed = line.trim();
-                if (trimmed.startsWith('data: ') && trimmed !== 'data: [DONE]') {
-                  try {
-                    const data = JSON.parse(trimmed.slice(6));
-                    const text = data.choices?.[0]?.delta?.content;
-                    if (text) {
-                      controller.enqueue(encoder.encode(text));
-                    }
-                  } catch {}
-                }
-              }
+    return new ReadableStream({
+      async start(controller) {
+        try {
+          const result = await chat.sendMessageStream(lastUserMessage);
+          for await (const chunk of result.stream) {
+            const chunkText = chunk.text();
+            if (chunkText) {
+              controller.enqueue(encoder.encode(chunkText));
             }
-            controller.close();
-          } catch (err) {
-            controller.error(err);
           }
+          controller.close();
+        } catch (err) {
+          console.error('[AI] Gemini Stream Error:', err);
+          controller.enqueue(encoder.encode('[AI ERROR] Neural stream failed. Check API key and quotas.'));
+          controller.close();
         }
-      });
-      } else {
-        const errBody = await response.json().catch(() => ({}));
-        console.error('[AI] Groq Stream API Error:', response.status, JSON.stringify(errBody));
       }
-    } catch (err) {
-      console.error('[AI] Groq Stream Fetch Error:', err);
-    }
-
-  return new ReadableStream({
-    start(controller) {
-      controller.enqueue(encoder.encode('[AI ERROR] Neural stream failed. Verify API configuration and rate limits.'));
-      controller.close();
-    }
-  });
+    });
+  } catch (err) {
+    console.error('[AI] Gemini Stream Setup Error:', err);
+    return new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode('[AI ERROR] Failed to initialize neural stream.'));
+        controller.close();
+      }
+    });
+  }
 }
-
