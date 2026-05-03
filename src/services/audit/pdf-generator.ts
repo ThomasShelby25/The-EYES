@@ -56,6 +56,17 @@ export class PDFGenerationService {
         const FONT_BOLD = path.join(dataDir, 'Helvetica-Bold.afm');
         const FONT_MONO = path.join(dataDir, 'Courier.afm');
 
+        // Helper to safely set font
+        const setSafeFont = (fontPath: string, fallback: string = 'Helvetica') => {
+          try {
+            doc.font(fontPath);
+          } catch (e) {
+            try {
+              doc.font(fallback);
+            } catch (e2) {}
+          }
+        };
+
         // --- HELPER: HEADER & FOOTER ---
         const drawHeaderAndFooter = () => {
           const pages = doc.bufferedPageRange();
@@ -75,36 +86,48 @@ export class PDFGenerationService {
                .restore();
 
             // Header
-            doc.fillColor(FOREST_GREEN).fontSize(14).font(FONT_BOLD).text('EYES', 50, 40);
+            setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+            doc.fillColor(FOREST_GREEN).fontSize(14).text('EYES', 50, 40);
             
             // Footer
             doc.moveTo(50, doc.page.height - 60).lineTo(doc.page.width - 50, doc.page.height - 60).strokeColor(FOREST_GREEN).lineWidth(0.5).stroke();
-            doc.fillColor('#888888').fontSize(8).font(FONT_BODY)
-               .text(`Certificate ID: ${audit.id} | Non-transferable`, 50, doc.page.height - 50)
+            doc.fillColor('#888888').fontSize(8);
+            setSafeFont(FONT_BODY, 'Helvetica');
+            doc.text(`Certificate ID: ${audit.id} | Non-transferable`, 50, doc.page.height - 50)
                .text(`Page ${i + 1} of ${pages.count}`, doc.page.width - 100, doc.page.height - 50, { align: 'right' });
           }
         };
 
         // --- PAGE 1: COVER ---
-        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(36).text('Audit\nCertificate', 50, 150);
+        setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+        doc.fillColor(INK_BLACK).fontSize(36).text('Audit\nCertificate', 50, 150);
         doc.moveTo(50, 240).lineTo(150, 240).strokeColor(FOREST_GREEN).lineWidth(4).stroke();
         
-        doc.fontSize(12).font(FONT_BODY).text(`Prepared for: [Authenticated Subject]`, 50, 280);
+        doc.fontSize(12);
+        setSafeFont(FONT_BODY, 'Helvetica');
+        doc.text(`Prepared for: [Authenticated Subject]`, 50, 280);
         doc.text(`Date: ${new Date(audit.createdAt).toUTCString()}`, 50, 300);
         doc.text(`Audit ID: EYES-RA-${audit.id.slice(0, 8).toUpperCase()}`, 50, 320);
 
-        doc.fontSize(10).font(FONT_BOLD).text('Connectors covered:', 50, 380);
-        doc.font(FONT_BODY).text(audit.connectorsCovered.join(' . ').toUpperCase(), 50, 400);
+        doc.fontSize(10);
+        setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+        doc.text('Connectors covered:', 50, 380);
+        setSafeFont(FONT_BODY, 'Helvetica');
+        doc.text(audit.connectorsCovered.join(' . ').toUpperCase(), 50, 400);
 
         // --- PAGE 2: EXECUTIVE SUMMARY ---
         doc.addPage();
-        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text('Executive Summary', 50, 100);
-        doc.font(FONT_BODY).fontSize(12).lineGap(4).text(audit.summaryNarrative || 'No narrative generated.', 50, 140, { width: 500, align: 'justify' });
+        setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+        doc.fillColor(INK_BLACK).fontSize(20).text('Executive Summary', 50, 100);
+        setSafeFont(FONT_BODY, 'Helvetica');
+        doc.fontSize(12).lineGap(4).text(audit.summaryNarrative || 'No narrative generated.', 50, 140, { width: 500, align: 'justify' });
 
         // Headline Metrics
         let y = 280;
         doc.rect(50, y, 500, 100).fill('#FFFFFF').stroke(FOREST_GREEN);
-        doc.fillColor(FOREST_GREEN).font(FONT_BOLD).fontSize(24).text(audit.mentionsCount.toString(), 100, y + 30);
+        doc.fillColor(FOREST_GREEN).fontSize(24);
+        setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+        doc.text(audit.mentionsCount.toString(), 100, y + 30);
         doc.fontSize(8).text('TOTAL MENTIONS', 100, y + 60);
 
         doc.fontSize(24).text(`${(audit.metadata.sentimentBalance * 100).toFixed(0)}%`, 250, y + 30);
@@ -116,35 +139,48 @@ export class PDFGenerationService {
         // Risk Score
         y = 420;
         doc.rect(50, y, 500, 80).fill(FOREST_GREEN);
-        doc.fillColor('#FFFFFF').font(FONT_BOLD).fontSize(48).text(audit.riskScore.toString(), 80, y + 15);
+        doc.fillColor('#FFFFFF').fontSize(48);
+        setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+        doc.text(audit.riskScore.toString(), 80, y + 15);
         doc.fontSize(14).text('RISK SCORE / 10', 180, y + 25);
-        doc.fontSize(10).font(FONT_BODY).text(audit.riskScore > 7 ? 'Critical Exposure Identified' : audit.riskScore > 4 ? 'Moderate Risk Detected' : 'Minimal Trace Surface', 180, y + 45);
+        doc.fontSize(10);
+        setSafeFont(FONT_BODY, 'Helvetica');
+        doc.text(audit.riskScore > 7 ? 'Critical Exposure Identified' : audit.riskScore > 4 ? 'Moderate Risk Detected' : 'Minimal Trace Surface', 180, y + 45);
 
         // --- PAGES 3-5: PER-CONNECTOR BREAKDOWN (Simplified for demo) ---
         audit.connectorsCovered.forEach(platform => {
           doc.addPage();
-          doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text(`Platform Breakdown: ${platform.toUpperCase()}`, 50, 100);
-          doc.font(FONT_MONO).fontSize(10).text(`Indexing window: 24 months`, 50, 130);
+          setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+          doc.fillColor(INK_BLACK).fontSize(20).text(`Platform Breakdown: ${platform.toUpperCase()}`, 50, 100);
+          setSafeFont(FONT_MONO, 'Courier');
+          doc.fontSize(10).text(`Indexing window: 24 months`, 50, 130);
           
           // Example records
-          doc.font(FONT_BOLD).fontSize(12).text('Significant Records:', 50, 170);
+          setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+          doc.fontSize(12).text('Significant Records:', 50, 170);
           const platformCommitments = audit.metadata.commitments.filter(c => c.platform === platform);
           platformCommitments.slice(0, 3).forEach((c, idx) => {
             doc.rect(50, 200 + (idx * 100), 500, 80).stroke('#E5E5E0');
-            doc.font(FONT_MONO).fontSize(9).fillColor('#666666').text(`Source ID: ${c.citation} | ${new Date(c.date).toLocaleDateString()}`, 60, 210 + (idx * 100));
-            doc.font(FONT_BODY).fontSize(11).fillColor(INK_BLACK).text(`"${c.text.slice(0, 200)}..."`, 60, 230 + (idx * 100), { width: 480 });
+            setSafeFont(FONT_MONO, 'Courier');
+            doc.fontSize(9).fillColor('#666666').text(`Source ID: ${c.citation} | ${new Date(c.date).toLocaleDateString()}`, 60, 210 + (idx * 100));
+            setSafeFont(FONT_BODY, 'Helvetica');
+            doc.fontSize(11).fillColor(INK_BLACK).text(`"${c.text.slice(0, 200)}..."`, 60, 230 + (idx * 100), { width: 480 });
           });
         });
 
         // --- PAGE 6: COMMITMENTS & OPPORTUNITIES ---
         doc.addPage();
-        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text('Commitments & Opportunities', 50, 100);
+        setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+        doc.fillColor(INK_BLACK).fontSize(20).text('Commitments & Opportunities', 50, 100);
         
         doc.fontSize(12).text('Detected Commitments', 50, 140);
         audit.metadata.commitments.slice(0, 10).forEach((c, idx) => {
-          doc.fillColor(MUTED_RED).font(FONT_BOLD).fontSize(10).text(`[OVERDUE]`, 50, 170 + (idx * 30));
-          doc.fillColor(INK_BLACK).font(FONT_BODY).text(c.text.slice(0, 80) + '...', 120, 170 + (idx * 30));
-          doc.font(FONT_MONO).fontSize(8).fillColor('#888').text(c.platform.toUpperCase(), 450, 170 + (idx * 30));
+          setSafeFont(FONT_BOLD, 'Helvetica-Bold');
+          doc.fillColor(MUTED_RED).fontSize(10).text(`[OVERDUE]`, 50, 170 + (idx * 30));
+          setSafeFont(FONT_BODY, 'Helvetica');
+          doc.fillColor(INK_BLACK).text(c.text.slice(0, 80) + '...', 120, 170 + (idx * 30));
+          setSafeFont(FONT_MONO, 'Courier');
+          doc.fontSize(8).fillColor('#888').text(c.platform.toUpperCase(), 450, 170 + (idx * 30));
         });
 
         // --- PAGE 7: RISK FINDINGS ---
