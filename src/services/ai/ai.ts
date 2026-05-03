@@ -10,8 +10,8 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY || '');
 // Use v1beta for full feature support (System Instructions, text-embedding-004)
 const getModel = (name: string) => genAI.getGenerativeModel({ model: name });
-const CHAT_MODEL = "gemini-1.5-flash";
-const EMBED_MODEL = "text-embedding-004";
+const CHAT_MODEL = "gemini-flash-latest";
+const EMBED_MODEL = "gemini-embedding-001";
 
 export type EmbeddingResult = {
   embedding: number[];
