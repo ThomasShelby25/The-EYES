@@ -81,9 +81,8 @@ async function assessBaseRisk(context: RiskContext): Promise<RiskAssessment> {
     reasons.push(...context.sourceHints);
   }
 
-  // NLP ML Moderation Integration
-  const openai = getOpenAIClient();
-  if (openai && combined.length > 0) {
+  // NLP ML Moderation Integration (Disabled for Gemini Migration)
+  if (false && combined.length > 0) {
     try {
       const modResponse = await openai.moderations.create({ input: combined });
       const modResult = modResponse.results[0];

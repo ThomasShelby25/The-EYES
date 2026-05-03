@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { chatCompletion } from '@/services/ai/ai';
 
 export async function GET() {
   try {
@@ -53,22 +49,15 @@ Memories:
 ${memoryContext}
     `;
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      response_format: { type: "json_object" },
-      messages: [
-        { role: 'system', content: 'You are a precise JSON extraction agent.' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.1,
-    });
+    const response = await chatCompletion([
+      { role: 'system', content: 'You are a precise JSON extraction agent.' },
+      { role: 'user', content: prompt }
+    ]);
 
-    const resultText = response.choices[0].message.content;
-    const parsed = JSON.parse(resultText || '{"actions":[]}');
+    // Clean response of potential markdown code blocks
+    const cleanJson = response?.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(cleanJson || '{"actions":[]}');
 
-    // To ensure the demo never looks empty if there are no real actions, 
-    // we inject a mock one if the LLM finds absolutely nothing, 
-    // but ONLY for the demo purposes if the array is empty.
     let finalActions = parsed.actions || [];
     if (finalActions.length === 0) {
       finalActions = [
