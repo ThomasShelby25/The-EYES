@@ -5,14 +5,14 @@ const hoisted = vi.hoisted(() => {
     userId: '11111111-1111-4111-8111-111111111111',
     matches: [
       {
-        id: 'embedding-1',
+        id: 'event-1',
         content: 'Worked on reliability remediation tasks',
         similarity: 0.84,
       },
     ],
     embeddingRows: [
       {
-        id: 'embedding-1',
+        id: 'event-1',
         event_id: 'event-1',
       },
     ],

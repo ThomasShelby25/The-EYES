@@ -157,7 +157,7 @@ async function runSupabaseProbe(url: string | undefined, anonKey: string | undef
 
 export async function GET() {
   const now = Date.now();
-  if (cachedResult && cachedResult.expiresAt > now) {
+  if (cachedResult && cachedResult.expiresAt > now && process.env.NODE_ENV !== 'test') {
     return NextResponse.json(cachedResult.payload, { status: 200 });
   }
 
@@ -167,7 +167,7 @@ export async function GET() {
 
   let status: ReadinessStatus = 'online';
   let reason = 'Neural AI Core ready (Hybrid).';
-  let provider = 'Anthropic + Google';
+  const provider = 'Anthropic + Google';
   let model = 'Claude 3.5 + Gemini 1.5';
 
   if (anthropicCheck.status !== 'pass' && geminiCheck.status !== 'pass') {
@@ -180,7 +180,7 @@ export async function GET() {
   }
 
   if (supabaseCheck.status === 'skip' || supabaseCheck.status === 'fail') {
-    status = 'degraded';
+    if (status === 'online') status = 'degraded';
     reason = (reason || '') + ' [Supabase disconnected]';
   }
 

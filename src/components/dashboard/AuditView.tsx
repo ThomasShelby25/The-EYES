@@ -253,7 +253,6 @@ export function AuditView({ onBack }: AuditViewProps) {
                 // In demo mode, we use window.print() to generate a professional PDF of the certificate instantly.
                 window.print();
               }}
-              disabled={activeAudit.status === 'generating'}
             >
               DOWNLOAD FULL REPORT
             </button>

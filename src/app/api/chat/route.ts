@@ -361,6 +361,7 @@ export async function POST(request: Request) {
           headers: {
             'Content-Type': 'text/plain; charset=utf-8',
             'X-Context-Used': citations.length > 0 ? 'true' : 'false',
+            'X-Context-Count': diagnostics.contextCount.toString(),
             'X-Confidence-Score': diagnostics.confidenceScore.toFixed(3),
             'X-Grounded-Score': diagnostics.groundedScore.toFixed(3),
             'X-Retrieval-Status': diagnostics.retrievalStatus,
@@ -418,5 +419,4 @@ export async function POST(request: Request) {
     console.error('[Chat] API Failure:', err);
     return NextResponse.json({ error: 'Internal neural failure.' }, { status: 500 });
   }
-}
 }

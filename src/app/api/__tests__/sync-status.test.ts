@@ -10,7 +10,7 @@ describe('GET /api/sync/status', () => {
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    const response = await GET();
+    const response = await GET(new Request('http://localhost/api/sync/status'));
     const json = (await response.json()) as {
       error?: string;
       observabilityReady?: boolean;

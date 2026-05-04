@@ -97,7 +97,7 @@ export class AuditAnalysisService {
       const sixMonthsMs = 180 * 24 * 60 * 60 * 1000;
 
       try {
-        const jsonMatch = analysisRaw.match(/\{[\s\S]*\}/);
+        const jsonMatch = analysisRaw ? analysisRaw.match(/\{[\s\S]*\}/) : null;
         const analysisResult = jsonMatch ? JSON.parse(jsonMatch[0]) : { analysis: [] };
         
         analysisResult.analysis.forEach((a: any) => {

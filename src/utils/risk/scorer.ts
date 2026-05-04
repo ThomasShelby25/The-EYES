@@ -74,10 +74,10 @@ async function assessBaseRisk(context: RiskContext): Promise<RiskAssessment> {
     reasons.push(...context.sourceHints);
   }
 
-  // NLP ML Moderation Integration (Disabled for Gemini Migration)
+  /* NLP ML Moderation Integration (Disabled for Gemini Migration)
   if (false && combined.length > 0) {
     try {
-      const modResponse = await openai.moderations.create({ input: combined });
+      const modResponse = await (openai as any).moderations.create({ input: combined });
       const modResult = modResponse.results[0];
       if (modResult.flagged) {
         score += 50; // Major ML flag
@@ -94,7 +94,7 @@ async function assessBaseRisk(context: RiskContext): Promise<RiskAssessment> {
       } else {
         // Even if not strictly flagged, we can look at category scores for nuanced risk
         let maxSubScore = 0;
-        Object.values(modResult.category_scores).forEach((val) => {
+        Object.values(modResult.category_scores).forEach((val: any) => {
           if (val > maxSubScore) maxSubScore = val;
         });
         if (maxSubScore > 0.1) {
@@ -106,6 +106,7 @@ async function assessBaseRisk(context: RiskContext): Promise<RiskAssessment> {
       console.warn("OpenAI Moderation API failed, falling back to heuristic scoring", e);
     }
   }
+  */
 
   const normalized = clampScore(score);
   const severity = severityFromScore(normalized);
