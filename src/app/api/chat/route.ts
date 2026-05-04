@@ -290,7 +290,7 @@ export async function POST(request: Request) {
           return {
             sourceId: index + 1,
             embeddingId: match.id,
-            eventId,
+            eventId: match.id,
             platform: source?.platform ?? 'unknown',
             platformId: source?.platform_id ?? null,
             title: source?.title ?? null,
