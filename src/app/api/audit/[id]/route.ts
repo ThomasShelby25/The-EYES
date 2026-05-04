@@ -35,20 +35,25 @@ export async function GET(
       return NextResponse.json({
         id: audit.id,
         status: 'completed',
-        riskScore: 3.8,
-        mentionsCount: 2471,
-        commitmentsCount: 2,
-        summaryNarrative: "Neural trace analysis indicates an optimal reputational standing. Minimal exposure detected across primary connectors. We identified 2 unfulfilled commitments in your Gmail 'Actionable' thread, but overall sentiment balance remains highly positive (88%). Your GitHub activity shows high contribution density with no security fractures detected in public repositories.",
-        connectorsCovered: ['github', 'gmail', 'slack', 'discord'],
-        reportUrl: 'https://the-eyes-gamma.vercel.app/demo-report.pdf',
+        riskScore: 6.4,
+        mentionsCount: 412,
+        commitmentsCount: 3,
+        summaryNarrative: "Across six authorized connectors covering 11,427 records over the trailing 24-month window, EYES identified 412 mentions of the subject. The dominant narrative across these mentions is operational: shipping products, hiring, fundraising. Three findings are flagged as material for an external observer performing diligence.",
+        connectorsCovered: ['github', 'gmail', 'slack', 'linkedin', 'reddit', 'calendar'],
+        reportUrl: '/AUDIT_REPORT_DEMO.pdf',
         createdAt: audit.created_at,
         metadata: {
-          sentimentBalance: 0.88,
-          unfulfilledCommitments: 2,
-          commitments: ["Reply to Sarah regarding Q4 budget", "Complete PR review for Neural-Link-v2"],
-          opportunities: ["High engagement on Twitter (X) thread regarding AI Ethics", "Potential partnership with 'Venture-X' detected in LinkedIn DMs"],
-          topEntities: ["Vercel", "GitHub", "Anthropic", "Google"],
-          riskFindings: ["Old Discord credentials detected in archived channel #dev-old"]
+          sentimentBalance: 0.21,
+          unfulfilledCommitments: 3,
+          commitments: [
+            { text: "Reply to Ms. Vidhya about Chapter 3", status: "overdue", citation: "GMAIL-V-001", platform: "gmail", date: new Date().toISOString() },
+            { text: "Revert memory-ingest route stub", status: "overdue", citation: "GH-EYES-042", platform: "github", date: new Date().toISOString() }
+          ],
+          opportunities: ["Integrate Supabase Edge Functions", "Expand lit survey citations"],
+          topEntities: ["Ms. R. Vidhya", "Chandra Mohan R", "Guhan C", "Vercel", "XGBoost"],
+          riskFindings: [
+            { severity: 'High', finding: 'Project Timeout on Vercel', evidence: 'Log #772', impact: 'Potential data loss during neural indexing.' }
+          ]
         }
       });
     }
