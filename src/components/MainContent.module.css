@@ -7,7 +7,170 @@
   overflow-y: auto;
 }
 
-/* SOLO VIEWS (Feed, History, etc.) */
+/* HERO LAYOUT */
+.heroLayout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  min-height: 80vh;
+  padding-bottom: 100px;
+}
+
+.heroContent {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brandDisplayTitle {
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+}
+
+.heroSummary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+}
+
+.shieldIcon {
+  color: var(--accent-green);
+  display: flex;
+  align-items: center;
+}
+
+/* COMMAND INPUT */
+.commandContainer {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.commandInputBox {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  padding: 8px 12px 8px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: var(--transition-main);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+}
+
+.commandInputBox:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.commandInput {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 12px 0;
+  outline: none;
+}
+
+.commandSendBtn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-main);
+}
+
+.commandSendBtn:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* QUICK ACTIONS */
+.quickActions {
+  display: flex;
+  gap: 16px;
+  margin-top: 64px;
+  justify-content: center;
+}
+
+.actionCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  padding: 16px 24px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: var(--transition-main);
+  box-shadow: var(--shadow-sm);
+}
+
+.actionCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-primary);
+}
+
+/* CHAT OUTPUT */
+.chatOutput {
+  width: 100%;
+  max-width: 800px;
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 100px;
+}
+
+.chatMessage {
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  max-width: 85%;
+  font-size: 15px;
+  line-height: 1.6;
+  transition: var(--transition-main);
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.userMsg {
+  align-self: flex-end;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.aiMsg {
+  align-self: flex-start;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+/* SOLO VIEWS (Feed, History, Audit, Connectors) */
 .soloView {
   width: 100%;
   max-width: 1000px;
@@ -30,7 +193,7 @@
   color: var(--text-primary);
 }
 
-/* FEED & CARDS */
+/* FEED CARDS */
 .feedScrollArea {
   display: flex;
   flex-direction: column;
@@ -53,15 +216,6 @@
   transform: translateY(-2px);
 }
 
-.eventIconWrapper {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-primary);
-}
-
 .eventMain {
   flex: 1;
   display: flex;
@@ -75,23 +229,12 @@
   align-items: center;
 }
 
-.metaLeft {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .platformBadge {
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-secondary);
-}
-
-.eventTime {
-  font-size: 12px;
-  color: var(--text-muted);
 }
 
 .eventTitle {
@@ -106,21 +249,7 @@
   color: var(--text-secondary);
 }
 
-.eventFooter {
-  margin-top: 8px;
-  display: flex;
-  gap: 12px;
-}
-
-.categoryTag, .typeTag {
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* CONNECTORS / READINESS VIEW */
+/* READINESS / CONNECTORS VIEW */
 .readinessContainer {
   width: 100%;
   max-width: 1200px;
@@ -132,19 +261,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 24px;
-}
-
-.readinessSection {
-  margin-top: 40px;
-}
-
-.subHeader {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  color: var(--text-secondary);
-  margin-bottom: 24px;
-  text-transform: uppercase;
 }
 
 .platformCard, .readinessCard {
@@ -187,26 +303,23 @@
   gap: 4px;
 }
 
-.availStatusText {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.pageHeroTitle {
+  font-family: var(--font-serif);
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  color: var(--text-primary);
 }
 
-.platformDesc {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--text-secondary);
+/* Global Shared Styles */
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
-.filterBar {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
+.statusDotHealthy { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+.statusDotDegraded { background: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
 
 .filterChip {
   padding: 6px 16px;
@@ -218,24 +331,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition-main);
-  white-space: nowrap;
-}
-
-.filterChip:hover {
-  background: var(--bg-card);
-  color: var(--text-primary);
 }
 
 .filterChipActive {
   background: var(--accent-primary);
   color: var(--bg-primary);
   border-color: var(--accent-primary);
-}
-
-.pageHeroTitle {
-  font-family: var(--font-serif);
-  font-size: 48px;
-  font-weight: 800;
-  letter-spacing: -1.5px;
-  color: var(--text-primary);
 }
