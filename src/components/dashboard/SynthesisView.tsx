@@ -59,22 +59,7 @@ export function SynthesisView({
           <span>Indexed <strong>{totalMemories.toLocaleString()}</strong> records across your connected sources.</span>
         </div>
 
-        {loadingDigest ? (
-          <div style={{ color: 'var(--text-secondary)', fontSize: '13px', margin: '16px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <div className={styles.radarScanner} style={{ width: 16, height: 16, border: '1px solid var(--accent-primary)' }} /> Generating Morning Digest...
-          </div>
-        ) : digest && digest.length > 0 ? (
-          <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', borderRadius: '12px', padding: '16px', margin: '24px auto', maxWidth: '600px', textAlign: 'left' }}>
-             <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-               <span style={{ color: 'var(--accent-primary)' }}>✦</span> MORNING DIGEST
-             </h3>
-             <ul style={{ margin: 0, paddingLeft: '20px', color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-               {digest.map((bullet, idx) => (
-                 <li key={idx}>{bullet}</li>
-               ))}
-             </ul>
-          </div>
-        ) : null}
+
 
         <div className={styles.commandContainer}>
           <div className={styles.commandInputBox}>
