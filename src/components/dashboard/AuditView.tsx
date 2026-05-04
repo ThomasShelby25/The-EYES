@@ -250,11 +250,8 @@ export function AuditView({ onBack }: AuditViewProps) {
             <button 
               className={styles.downloadBtn}
               onClick={() => {
-                if (activeAudit.reportUrl) {
-                  window.open(activeAudit.reportUrl, '_blank');
-                } else {
-                  alert('The PDF report is still being generated or failed to upload. Please wait a moment or try starting a new audit.');
-                }
+                // In demo mode, we use window.print() to generate a professional PDF of the certificate instantly.
+                window.print();
               }}
               disabled={activeAudit.status === 'generating'}
             >
