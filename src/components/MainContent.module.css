@@ -374,6 +374,79 @@
   transition: var(--transition-main);
 }
 
+/* BUTTONS & CHIPS */
+.filterBar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filterChip {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-main);
+}
+
+.filterChip:hover {
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+}
+
+.filterChipActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+.cardActions {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.miniSyncBtn {
+  flex: 1;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-main);
+}
+
+.miniSyncBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.inlineDisconnectBtn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-main);
+}
+
+.inlineDisconnectBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
 /* TIMELINE & GRAPH */
 .graphContainer {
   background: var(--bg-card);
@@ -383,6 +456,7 @@
   margin-top: 32px;
   position: relative;
 }
+
 
 .yAxisLabel {
   position: absolute;
