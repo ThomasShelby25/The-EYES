@@ -250,8 +250,12 @@ export function AuditView({ onBack }: AuditViewProps) {
             <button 
               className={styles.downloadBtn}
               onClick={() => {
-                // In demo mode, we use window.print() to generate a professional PDF of the certificate instantly.
-                window.print();
+                if (activeAudit.reportUrl) {
+                  window.open(activeAudit.reportUrl, '_blank');
+                } else {
+                  // Fallback to print if URL is missing
+                  window.print();
+                }
               }}
             >
               DOWNLOAD FULL REPORT
