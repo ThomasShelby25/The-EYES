@@ -49,14 +49,24 @@ Memories:
 ${memoryContext}
     `;
 
-    const response = await chatCompletion([
-      { role: 'system', content: 'You are a precise JSON extraction agent.' },
-      { role: 'user', content: prompt }
-    ]);
+    let response = null;
+    try {
+      response = await chatCompletion([
+        { role: 'system', content: 'You are a precise JSON extraction agent.' },
+        { role: 'user', content: prompt }
+      ]);
+    } catch (aiErr) {
+      console.warn('AI Extraction failed, falling back to mock data:', aiErr);
+    }
 
     // Clean response of potential markdown code blocks
     const cleanJson = response?.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(cleanJson || '{"actions":[]}');
+    let parsed = { actions: [] };
+    try {
+      if (cleanJson) parsed = JSON.parse(cleanJson);
+    } catch (e) {
+      console.warn('Failed to parse AI response, using mock data.');
+    }
 
     let finalActions = parsed.actions || [];
     
@@ -99,7 +109,7 @@ ${memoryContext}
     return NextResponse.json({ actions: finalActions });
 
   } catch (error) {
-    console.error('Failed to extract actions:', error);
-    return NextResponse.json({ error: 'Extraction failed' }, { status: 500 });
+    console.error('Final extraction handler failure:', error);
+    return NextResponse.json({ error: 'System error' }, { status: 500 });
   }
 }
