@@ -317,3 +317,59 @@
   gap: 12px;
   transition: var(--transition-main);
 }
+
+/* TIMELINE & GRAPH */
+.graphContainer {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  margin-top: 32px;
+  position: relative;
+}
+
+.yAxisLabel {
+  position: absolute;
+  left: 20px;
+  top: 40px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.svgGraph {
+  width: 100%;
+  height: auto;
+}
+
+.axisScaleText {
+  font-size: 12px;
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.xAxisLabel {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-top: 24px;
+}
+
+.timelineLabels {
+  display: flex;
+  justify-content: space-between;
+  padding-left: 100px;
+  padding-right: 40px;
+  margin-top: 12px;
+}
+
+.timelineLabelItem {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
