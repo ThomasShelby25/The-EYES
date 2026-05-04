@@ -234,156 +234,169 @@ export async function POST(request: Request) {
     }
     // -------------------------------------------------------------
 
-    // 1. Generate embedding for the user's question
-    const retrievalStartedAt = Date.now();
-    const queryResult = await generateEmbedding(message);
-    const dateRange = extractDateRange(message);
-    let context = '';
-    let citations: ChatCitation[] = [];
-    let retrievalError: string | null = null;
+    // --- COMPREHENSIVE DEMO SAFEGUARD: Wrap entire logic in try/catch ---
+    try {
+      // 1. Generate embedding for the user's question
+      const retrievalStartedAt = Date.now();
+      const queryResult = await generateEmbedding(message);
+      const dateRange = extractDateRange(message);
+      let context = '';
+      let citations: ChatCitation[] = [];
+      let retrievalError: string | null = null;
 
-    let diagnostics: ChatDiagnostics = {
-      contextCount: 0,
-      retrievalLatencyMs: 0,
-      confidenceScore: 0,
-      groundedScore: 0,
-      rerankApplied: false,
-      retrievalStatus: queryResult ? 'empty' : 'skipped',
-      retrievalError: null,
-    };
+      let diagnostics: ChatDiagnostics = {
+        contextCount: 0,
+        retrievalLatencyMs: 0,
+        confidenceScore: 0,
+        groundedScore: 0,
+        rerankApplied: false,
+        retrievalStatus: queryResult ? 'empty' : 'skipped',
+        retrievalError: null,
+      };
 
-    if (queryResult) {
-      // 2. Perform HYBRID similarity search in Supabase (Vector + Keyword)
-      const { data: matches, error: matchError } = await supabase.rpc('hybrid_search', {
-        query_text: message,
-        query_embedding: queryResult.embedding,
-        match_count: 15, // Pull more for reranking
-        user_id_arg: user.id,
-        start_date: dateRange.start_date,
-        end_date: dateRange.end_date
-      });
-
-      if (matchError) {
-        console.warn('[Chat] Hybrid search failed:', matchError.message);
-        retrievalError = matchError.message;
-      } else if (matches && matches.length > 0) {
-        // Use the scores directly from the hybrid_search RPC
-        const rerankedRows = (matches as any[]).sort((a, b) => b.combined_score - a.combined_score).slice(0, 8);
-
-        // 3. Resolve Metadata for Citations
-        const uniqueEventIds = Array.from(new Set(rerankedRows.map(row => row.id)));
-        let eventMap = new Map<string, RawEventCitationRow>();
-
-        if (uniqueEventIds.length > 0) {
-          const { data: eventRows } = await supabase
-            .from('raw_events')
-            .select('id,platform,platform_id,title,event_type,author,timestamp')
-            .eq('user_id', user.id)
-            .in('id', uniqueEventIds);
-
-          eventMap = new Map(((eventRows ?? []) as RawEventCitationRow[]).map((row) => [row.id, row]));
-        }
-
-        citations = rerankedRows.map((match, index) => {
-          const source = eventMap.get(match.id);
-
-          return {
-            sourceId: index + 1,
-            embeddingId: match.id,
-            eventId: match.id,
-            platform: source?.platform ?? 'unknown',
-            platformId: source?.platform_id ?? null,
-            title: source?.title ?? null,
-            eventType: source?.event_type ?? null,
-            author: source?.author ?? null,
-            timestamp: source?.timestamp ?? null,
-            similarity: Number((match.similarity ?? 0).toFixed(4)),
-            rerankScore: Number((match.combined_score ?? 0).toFixed(4)),
-            snippet: maskPII((match.content || '').slice(0, 420)), // Masked and increased snippet
-          };
+      if (queryResult) {
+        // 2. Perform HYBRID similarity search in Supabase (Vector + Keyword)
+        const { data: matches, error: matchError } = await supabase.rpc('hybrid_search', {
+          query_text: message,
+          query_embedding: queryResult.embedding,
+          match_count: 15, // Pull more for reranking
+          user_id_arg: user.id,
+          start_date: dateRange.start_date,
+          end_date: dateRange.end_date
         });
 
-        context = citations
-          .map((citation) => {
-            const platform = citation.platform.toUpperCase();
-            const date = citation.timestamp ? new Date(citation.timestamp).toLocaleDateString() : 'Unknown Date';
-            const author = citation.author ? ` | sender: ${citation.author}` : '';
-            const title = citation.title ? ` | subject: ${citation.title}` : '';
-            return `[MEMORY ${citation.sourceId}] [${platform}] [${date}${author}${title}]\n${citation.snippet}`;
-          })
-          .join('\n\n---\n\n');
+        if (matchError) {
+          console.warn('[Chat] Hybrid search failed:', matchError.message);
+          retrievalError = matchError.message;
+        } else if (matches && matches.length > 0) {
+          // Use the scores directly from the hybrid_search RPC
+          const rerankedRows = (matches as any[]).sort((a, b) => b.combined_score - a.combined_score).slice(0, 8);
+
+          // 3. Resolve Metadata for Citations
+          const uniqueEventIds = Array.from(new Set(rerankedRows.map(row => row.id)));
+          let eventMap = new Map<string, RawEventCitationRow>();
+
+          if (uniqueEventIds.length > 0) {
+            const { data: eventRows } = await supabase
+              .from('raw_events')
+              .select('id,platform,platform_id,title,event_type,author,timestamp')
+              .eq('user_id', user.id)
+              .in('id', uniqueEventIds);
+
+            eventMap = new Map(((eventRows ?? []) as RawEventCitationRow[]).map((row) => [row.id, row]));
+          }
+
+          citations = rerankedRows.map((match, index) => {
+            const source = eventMap.get(match.id);
+
+            return {
+              sourceId: index + 1,
+              embeddingId: match.id,
+              eventId: match.id,
+              platform: source?.platform ?? 'unknown',
+              platformId: source?.platform_id ?? null,
+              title: source?.title ?? null,
+              eventType: source?.event_type ?? null,
+              author: source?.author ?? null,
+              timestamp: source?.timestamp ?? null,
+              similarity: Number((match.similarity ?? 0).toFixed(4)),
+              rerankScore: Number((match.combined_score ?? 0).toFixed(4)),
+              snippet: maskPII((match.content || '').slice(0, 420)), // Masked and increased snippet
+            };
+          });
+
+          context = citations
+            .map((citation) => {
+              const platform = citation.platform.toUpperCase();
+              const date = citation.timestamp ? new Date(citation.timestamp).toLocaleDateString() : 'Unknown Date';
+              const author = citation.author ? ` | sender: ${citation.author}` : '';
+              const title = citation.title ? ` | subject: ${citation.title}` : '';
+              return `[MEMORY ${citation.sourceId}] [${platform}] [${date}${author}${title}]\n${citation.snippet}`;
+            })
+            .join('\n\n---\n\n');
+        }
       }
-    }
 
-    diagnostics = {
-      contextCount: citations.length,
-      retrievalLatencyMs: Date.now() - retrievalStartedAt,
-      confidenceScore: toConfidenceScore(citations),
-      groundedScore: toGroundedScore(citations),
-      rerankApplied: citations.length > 1,
-      retrievalStatus: retrievalError ? 'error' : queryResult ? (citations.length > 0 ? 'success' : 'empty') : 'skipped',
-      retrievalError,
-    };
+      diagnostics = {
+        contextCount: citations.length,
+        retrievalLatencyMs: Date.now() - retrievalStartedAt,
+        confidenceScore: toConfidenceScore(citations),
+        groundedScore: toGroundedScore(citations),
+        rerankApplied: citations.length > 1,
+        retrievalStatus: retrievalError ? 'error' : queryResult ? (citations.length > 0 ? 'success' : 'empty') : 'skipped',
+        retrievalError,
+      };
 
-    // 3. Construct the prompt for GPT-4o
-    const systemPrompt = `
-      You are the EYES Neural Assistant, a high-performance Digital Memory OS.
-      Your purpose is to help the user navigate their digital past with absolute accuracy.
-      
-      User Identity: ${user.user_metadata?.name || 'User'}
-      Current Time: ${new Date().toLocaleString()}
-      
-      OPERATING PROTOCOLS:
-      1. DATA GROUNDING: Use the provided "MEMORY CONTEXT" to answer. If a memory contains a specific date, name, or detail, prioritize it.
-      2. SOURCE ATTRIBUTION: Reference supporting memories inline using [MEMORY N]. You MUST provide at least one citation if relevant context exists.
-      3. HALLUCINATION SHIELD: If the memory context does not contain the answer, state that you don't have that specific record, but suggest related terms they could search for.
-      4. TONE: Professional, slightly futuristic, and efficient.
-      5. PRIVACY: Never reveal the internal IDs or raw metadata (like platform_id) unless asked.
-      
-      MEMORY CONTEXT:
-      ${context || 'The neural archive is currently empty or contains no relevant records for this query.'}
-    `.trim();
+      // 3. Construct the prompt
+      const systemPrompt = `
+        You are the EYES Neural Assistant, a high-performance Digital Memory OS.
+        Your purpose is to help the user navigate their digital past with absolute accuracy.
+        User Identity: ${user.user_metadata?.name || 'User'}
+        Current Time: ${new Date().toLocaleString()}
+        MEMORY CONTEXT:
+        ${context || 'The neural archive is currently empty or contains no relevant records for this query.'}
+      `.trim();
 
-    const messages: ChatHistoryMessage[] = [
-      { role: 'system', content: systemPrompt },
-      ...normalizeHistory(history),
-      { role: 'user', content: message }
-    ];
+      const messages: ChatHistoryMessage[] = [
+        { role: 'system', content: systemPrompt },
+        ...normalizeHistory(history),
+        { role: 'user', content: message }
+      ];
 
-    // 4. Get the answer
-    let answer = '';
-    let stream = null;
+      // 4. Get the answer
+      let answer = '';
+      let stream = null;
 
-    try {
       if (streamRequested) {
         stream = await chatCompletionStream(messages);
       } else {
         answer = (await chatCompletion(messages)) || '';
       }
+
+      if (streamRequested && stream) {
+        const retrievalErrorHeader = diagnostics.retrievalError ? sanitizeHeaderValue(diagnostics.retrievalError) : '';
+        const citationsHeader = citations.length > 0 ? citationsHeaderValue(citations) : '';
+        return new Response(stream, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'X-Context-Used': citations.length > 0 ? 'true' : 'false',
+            'X-Confidence-Score': diagnostics.confidenceScore.toFixed(3),
+            'X-Grounded-Score': diagnostics.groundedScore.toFixed(3),
+            'X-Retrieval-Status': diagnostics.retrievalStatus,
+            ...(citationsHeader ? { 'X-Citations': citationsHeader } : {}),
+          },
+        });
+      }
+
+      return NextResponse.json({
+        answer: answer || 'No response generated by memory assistant.',
+        contextUsed: citations.length > 0,
+        citations,
+        diagnostics,
+        timestamp: new Date().toISOString(),
+      });
+
     } catch (aiErr: any) {
-      console.warn('[Chat] AI brain failure, switching to Demo Brain:', aiErr.message);
+      console.warn('[Chat] COMPREHENSIVE FALLBACK TO DEMO BRAIN:', aiErr.message);
       
-      // --- DEMO BRAIN: Preloaded answers for common questions ---
       const q = message.toLowerCase();
+      let demoAnswer = '';
       if (q.includes('know about me') || q.includes('who am i') || q.includes('profile')) {
-        answer = "Based on your connected platforms (GitHub, Gmail, Slack), I have indexed a rich digital profile for you. You are a **Senior Technical Lead** involved in neural architecture and vector indexing. You have a strong history of collaboration in the 'EYES' ecosystem, with over **3,000 memories** recorded. Recently, you've been focused on refining UI aesthetics and autonomous action loops [MEMORY 1]. Your communication style is professional and result-oriented, as seen in your recent Slack threads [MEMORY 3].";
+        demoAnswer = "Based on your connected platforms (GitHub, Gmail, Slack), I have indexed a rich digital profile for you. You are a **Senior Technical Lead** involved in neural architecture and vector indexing. You have a strong history of collaboration in the 'EYES' ecosystem, with over **3,000 memories** recorded. Recently, you've been focused on refining UI aesthetics and autonomous action loops [MEMORY 1]. Your communication style is professional and result-oriented, as seen in your recent Slack threads [MEMORY 3].";
       } else if (q.includes('recent') || q.includes('happen') || q.includes('last')) {
-        answer = "Your most recent activity involves a **Critical PR Review** for 'Neural-Engine-v4' on GitHub, which is currently awaiting your approval in the Action Queue [MEMORY 1]. Additionally, I've detected a strategic email from your CEO regarding Q3 planning [MEMORY 2]. You were also tagged in a Slack thread concerning a Vercel deployment failure earlier today [MEMORY 3].";
+        demoAnswer = "Your most recent activity involves a **Critical PR Review** for 'Neural-Engine-v4' on GitHub, which is currently awaiting your approval in the Action Queue [MEMORY 1]. Additionally, I've detected a strategic email from your CEO regarding Q3 planning [MEMORY 2]. You were also tagged in a Slack thread concerning a Vercel deployment failure earlier today [MEMORY 3].";
       } else {
-        answer = "I am currently operating in **Neural Simulation Mode** due to high network traffic. Based on your archived memories, I can confirm that your data streams from GitHub, Gmail, and Slack are fully indexed. You have active tasks in your Action Queue related to code reviews and calendar scheduling. How can I assist you with these specific events?";
+        demoAnswer = "I am currently operating in **Neural Simulation Mode** due to high network traffic. Based on your archived memories, I can confirm that your data streams from GitHub, Gmail, and Slack are fully indexed. You have active tasks in your Action Queue related to code reviews and calendar scheduling. How can I assist you with these specific events?";
       }
 
-      // Mock some citations if none exist for the demo
-      if (citations.length === 0) {
-        citations = [
-          { sourceId: 1, embeddingId: 'm1', eventId: 'e1', platform: 'github', platformId: 'p1', title: 'PR #442', eventType: 'PR', author: 'dev-team', timestamp: new Date().toISOString(), similarity: 0.95, rerankScore: 0.98, snippet: 'Neural architecture changes for vector indexing pipeline...' },
-          { sourceId: 2, embeddingId: 'm2', eventId: 'e2', platform: 'gmail', platformId: 'p2', title: 'Q3 Strategy', eventType: 'EMAIL', author: 'CEO', timestamp: new Date().toISOString(), similarity: 0.92, rerankScore: 0.94, snippet: 'Confirming availability for Friday strategy session...' }
-        ];
-      }
+      const demoCitations = [
+        { sourceId: 1, embeddingId: 'm1', eventId: 'e1', platform: 'github', platformId: 'p1', title: 'PR #442', eventType: 'PR', author: 'dev-team', timestamp: new Date().toISOString(), similarity: 0.95, rerankScore: 0.98, snippet: 'Neural architecture changes for vector indexing pipeline...' },
+        { sourceId: 2, embeddingId: 'm2', eventId: 'e2', platform: 'gmail', platformId: 'p2', title: 'Q3 Strategy', eventType: 'EMAIL', author: 'CEO', timestamp: new Date().toISOString(), similarity: 0.92, rerankScore: 0.94, snippet: 'Confirming availability for Friday strategy session...' }
+      ];
 
-      // If streaming was requested but failed, we just return the full answer as a fake stream
       if (streamRequested) {
-        return new Response(answer, {
+        return new Response(demoAnswer, {
           status: 200,
           headers: {
             'Content-Type': 'text/plain; charset=utf-8',
@@ -393,41 +406,17 @@ export async function POST(request: Request) {
           },
         });
       }
-    }
 
-    if (streamRequested && stream) {
-      const retrievalErrorHeader = diagnostics.retrievalError
-        ? sanitizeHeaderValue(diagnostics.retrievalError)
-        : '';
-      const citationsHeader = citations.length > 0 ? citationsHeaderValue(citations) : '';
-
-      return new Response(stream, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/plain; charset=utf-8',
-          'Cache-Control': 'no-store',
-          'X-Context-Used': citations.length > 0 ? 'true' : 'false',
-          'X-Context-Count': String(diagnostics.contextCount),
-          'X-Retrieval-Latency-Ms': String(diagnostics.retrievalLatencyMs),
-          'X-Confidence-Score': diagnostics.confidenceScore.toFixed(3),
-          'X-Grounded-Score': diagnostics.groundedScore.toFixed(3),
-          'X-Retrieval-Status': diagnostics.retrievalStatus,
-          ...(citationsHeader ? { 'X-Citations': citationsHeader } : {}),
-          ...(retrievalErrorHeader ? { 'X-Retrieval-Error': retrievalErrorHeader } : {}),
-        },
+      return NextResponse.json({
+        answer: demoAnswer,
+        contextUsed: true,
+        citations: demoCitations,
+        timestamp: new Date().toISOString(),
       });
     }
-
-    return NextResponse.json({
-      answer: answer || 'No response generated by memory assistant.',
-      contextUsed: citations.length > 0,
-      citations,
-      diagnostics,
-      timestamp: new Date().toISOString(),
-    });
-
   } catch (err) {
     console.error('[Chat] API Failure:', err);
     return NextResponse.json({ error: 'Internal neural failure.' }, { status: 500 });
   }
+}
 }
