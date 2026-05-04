@@ -180,6 +180,17 @@ export async function chatCompletionStream(messages: { role: string; content: st
               }
             }
             controller.close();
+          } catch (err: any) {
+            console.error('[AI] Claude Stream Error:', err);
+            controller.close();
+          }
+        }
+      });
+    } catch (err: any) {
+      console.warn('[AI] Claude Stream Setup Error, falling back to Demo Brain:', err.message);
+    }
+  }
+
   // ABSOLUTE DEMO BRAIN SAFEGUARD (STREAMING)
   return new ReadableStream({
     start(controller) {
@@ -214,5 +225,3 @@ export async function chatCompletionStream(messages: { role: string; content: st
     }
   });
 }
-
-
