@@ -377,7 +377,7 @@ export async function POST(request: Request) {
 
     let answer = '';
     try {
-      answer = await chatCompletion(messages);
+      answer = (await chatCompletion(messages)) || '';
     } catch (aiErr: any) {
       console.warn('[Chat] AI brain failure, switching to Demo Brain:', aiErr.message);
       
