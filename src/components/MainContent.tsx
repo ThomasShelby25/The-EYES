@@ -149,7 +149,10 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
-        body: JSON.stringify({ message: prompt }),
+      body: JSON.stringify({ 
+        message: prompt,
+        history: messages.map(m => ({ role: m.role, content: m.content })) 
+      }),
       });
 
       if (response.ok && response.body) {

@@ -18,9 +18,6 @@ export function AuditView({ onBack }: AuditViewProps) {
   useEffect(() => {
     const fetchLatest = async () => {
       try {
-        const res = await fetch('/api/audit-summary'); // We'll update this or use a new one
-        // For now, let's assume we fetch the latest from reputation_audits table
-        // But since we need the most recent one, I'll use a direct fetch
         const auditRes = await fetch('/api/audit/latest'); 
         if (auditRes.ok) {
           const data = await auditRes.json();
@@ -42,10 +39,6 @@ export function AuditView({ onBack }: AuditViewProps) {
       interval = setInterval(async () => {
         try {
           const res = await fetch(`/api/audit/${activeAudit.id}`);
-          if (res.status === 404) {
-             // If not found, just wait for next tick
-             return;
-          }
           if (res.ok) {
             const data = await res.json();
             setActiveAudit(data);
@@ -109,7 +102,7 @@ export function AuditView({ onBack }: AuditViewProps) {
   if (!activeAudit) {
     return (
       <div className={styles.auditContainer}>
-        <button onClick={onBack} style={{ marginBottom: '20px', cursor: 'pointer', background: 'none', border: 'none', color: '#1F4D3F', fontWeight: 700 }}>← BACK TO DASHBOARD</button>
+        <button onClick={onBack} className={styles.backLink}>← BACK TO DASHBOARD</button>
         <div className={styles.auditHeader}>
           <div>
             <div className={styles.wordmark}>EYES</div>
@@ -123,11 +116,10 @@ export function AuditView({ onBack }: AuditViewProps) {
             It analyzes your active connectors to detect unfulfilled commitments, 
             reputational risks, and operational opportunities.
           </p>
-          <div style={{ borderTop: '1px solid #EEE', paddingTop: '30px', textAlign: 'center' }}>
-            <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>Requires active neural link with Gmail, Reddit, or LinkedIn.</p>
+          <div className={styles.actionSection}>
+            <p className={styles.requirementText}>Requires active neural link with Gmail, Reddit, or LinkedIn.</p>
             <button 
               className={styles.downloadBtn} 
-              style={{ background: '#1F4D3F', color: 'white', maxWidth: '300px' }}
               onClick={handleStartAudit}
               disabled={isInitiating}
             >
@@ -145,10 +137,10 @@ export function AuditView({ onBack }: AuditViewProps) {
 
     return (
       <div className={styles.auditContainer}>
-        <button onClick={onBack} style={{ marginBottom: '20px', cursor: 'pointer', background: 'none', border: 'none', color: '#1F4D3F', fontWeight: 700 }}>← BACK TO DASHBOARD</button>
+        <button onClick={onBack} className={styles.backLink}>← BACK TO DASHBOARD</button>
         <div className={styles.scanningContainer}>
           {isFailed ? (
-            <div style={{ color: '#8B2E2E', fontSize: '48px', marginBottom: '20px' }}>⚠️</div>
+            <div className={styles.errorIcon}>⚠️</div>
           ) : (
             <div className={styles.neuralPulse} />
           )}
@@ -159,13 +151,12 @@ export function AuditView({ onBack }: AuditViewProps) {
              'COMPILING REPORT...'}
           </div>
           {isFailed ? (
-            <div style={{ textAlign: 'center', maxWidth: '400px' }}>
-              <p style={{ opacity: 0.8, fontSize: '14px', marginBottom: '20px' }}>
+            <div className={styles.errorDescription}>
+              <p>
                 The neural link was interrupted during analysis. This may be due to an API service interruption or connectivity issues.
               </p>
               <button 
                 className={styles.downloadBtn} 
-                style={{ background: '#1F4D3F', color: 'white' }}
                 onClick={handleStartAudit}
                 disabled={isInitiating}
               >
@@ -173,7 +164,7 @@ export function AuditView({ onBack }: AuditViewProps) {
               </button>
             </div>
           ) : (
-            <p style={{ opacity: 0.6, fontSize: '12px' }}>This typically takes under 60 seconds.</p>
+            <p className={styles.waitText}>This typically takes under 60 seconds.</p>
           )}
         </div>
       </div>
@@ -183,7 +174,7 @@ export function AuditView({ onBack }: AuditViewProps) {
   // COMPLETED PREVIEW
   return (
     <div className={styles.auditContainer}>
-      <button onClick={onBack} style={{ marginBottom: '20px', cursor: 'pointer', background: 'none', border: 'none', color: '#1F4D3F', fontWeight: 700 }}>← BACK TO DASHBOARD</button>
+      <button onClick={onBack} className={styles.backLink}>← BACK TO DASHBOARD</button>
       
       <header className={styles.auditHeader}>
         <div>
@@ -193,24 +184,23 @@ export function AuditView({ onBack }: AuditViewProps) {
             ID: {activeAudit.id.slice(0, 8).toUpperCase()} | {new Date(activeAudit.createdAt).toUTCString()}
           </div>
         </div>
-        <div style={{ textAlign: 'right' }}>
+        <div className={styles.headerRight}>
           <button 
-            className={styles.downloadBtn} 
-            style={{ fontSize: '11px', padding: '6px 12px', background: '#F0F0EE', color: '#1A1A1A', border: '1px solid #E5E5E0', marginBottom: '10px', width: 'auto' }}
+            className={styles.rerunBtn} 
             onClick={handleStartAudit}
             disabled={isInitiating}
           >
             {isInitiating ? 'INITIATING...' : 'RE-RUN AUDIT'}
           </button>
-          <div style={{ fontSize: '11px', color: '#8B2E2E', fontWeight: 700 }}>CONFIDENTIAL</div>
-          <div style={{ fontSize: '11px', color: '#666' }}>Property of Subject</div>
+          <div className={styles.confidentialMark}>CONFIDENTIAL</div>
+          <div className={styles.propertyMark}>Property of Subject</div>
         </div>
       </header>
 
       <div className={styles.grid}>
         <div className={styles.mainContent}>
           <section className={styles.summaryBox}>
-            <h2 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '20px', borderBottom: '1px solid #EEE', paddingBottom: '10px' }}>Executive Summary</h2>
+            <h2 className={styles.sectionHeading}>Executive Summary</h2>
             <p className={styles.narrative}>
               {activeAudit.summaryNarrative || 'No summary generated.'}
             </p>
@@ -238,8 +228,8 @@ export function AuditView({ onBack }: AuditViewProps) {
           </section>
 
           <section className={styles.summaryBox}>
-             <h2 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '20px', borderBottom: '1px solid #EEE', paddingBottom: '10px' }}>Methodology</h2>
-             <p style={{ fontSize: '12px', color: '#666', lineHeight: 1.6 }}>
+             <h2 className={styles.sectionHeading}>Methodology</h2>
+             <p className={styles.methodologyText}>
                Risk score = ((negative_mentions × 2) + (neutral_mentions × 0.5) + (unfulfilled_commitments × 3)) ÷ total_mentions × 10.
                Recency weighting: last 30 days (1.0), last 6 months (0.5), older (0.2).
              </p>
@@ -258,7 +248,7 @@ export function AuditView({ onBack }: AuditViewProps) {
           </div>
 
           <div className={styles.downloadSection}>
-            <p style={{ fontSize: '13px', lineHeight: 1.5, opacity: 0.9 }}>
+            <p className={styles.downloadHint}>
               The live preview reveals summary signals only. Full citations, raw quotes, and platform breakdowns are contained in the official PDF report.
             </p>
             <button 
@@ -276,7 +266,7 @@ export function AuditView({ onBack }: AuditViewProps) {
             </button>
           </div>
           
-          <div style={{ fontSize: '10px', color: '#888', fontStyle: 'italic' }}>
+          <div className={styles.legalNotice}>
             This certificate is bound to the identifier above and is non-transferable.
           </div>
         </aside>

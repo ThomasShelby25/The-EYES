@@ -270,24 +270,10 @@ export async function POST(request: Request) {
         // Use the scores directly from the hybrid_search RPC
         const rerankedRows = (matches as any[]).sort((a, b) => b.combined_score - a.combined_score).slice(0, 8);
 
-        const embeddingIds = rerankedRows.map((row) => row.id);
-        const { data: embeddingRows } = await supabase
-          .from('embeddings')
-          .select('id,event_id')
-          .eq('user_id', user.id)
-          .in('id', embeddingIds);
-
-        const embeddingIdToEventId = new Map(
-          ((embeddingRows ?? []) as EmbeddingLookupRow[]).map((row) => [row.id, row.event_id])
-        );
-
-        const uniqueEventIds = Array.from(
-          new Set(
-            Array.from(embeddingIdToEventId.values()).filter((eventId): eventId is string => typeof eventId === 'string')
-          )
-        );
-
+        // 3. Resolve Metadata for Citations
+        const uniqueEventIds = Array.from(new Set(rerankedRows.map(row => row.id)));
         let eventMap = new Map<string, RawEventCitationRow>();
+
         if (uniqueEventIds.length > 0) {
           const { data: eventRows } = await supabase
             .from('raw_events')
@@ -299,8 +285,7 @@ export async function POST(request: Request) {
         }
 
         citations = rerankedRows.map((match, index) => {
-          const eventId = embeddingIdToEventId.get(match.id) ?? null;
-          const source = eventId ? eventMap.get(eventId) : null;
+          const source = eventMap.get(match.id);
 
           return {
             sourceId: index + 1,
