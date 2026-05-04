@@ -58,53 +58,56 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
         <h1 className={styles.logoText} onClick={() => router.push('/')} style={{ cursor: 'pointer' }}>EYES</h1>
       </div>
 
-      <div className={styles.right} ref={menuRef}>
+      <div className={styles.right}>
         <button 
-          className={styles.avatarBtn} 
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="User menu"
+          className={styles.themeToggleBtn} 
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
-          <div className={styles.avatar}>
-            {avatarImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={avatarImageUrl} alt="User avatar" className={styles.avatarImage} />
-            ) : (
-              <span className={styles.avatarInitial}>{avatarInitial}</span>
-            )}
-          </div>
+          {theme === 'dark' ? <MoonIcon /> : <SunIcon />}
         </button>
 
-        {isMenuOpen && (
-          <div className={styles.dropdown}>
-            <div className={styles.userInfo}>
-              <div className={styles.userName}>{user?.name}</div>
-              <div className={styles.userPlan}>{user?.plan || 'PRIVATE BETA'}</div>
+        <div className={styles.userMenuContainer} ref={menuRef}>
+          <button 
+            className={styles.avatarBtn} 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="User menu"
+          >
+            <div className={styles.avatar}>
+              {avatarImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarImageUrl} alt="User avatar" className={styles.avatarImage} />
+              ) : (
+                <span className={styles.avatarInitial}>{avatarInitial}</span>
+              )}
             </div>
-            
-            <div className={styles.divider} />
-            
-            <button className={styles.menuItem} onClick={() => { setIsMenuOpen(false); router.push('/settings'); }}>
-              <SettingsIcon /> Settings
-            </button>
-            
-            <div className={styles.menuItem} onClick={toggleTheme}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                {theme === 'dark' ? <MoonIcon /> : <SunIcon />}
-                <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+          </button>
+
+          {isMenuOpen && (
+            <div className={styles.dropdown}>
+              <div className={styles.userInfo}>
+                <div className={styles.userName}>{user?.name}</div>
+                <div className={styles.userPlan}>{user?.plan || 'PRIVATE BETA'}</div>
               </div>
-              <div className={`${styles.miniSwitch} ${theme === 'dark' ? styles.switchActive : ''}`} />
+              
+              <div className={styles.divider} />
+              
+              <button className={styles.menuItem} onClick={() => { setIsMenuOpen(false); router.push('/settings'); }}>
+                <SettingsIcon /> Settings
+              </button>
+              
+              <div className={styles.divider} />
+
+              <button 
+                className={`${styles.menuItem} ${styles.logoutBtn}`}
+                onClick={() => logout()}
+              >
+                <LogoutIcon /> Sign Out
+              </button>
             </div>
-
-            <div className={styles.divider} />
-
-            <button 
-              className={`${styles.menuItem} ${styles.logoutBtn}`}
-              onClick={() => logout()}
-            >
-              <LogoutIcon /> Sign Out
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );
@@ -119,7 +122,7 @@ function EyeIcon() {
 }
 
 function SettingsIcon() {
-  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1-2.83 0l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>;
 }
 
 function MoonIcon() {

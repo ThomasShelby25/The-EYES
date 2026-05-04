@@ -91,7 +91,7 @@ export default function Sidebar() {
           >
             <div className={styles.itemIcon}><span style={{fontSize: '18px', filter: 'grayscale(1)'}}>⚡</span></div>
             <div className={styles.itemMain}>
-              <span className={styles.itemLabel}>Action Queue <span style={{fontSize: '8px', background: 'var(--accent-primary)', color: 'white', padding: '2px 4px', borderRadius: '4px', marginLeft: '4px'}}>BETA</span></span>
+              <span className={styles.itemLabel}>Action Queue <span style={{fontSize: '8px', background: 'var(--accent-primary)', color: 'var(--bg-primary)', padding: '2px 4px', borderRadius: '4px', marginLeft: '4px', fontWeight: 800}}>BETA</span></span>
               <span className={styles.itemDesc}>Approve autonomous tasks</span>
             </div>
           </div>

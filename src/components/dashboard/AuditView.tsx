@@ -102,7 +102,6 @@ export function AuditView({ onBack }: AuditViewProps) {
   if (!activeAudit) {
     return (
       <div className={styles.auditContainer}>
-        <button onClick={onBack} className={styles.backLink}>← BACK TO DASHBOARD</button>
         <div className={styles.auditHeader}>
           <div>
             <div className={styles.wordmark}>EYES</div>
@@ -137,7 +136,6 @@ export function AuditView({ onBack }: AuditViewProps) {
 
     return (
       <div className={styles.auditContainer}>
-        <button onClick={onBack} className={styles.backLink}>← BACK TO DASHBOARD</button>
         <div className={styles.scanningContainer}>
           {isFailed ? (
             <div className={styles.errorIcon}>⚠️</div>
@@ -174,8 +172,6 @@ export function AuditView({ onBack }: AuditViewProps) {
   // COMPLETED PREVIEW
   return (
     <div className={styles.auditContainer}>
-      <button onClick={onBack} className={styles.backLink}>← BACK TO DASHBOARD</button>
-      
       <header className={styles.auditHeader}>
         <div>
           <div className={styles.wordmark}>EYES</div>
