@@ -4,7 +4,7 @@ import { ReputationAudit } from '@/types/dashboard';
 
 /**
  * Reputation Audit: PDF Generation Service
- * Migrated to Standard Fonts (Helvetica/Courier) for maximum Vercel/Turbopack compatibility.
+ * Updated to match high-fidelity textual mock for EYES Audit Certificates.
  */
 
 export class PDFGenerationService {
@@ -13,7 +13,7 @@ export class PDFGenerationService {
       try {
         const doc = new PDFDocument({
           size: 'A4',
-          margin: 50,
+          margin: 0, // Manual margins for exact layout control
           info: {
             Title: `Reputation Audit - ${audit.id}`,
             Author: 'EYES Neural Memory OS',
@@ -32,118 +32,95 @@ export class PDFGenerationService {
           }
         });
 
-        // --- STYLING CONSTANTS (Standard Fonts) ---
+        // --- STYLING CONSTANTS ---
         const CREAM = '#FAFAF7';
         const INK_BLACK = '#1A1A1A';
-        const EYES_BLUE = '#2563EB';
         const FOREST_GREEN = '#1F4D3F';
         const MUTED_RED = '#8B2E2E';
-        const MUTED_TEXT = '#666666';
+        const GRAY_FOOTER = '#666666';
 
-        // Standard Font Names (No files needed)
         const FONT_BODY = 'Helvetica';
         const FONT_BOLD = 'Helvetica-Bold';
         const FONT_MONO = 'Courier';
 
-        // --- HELPER: HEADER & FOOTER ---
-        const drawHeaderAndFooter = () => {
-          const pages = doc.bufferedPageRange();
-          for (let i = 0; i < pages.count; i++) {
-            doc.switchToPage(i);
-            
-            // Background
-            doc.rect(0, 0, doc.page.width, doc.page.height).fill(CREAM);
+        // --- PAGE 1: COVER PAGE ---
+        // Background
+        doc.rect(0, 0, doc.page.width, doc.page.height).fill(CREAM);
 
-            // Watermark
-            doc.save()
-               .fillColor(INK_BLACK)
-               .fillOpacity(0.03)
-               .fontSize(60)
-               .rotate(-45, { origin: [doc.page.width / 2, doc.page.height / 2] })
-               .text('CONFIDENTIAL', doc.page.width / 2 - 200, doc.page.height / 2, { align: 'center' })
-               .restore();
-
-            // Header
-            doc.fillColor(FOREST_GREEN).fontSize(14).font(FONT_BOLD).text('EYES', 50, 40);
-            
-            // Footer
-            doc.moveTo(50, doc.page.height - 60).lineTo(doc.page.width - 50, doc.page.height - 60).strokeColor(FOREST_GREEN).lineWidth(0.5).stroke();
-            doc.fillColor('#888888').fontSize(8).font(FONT_BODY)
-               .text(`Certificate ID: ${audit.id} | Non-transferable`, 50, doc.page.height - 50)
-               .text(`Page ${i + 1} of ${pages.count}`, doc.page.width - 100, doc.page.height - 50, { align: 'right' });
-          }
-        };
-
-        // --- PAGE 1: COVER ---
-        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(36).text('Audit\nCertificate', 50, 150);
-        doc.moveTo(50, 240).lineTo(150, 240).strokeColor(FOREST_GREEN).lineWidth(4).stroke();
+        // Header Section
+        doc.fillColor(INK_BLACK).fontSize(14).font(FONT_BOLD).text('EYES', 50, 40);
+        doc.fillColor(MUTED_RED).fontSize(8).font(FONT_BOLD).text('CONFIDENTIAL · CERTIFICATE', 50, 40, { align: 'right', width: doc.page.width - 100 });
         
-        doc.fontSize(12).font(FONT_BODY).text(`Prepared for: [Authenticated Subject]`, 50, 280);
-        doc.text(`Date: ${new Date(audit.createdAt).toUTCString()}`, 50, 300);
-        doc.text(`Audit ID: EYES-RA-${audit.id.slice(0, 8).toUpperCase()}`, 50, 320);
+        // Horizontal Rule
+        doc.moveTo(50, 60).lineTo(doc.page.width - 50, 60).strokeColor(INK_BLACK).lineWidth(0.5).stroke();
 
-        doc.fontSize(10).font(FONT_BOLD).text('Connectors covered:', 50, 380);
-        doc.font(FONT_BODY).text(audit.connectorsCovered.join(' . ').toUpperCase(), 50, 400);
+        // Main Title
+        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(32).text('Reputation Audit\nCertificate', 50, 150, { lineGap: 10 });
+        
+        // Subject & Info
+        doc.fontSize(12).font(FONT_BODY).text(`Prepared for: ${audit.metadata.subjectName || 'Authenticated Subject'}`, 50, 280);
+        
+        const dateObj = new Date(audit.createdAt);
+        const dateStr = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const timeStr = dateObj.getUTCHours().toString().padStart(2, '0') + ':' + dateObj.getUTCMinutes().toString().padStart(2, '0');
+        doc.text(`Date: ${dateStr} · ${timeStr} UTC`, 50, 305);
+        doc.text(`Audit ID: EYES-RA-${audit.id.slice(0, 8).toUpperCase()}`, 50, 330);
+
+        // Connectors
+        doc.fontSize(10).font(FONT_BOLD).text('Connectors covered', 50, 400);
+        // Accent rule
+        doc.moveTo(50, 415).lineTo(163, 415).strokeColor(FOREST_GREEN).lineWidth(2).stroke(); // ~4cm wide
+        
+        doc.fontSize(10).font(FONT_BODY).fillColor(INK_BLACK)
+           .text(audit.connectorsCovered.join(' · '), 50, 430);
+
+        // Footer
+        doc.fillColor(GRAY_FOOTER).fontSize(7).font(FONT_BODY)
+           .text("This certificate is bound to the audit ID above and is non-transferable. Generated using only the user's authorized data sources.", 50, doc.page.height - 50, { width: doc.page.width - 100, align: 'center' });
 
         // --- PAGE 2: EXECUTIVE SUMMARY ---
         doc.addPage();
+        doc.rect(0, 0, doc.page.width, doc.page.height).fill(CREAM);
+
         doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text('Executive Summary', 50, 100);
-        doc.font(FONT_BODY).fontSize(12).lineGap(4).text(audit.summaryNarrative || 'No narrative generated.', 50, 140, { width: 500, align: 'justify' });
+        
+        // Narrative
+        doc.font(FONT_BODY).fontSize(11).lineGap(6)
+           .text(audit.summaryNarrative || 'No narrative generated.', 50, 140, { width: 500, align: 'justify' });
 
-        // Headline Metrics
-        let y = 280;
-        doc.rect(50, y, 500, 100).fill('#FFFFFF').stroke(FOREST_GREEN);
-        doc.fillColor(FOREST_GREEN).font(FONT_BOLD).fontSize(24).text(audit.mentionsCount.toString(), 100, y + 30);
-        doc.fontSize(8).text('TOTAL MENTIONS', 100, y + 60);
+        // Metrics Grid
+        let y = 300;
+        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(14).text(`Risk score: ${audit.riskScore.toFixed(1)} / 10`, 50, y);
+        doc.fontSize(8).font(FONT_BODY).text('(Methodology below.)', 50, y + 18);
 
-        doc.fontSize(24).text(`${(audit.metadata.sentimentBalance * 100).toFixed(0)}%`, 250, y + 30);
-        doc.fontSize(8).text('SENTIMENT BALANCE', 250, y + 60);
+        y += 60;
+        const colWidth = 120;
+        doc.fontSize(10).font(FONT_BOLD).text('Total mentions:', 50, y);
+        doc.font(FONT_BODY).text(audit.mentionsCount.toString(), 50 + 80, y);
 
-        doc.fontSize(24).text(audit.commitmentsCount.toString(), 400, y + 30);
-        doc.fontSize(8).text('UNFULFILLED COMMITMENTS', 400, y + 60);
+        doc.font(FONT_BOLD).text('Sentiment balance:', 50 + 170, y);
+        const sentimentStr = (audit.metadata.sentimentBalance >= 0 ? '+' : '') + audit.metadata.sentimentBalance.toFixed(2);
+        const sentimentLabel = audit.metadata.sentimentBalance > 0.1 ? '(positive)' : audit.metadata.sentimentBalance < -0.1 ? '(negative)' : '(neutral)';
+        doc.font(FONT_BODY).text(`${sentimentStr} ${sentimentLabel}`, 50 + 170 + 100, y);
 
-        // Risk Score
-        y = 420;
-        doc.rect(50, y, 500, 80).fill(FOREST_GREEN);
-        doc.fillColor('#FFFFFF').font(FONT_BOLD).fontSize(48).text(audit.riskScore.toString(), 80, y + 15);
-        doc.fontSize(14).text('RISK SCORE / 10', 180, y + 25);
-        doc.fontSize(10).font(FONT_BODY).text(audit.riskScore > 7 ? 'Critical Exposure Identified' : audit.riskScore > 4 ? 'Moderate Risk Detected' : 'Minimal Trace Surface', 180, y + 45);
+        y += 25;
+        doc.font(FONT_BOLD).text('Unfulfilled commitments:', 50, y);
+        doc.font(FONT_BODY).text(audit.commitmentsCount.toString(), 50 + 130, y);
 
-        // --- PAGES 3-5: PER-CONNECTOR BREAKDOWN ---
-        audit.connectorsCovered.forEach(platform => {
-          doc.addPage();
-          doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text(`Platform Breakdown: ${platform.toUpperCase()}`, 50, 100);
-          doc.font(FONT_MONO).fontSize(10).text(`Indexing window: 24 months`, 50, 130);
-          
-          doc.font(FONT_BOLD).fontSize(12).text('Significant Records:', 50, 170);
-          const platformCommitments = audit.metadata.commitments.filter(c => c.platform === platform);
-          platformCommitments.slice(0, 3).forEach((c, idx) => {
-            doc.rect(50, 200 + (idx * 100), 500, 80).stroke('#E5E5E0');
-            doc.font(FONT_MONO).fontSize(9).fillColor('#666666').text(`Source ID: ${c.citation} | ${new Date(c.date).toLocaleDateString()}`, 60, 210 + (idx * 100));
-            doc.font(FONT_BODY).fontSize(11).fillColor(INK_BLACK).text(`"${c.text.slice(0, 200)}..."`, 60, 230 + (idx * 100), { width: 480 });
-          });
-        });
+        doc.font(FONT_BOLD).text('High-risk findings:', 50 + 260, y);
+        doc.font(FONT_BODY).text(audit.metadata.riskFindings.filter(f => f.severity === 'High').length.toString(), 50 + 260 + 100, y);
 
-        // --- PAGE 6: COMMITMENTS ---
-        doc.addPage();
-        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text('Detected Commitments', 50, 100);
-        audit.metadata.commitments.slice(0, 10).forEach((c, idx) => {
-          doc.fillColor(MUTED_RED).font(FONT_BOLD).fontSize(10).text(`[OVERDUE]`, 50, 150 + (idx * 30));
-          doc.fillColor(INK_BLACK).font(FONT_BODY).text(c.text.slice(0, 80) + '...', 120, 150 + (idx * 30));
-        });
+        // Methodology Block
+        y = 450;
+        doc.fillColor(GRAY_FOOTER).fontSize(8).font(FONT_BODY)
+           .text('Methodology', 50, y, { underline: true });
+        doc.text('Risk score = ((negative × 2) + (neutral × 0.5) + (unfulfilled × 3)) / total × 10, capped at 10. Recency weighting: ≤30 days at 1.0x, ≤180 days at 0.5x, >180 days at 0.2x.', 50, y + 15, { width: 500 });
 
-        // --- PAGE 7: RISK FINDINGS ---
-        doc.addPage();
-        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text('Risk Findings', 50, 100);
-        audit.metadata.riskFindings.forEach((f, idx) => {
-          doc.rect(50, 140 + (idx * 110), 500, 100).stroke('#E5E5E0');
-          doc.fillColor(f.severity === 'High' ? MUTED_RED : FOREST_GREEN).font(FONT_BOLD).fontSize(10).text(`${f.severity.toUpperCase()} RISK`, 60, 150 + (idx * 110));
-          doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(12).text(f.finding, 60, 170 + (idx * 110));
-          doc.font(FONT_BODY).fontSize(10).text(f.impact, 60, 190 + (idx * 110), { width: 480 });
-        });
+        // Footer for Page 2
+        doc.fillColor(GRAY_FOOTER).fontSize(7).font(FONT_BODY)
+           .text(`Audit ID: ${audit.id} | Page 2`, 50, doc.page.height - 50, { align: 'center', width: doc.page.width - 100 });
 
         // Finalize
-        drawHeaderAndFooter();
         doc.end();
 
       } catch (err) {

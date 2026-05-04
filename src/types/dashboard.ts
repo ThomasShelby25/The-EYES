@@ -93,6 +93,7 @@ export interface ReputationAudit {
   reportUrl: string | null;
   createdAt: string;
   metadata: {
+    subjectName?: string;
     sentimentBalance: number;
     unfulfilledCommitments: number;
     commitments: Commitment[];
