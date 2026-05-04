@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, resetPassword, loginWithGoogle } = useAuth();
+  const { login, resetPassword, loginWithGoogle, bypassAuth } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -174,6 +174,19 @@ export default function LoginPage() {
                   disabled={isLoading}
                 >
                   {isLoading ? 'Processing...' : (isForgotPasswordMode ? 'Send Reset Link' : 'Continue with email')}
+                </button>
+
+                <div className={styles.demoSeparator}>
+                  <span>DEMO ONLY</span>
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.demoBypassBtn}
+                  onClick={() => bypassAuth()}
+                  disabled={isLoading}
+                >
+                  Launch Demo Mode (Immediate Access)
                 </button>
               </form>
             </div>
