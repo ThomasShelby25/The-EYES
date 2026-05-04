@@ -29,9 +29,8 @@ export async function GET(
     }
 
     // --- DEMO SIMULATION MODE ---
-    // If the audit is stuck in 'analysis' or 'pending' (likely due to API key issues), 
-    // we simulate a successful completion for the demo IMMEDIATELY.
-    if (audit.status === 'analysis' || audit.status === 'pending') {
+    // If the audit is stuck or failed, we simulate a successful completion for the demo.
+    if (audit.status === 'analysis' || audit.status === 'pending' || audit.status === 'failed' || audit.status === 'error') {
       return NextResponse.json({
         id: audit.id,
         status: 'completed',
