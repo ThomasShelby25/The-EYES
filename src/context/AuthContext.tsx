@@ -473,13 +473,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) {
       if (isPublic) return;
 
+      // AUTH ERROR DETECTION: If the URL contains an error from Supabase/Google,
+      // redirect to login immediately with the error message.
+      const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+      const hashParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.hash.substring(1) : '');
+      const errorMsg = searchParams.get('error_description') || hashParams.get('error_description') || searchParams.get('error') || hashParams.get('error');
+
+      if (errorMsg) {
+        console.error('[Auth] OAuth Error Detected:', errorMsg);
+        router.replace(`/login?error=${encodeURIComponent(errorMsg)}`);
+        return;
+      }
+
       // OAUTH DAMPENER: If we just landed from an OAuth provider or a connection flow,
-      // be extremely patient. Supabase needs time to exchange the code/hash for a session,
-      // and our syncProfile needs time to fetch/create the record.
+      // be extremely patient. Supabase needs time to exchange the code/hash for a session.
       const hasAuthParams = typeof window !== 'undefined' && (
         window.location.hash.includes('access_token') || 
-        window.location.search.includes('code=') ||
-        window.location.hash.includes('error=')
+        window.location.search.includes('code=')
       );
 
       const delay = (justSuccess || hasAuthParams) ? 15000 : isOAuthCallback ? 10000 : 8000;
