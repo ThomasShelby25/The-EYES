@@ -68,7 +68,7 @@ ${memoryContext}
       console.warn('Failed to parse AI response, using mock data.');
     }
 
-    let finalActions = parsed.actions || [];
+    let finalActions: any[] = parsed.actions || [];
     
     // DEMO MODE: If no real actions or API key issue, inject high-quality mock data
     if (finalActions.length === 0) {
