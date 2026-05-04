@@ -20,11 +20,11 @@ export async function GET() {
       .limit(30);
 
     if (error) throw error;
-    if (!memories || memories.length === 0) {
-      return NextResponse.json({ actions: [] });
-    }
-
-    const memoryContext = memories.map(m => `[ID: ${m.id}] [Platform: ${m.platform}] [Time: ${m.timestamp}] ${m.author}: ${m.title} - ${m.content}`).join('\n');
+    
+    // DEMO MODE: If no memories are found, we still want to show the mock actions for the demo
+    const memoryContext = (memories && memories.length > 0) 
+      ? memories.map(m => `[ID: ${m.id}] [Platform: ${m.platform}] [Time: ${m.timestamp}] ${m.author}: ${m.title} - ${m.content}`).join('\n')
+      : "No memories indexed yet.";
 
     const prompt = `
 You are the Autonomous Agent brain of "The EYES".
