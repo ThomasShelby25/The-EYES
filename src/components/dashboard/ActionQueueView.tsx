@@ -87,9 +87,11 @@ export function ActionQueueView({ onBack }: ActionQueueViewProps) {
           </p>
 
           {loading ? (
-             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px', gap: '16px' }}>
-                <div className={styles.radarScanner} style={{ position: 'relative', width: '48px', height: '48px', border: '2px solid var(--accent-primary)', borderRadius: '50%' }}></div>
-                <span style={{ color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: '1px' }}>EXTRACTING ACTIONS FROM NEURAL INDEX...</span>
+             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px', gap: '24px' }}>
+                <div style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-1px', color: 'var(--text-primary)', opacity: 0.8, animation: 'pulse 2s infinite ease-in-out' }}>
+                  EYES
+                </div>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase' }}>EXTRACTING ACTIONS FROM NEURAL INDEX...</span>
              </div>
           ) : actions.length === 0 ? (
              <div style={{ padding: '64px', textAlign: 'center', border: '1px dashed var(--border-subtle)', borderRadius: '16px' }}>
