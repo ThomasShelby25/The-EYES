@@ -32,10 +32,32 @@
   opacity: 0.9;
 }
 
+.itemIcon :global(.icon-filled) {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--transition-main);
+}
+
+.itemIcon :global(.icon-outline) {
+  opacity: 1;
+  transition: opacity var(--transition-main);
+}
+
+.item:hover .itemIcon :global(.icon-filled),
+.itemActive .itemIcon :global(.icon-filled) {
+  opacity: 1;
+}
+
+.item:hover .itemIcon :global(.icon-outline),
+.itemActive .itemIcon :global(.icon-outline) {
+  opacity: 0;
+}
+
 .section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 20px;
 }
 
 .sectionTitle {
@@ -68,6 +90,7 @@
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-primary);
+  z-index: 10; /* Bring hovered item to front */
 }
 
 .itemActive {
