@@ -473,14 +473,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) {
       if (isPublic) return;
 
-      // OAUTH DAMPENER: If we just landed from a successful connection, 
-      // be extremely patient (8 seconds). Supabase and the browser need time
-      // to handshake cookies across origins.
-      const delay = justSuccess ? 12000 : isOAuthCallback ? 8000 : 4500;
+      // OAUTH DAMPENER: If we just landed from an OAuth provider or a connection flow,
+      // be extremely patient. Supabase needs time to exchange the code/hash for a session,
+      // and our syncProfile needs time to fetch/create the record.
+      const hasAuthParams = typeof window !== 'undefined' && (
+        window.location.hash.includes('access_token') || 
+        window.location.search.includes('code=') ||
+        window.location.hash.includes('error=')
+      );
+
+      const delay = (justSuccess || hasAuthParams) ? 15000 : isOAuthCallback ? 10000 : 8000;
 
       redirectTimer = setTimeout(() => {
         if (!user && !isPublic) {
-          console.warn('[Auth] Session not detected after grace period. Redirecting.');
+          // One final check for auth params before giving up
+          const stillHasParams = typeof window !== 'undefined' && (
+            window.location.hash.includes('access_token') || 
+            window.location.search.includes('code=')
+          );
+          
+          if (stillHasParams) {
+            console.log('[Auth] Auth params still present, extending grace period.');
+            return;
+          }
+
+          console.warn('[Auth] Session not detected after grace period. Redirecting to login.');
           router.replace('/login');
         }
       }, delay);
