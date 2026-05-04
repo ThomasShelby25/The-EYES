@@ -27,7 +27,6 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<AuthResult>;
   signup: (name: string, email: string, password: string) => Promise<AuthResult>;
   loginWithGoogle: () => Promise<AuthResult>;
-  bypassAuth: () => Promise<AuthResult>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<AuthResult>;
   supabase: ReturnType<typeof createClient>;
@@ -688,27 +687,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.replace('/login');
   }, [supabase, router]);
 
-  const bypassAuth = useCallback(async () => {
-    setIsLoading(true);
-    // Simulate high-fidelity demo user
-    const demoUser: User = {
-      id: 'demo-user-123',
-      name: 'Abhi Sundaram',
-      email: 'abhi@eyes.os',
-      avatar: 'A',
-      plan: 'Neural Premium',
-      joinedDate: 'Apr 2026',
-      memoriesIndexed: 11427
-    };
-    
-    // Artificial delay for effect
-    await new Promise(r => setTimeout(r, 1500));
-    setUser(demoUser);
-    setIsLoading(false);
-    router.replace('/');
-    return { success: true };
-  }, [router]);
-
   const loginWithGoogle = useCallback(async (): Promise<AuthResult> => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -802,7 +780,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   if (user && isPublic) return null;
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, loginWithGoogle, bypassAuth, logout, resetPassword, supabase, updateUser, theme, setGlobalTheme }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, loginWithGoogle, logout, resetPassword, supabase, updateUser, theme, setGlobalTheme }}>
       {children}
     </AuthContext.Provider>
   );
