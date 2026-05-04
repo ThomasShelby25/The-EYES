@@ -12,26 +12,30 @@
 .newChatBtn {
   width: 100%;
   padding: 14px 24px;
-  background-color: var(--accent-primary); color: var(--bg-primary) !important;
+  background-color: var(--accent-primary);
   color: var(--bg-primary);
   border: none;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   gap: 12px;
   font-weight: 700;
   cursor: pointer;
   margin-bottom: 40px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-main);
 }
 
-.newChatBtn:hover { transform: translateY(-2px); }
+.newChatBtn:hover { 
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  opacity: 0.9;
+}
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: 4px; /* Subtle spacing between items */
+  gap: 8px;
 }
 
 .sectionTitle {
@@ -52,22 +56,25 @@
   cursor: pointer;
   color: var(--text-secondary);
   gap: 14px;
-  background-color: transparent; /* No extra container background */
-  border-radius: 12px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: transparent;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition: var(--transition-main);
 }
 
-/* Individual Highlight */
 .item:hover {
-  background-color: var(--bg-card-hover);
+  background-color: var(--bg-card);
   color: var(--text-primary);
-  transform: translateX(4px); /* Subtle indentation on hover */
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-primary);
 }
 
 .itemActive {
-  background-color: var(--bg-card-hover);
+  background-color: var(--bg-card);
   color: var(--text-primary);
-  border: 1px solid var(--border-primary);
+  border: 1px solid var(--accent-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .itemIcon {
@@ -79,34 +86,6 @@
   justify-content: center;
 }
 
-/* ICON SWAP LOGIC */
-.itemIcon :global(.icon-stack) {
-  position: relative;
-  width: 20px;
-  height: 20px;
-}
-
-.itemIcon :global(.icon-outline),
-.itemIcon :global(.icon-filled) {
-  position: absolute;
-  inset: 0;
-  transition: opacity 0.18s ease;
-}
-
-.itemIcon :global(.icon-filled) {
-  opacity: 0;
-}
-
-.item:hover .itemIcon :global(.icon-filled),
-.itemActive .itemIcon :global(.icon-filled) {
-  opacity: 1;
-}
-
-.item:hover .itemIcon :global(.icon-outline),
-.itemActive .itemIcon :global(.icon-outline) {
-  opacity: 0;
-}
-
 .itemMain { display: flex; flex-direction: column; }
 .itemLabel { font-size: 14px; font-weight: 700; }
 .itemDesc { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
@@ -115,14 +94,19 @@
 
 .readinessCard {
   background: var(--bg-secondary);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
   padding: 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition-main);
 }
 
-.readinessCard:hover { background: var(--bg-secondary); border-color: var(--border-primary); }
+.readinessCard:hover { 
+  background: var(--bg-card); 
+  border-color: var(--border-primary);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
 
 .readinessHeader { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
 .readinessTitle { font-size: 9px; font-weight: 800; color: var(--text-secondary); letter-spacing: 1.5px; }
