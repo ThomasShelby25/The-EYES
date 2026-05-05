@@ -90,9 +90,14 @@ function MainContentInner({ onLoaded }: { onLoaded?: () => void }) {
     load();
     triggerAutoSync();
 
-    // Real-time UI synchronization listener
+    // Real-time UI synchronization listener with pulse-damping (throttle)
+    let lastRefresh = 0;
     const handleRefresh = () => {
+      const now = Date.now();
+      if (now - lastRefresh < 5000) return; // Only allow refresh every 5s
+      
       console.log('[Dashboard] Real-time pulse detected. Refreshing neural state...');
+      lastRefresh = now;
       load();
     };
 
