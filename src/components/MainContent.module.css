@@ -770,3 +770,39 @@
   color: var(--accent-green);
 }
 
+
+/* EMPTY STATES (Action Queue, etc.) */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-xl);
+  margin-top: 40px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 24px;
+  display: block;
+}
+
+.emptyTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+  letter-spacing: -0.5px;
+}
+
+.emptyDescription {
+  color: var(--text-secondary);
+  font-size: 15px;
+  max-width: 400px;
+  line-height: 1.6;
+  margin: 0;
+}

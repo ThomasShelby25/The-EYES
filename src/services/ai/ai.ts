@@ -71,12 +71,18 @@ export async function chatCompletion(messages: { role: string; content: string }
       
       // Real Gemini Fallback
       try {
-        const model = genAI.getGenerativeModel({ model: GEMINI_FALLBACK_MODELS[0] });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const lastMessage = history[history.length - 1]?.content || "";
+        const chatHistory = history.slice(0, -1).map(h => ({ 
+          role: h.role === 'assistant' ? 'model' : 'user', 
+          parts: [{ text: h.content }] 
+        }));
+
         const chat = model.startChat({
-          history: history.map(h => ({ role: h.role === 'assistant' ? 'model' : 'user', parts: [{ text: h.content }] })),
+          history: chatHistory,
           systemInstruction: systemInstruction,
         });
-        const result = await chat.sendMessage(history[history.length - 1].content);
+        const result = await chat.sendMessage(lastMessage);
         return result.response.text();
       } catch (geminiErr: any) {
         console.error('[AI] Gemini Fallback also failed:', geminiErr.message);
