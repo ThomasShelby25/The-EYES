@@ -4,20 +4,14 @@ import { Commitment, ReputationAudit } from '@/types/dashboard';
 import { PDFGenerationService } from './pdf-generator';
 
 /**
- * Reputation Audit: Core Analysis Pipeline
- * This service handles the Step 2 to Step 5 of the Audit Specification.
+ * Reputation Audit: Core Analysis Pipeline (REAL WORLD ONLY)
  */
-
 export class AuditAnalysisService {
-  /**
-   * Runs the full analysis pipeline for a given audit record.
-   */
   static async runAnalysis(auditId: string, userId: string) {
     const supabase = await createClient();
     
     try {
-      // Data Retrieval (Step 2)
-      // Pull raw_events for the last 2 years, up to 5,000 per platform
+      // 1. Data Retrieval (Real data only)
       const twoYearsAgo = new Date();
       twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
 
@@ -27,31 +21,20 @@ export class AuditAnalysisService {
         .eq('user_id', userId)
         .gte('timestamp', twoYearsAgo.toISOString())
         .order('timestamp', { ascending: false })
-        .limit(2000); // Optimized for speed: analyze most recent 2000 records
+        .limit(2000);
 
       if (fetchError || !events) {
         throw new Error(`Data retrieval failed: ${fetchError?.message}`);
       }
 
-      // Group events by platform for reporting
+      if (events.length === 0) {
+        throw new Error('No real-world data found for analysis. Please sync sources first.');
+      }
+
       const connectorsCovered = Array.from(new Set(events.map(e => e.platform)));
       
-      // 3. Claude Analysis (Step 3) - Extraction Prompt
-      // We chunk the events if they are too many for a single context window
-      // For the demo, we process a representative sample or use a large context window model
-      const totalMentions = events.length;
-      let negativeMentions = 0;
-      let neutralMentions = 0;
-      let unfulfilledCommitmentsCount = 0;
-      const extractedCommitments: Commitment[] = [];
-      const extractedFindings: any[] = [];
-      const extractedEntities = new Set<string>();
-
-      // --- ANALYSIS EXECUTION ---
-      // We'll simulate/implement the chunked analysis here
-      // For the demo, we process a representative sample
-      const significantRecords = events.slice(0, 50); // Optimized: Scan top 50 significant items
-      
+      // 2. Real Claude Analysis
+      const significantRecords = events.slice(0, 50);
       const analysisInput = significantRecords.map(e => ({
         id: e.id,
         date: e.timestamp,
@@ -59,203 +42,96 @@ export class AuditAnalysisService {
       }));
 
       const extractionPrompt = `
-        You are an elite intelligence analyst at EYES. Your task is to perform a Reputation Audit for a subject.
-        
-        Analyze the following records:
+        Perform a clinical Reputation Audit on these records:
         ${JSON.stringify(analysisInput)}
         
-        For each record, extract:
-        1. Sentiment (-1, 0, +1)
-        2. Is this a commitment made by the subject? (e.g. "I will do X", "I promise Y")
-        3. Is this a commitment made TO the subject?
-        4. Is this potentially sensitive or high-risk for an external observer (investor, recruiter)?
-        5. Mentioned entities (people, topics, projects)
-        
-        Return a JSON object with:
-        {
-          "analysis": [
-            { "id": "uuid", "sentiment": -1|0|1, "isCommitment": true|false, "commitmentText": "...", "isSensitive": true|false, "entities": [] }
-          ]
-        }
-        
-        Tone: Cold, clinical, direct.
+        Extract: Sentiment (-1, 0, +1), Commitments, High-Risk findings.
+        Return JSON ONLY: { "analysis": [ { "id": "uuid", "sentiment": -1|0|1, "isCommitment": true|false, "commitmentText": "...", "isSensitive": true|false } ] }
       `;
 
       const analysisRaw = await chatCompletion([
-        { role: 'system', content: 'You are a cold, clinical intelligence analyst.' },
+        { role: 'system', content: 'You are a clinical intelligence analyst.' },
         { role: 'user', content: extractionPrompt }
       ]);
 
-      // 4. Parse, Aggregate and Score (Steps 3 & 4)
+      if (!analysisRaw) throw new Error('AI Analysis failed to return data.');
+
+      // 3. Parse and Aggregate
       let weightedTotalMentions = 0;
       let weightedNegativeMentions = 0;
       let weightedNeutralMentions = 0;
       let weightedUnfulfilledCommitments = 0;
+      let negativeMentions = 0;
+      let unfulfilledCommitmentsCount = 0;
+      const extractedCommitments: Commitment[] = [];
+      const extractedFindings: any[] = [];
       
       const nowTs = Date.now();
-      const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-      const sixMonthsMs = 180 * 24 * 60 * 60 * 1000;
+      const jsonMatch = analysisRaw.match(/\{[\s\S]*\}/);
+      const analysisResult = jsonMatch ? JSON.parse(jsonMatch[0]) : { analysis: [] };
+      
+      analysisResult.analysis.forEach((a: any) => {
+        const evt = events.find(e => e.id === a.id);
+        if (!evt) return;
 
-      try {
-        const jsonMatch = analysisRaw ? analysisRaw.match(/\{[\s\S]*\}/) : null;
-        const analysisResult = jsonMatch ? JSON.parse(jsonMatch[0]) : { analysis: [] };
-        
-        analysisResult.analysis.forEach((a: any) => {
-          const evt = events.find(e => e.id === a.id);
-          if (!evt) return;
+        const ageMs = nowTs - new Date(evt.timestamp).getTime();
+        const weight = ageMs < (30 * 24 * 60 * 60 * 1000) ? 1.0 : 0.5;
 
-          const ageMs = nowTs - new Date(evt.timestamp).getTime();
-          const weight = ageMs < thirtyDaysMs ? 1.0 : ageMs < sixMonthsMs ? 0.5 : 0.2;
-
-          weightedTotalMentions += weight;
-          if (a.sentiment === -1) {
-            negativeMentions++;
-            weightedNegativeMentions += weight;
-          }
-          if (a.sentiment === 0) {
-            neutralMentions++;
-            weightedNeutralMentions += weight;
-          }
-          
-          if (a.isCommitment) {
-            unfulfilledCommitmentsCount++;
-            weightedUnfulfilledCommitments += weight;
-            extractedCommitments.push({
-              text: a.commitmentText || 'Commitment detected',
-              status: 'pending',
-              citation: a.id,
-              platform: evt.platform,
-              date: evt.timestamp || new Date().toISOString()
-            });
-          }
-
-          if (a.entities) a.entities.forEach((e: string) => extractedEntities.add(e));
-          
-          if (a.isSensitive || a.sentiment === -1) {
-             extractedFindings.push({
-               severity: a.sentiment === -1 ? 'High' : 'Medium',
-               finding: a.commitmentText || `Potential reputational risk in ${evt.platform}`,
-               evidence: `Source event: ${evt.id}`,
-               impact: 'Could concern external observers performing diligence.'
-             });
-          }
-        });
-      } catch (parseError) {
-        console.error('Failed to parse AI analysis, using demo fallback:', parseError);
-        
-        // --- HIGH FIDELITY DEMO FALLBACK DATA ---
-        const HAS_AI_KEYS = !!process.env.GEMINI_API_KEY;
-        if (!HAS_AI_KEYS) {
-          negativeMentions = 3;
-          neutralMentions = 12;
-          unfulfilledCommitmentsCount = 4;
-          weightedTotalMentions = 25;
-          weightedNegativeMentions = 2.4;
-          weightedNeutralMentions = 6.0;
-          weightedUnfulfilledCommitments = 3.8;
-
-          extractedCommitments.push(
-            { text: "Reply to Ms. Vidhya about Chapter 3 submission", status: 'pending', citation: 'e1', platform: 'gmail', date: new Date().toISOString() },
-            { text: "Revert /api/memory-ingest route to stub on Vercel", status: 'pending', citation: 'e2', platform: 'github', date: new Date().toISOString() },
-            { text: "Review Guhan's Supabase Edge Function prototype", status: 'pending', citation: 'e3', platform: 'slack', date: new Date().toISOString() },
-            { text: "Finalize design tokens for EYES salt-and-pepper theme", status: 'pending', citation: 'e4', platform: 'notion', date: new Date().toISOString() }
-          );
-
-          extractedFindings.push(
-            { severity: 'High', finding: 'Unresponsive to academic guide (Ms. Vidhya) regarding final year project.', evidence: 'Gmail: 3 days since last inbound.', impact: 'May delay project approval or institutional clearance.' },
-            { severity: 'Medium', finding: 'Late-night Slack patterns (1AM+) show potential burnout risk.', evidence: 'Slack telemetry: consistent post-midnight activity.', impact: 'Sustained intensity could impact long-term decision making.' }
-          );
-
-          ['EYES', 'XGBoost', 'Supabase', 'Ms. Vidhya', 'Chandra Mohan', 'Guhan'].forEach(e => extractedEntities.add(e));
+        weightedTotalMentions += weight;
+        if (a.sentiment === -1) {
+          negativeMentions++;
+          weightedNegativeMentions += weight;
         }
-      }
-
-      // Risk score = ( (neg × 2) + (neu × 0.5) + (unfulfilled × 3) ) ÷ total × 10
-      const rawScore = ( (weightedNegativeMentions * 2) + (weightedNeutralMentions * 0.5) + (weightedUnfulfilledCommitments * 3) ) / (weightedTotalMentions || 1) * 10;
-      const riskScore = Math.min(10, Number(rawScore.toFixed(1)));
-
-      // 5. Executive Summary (Step 5)
-      const summaryPrompt = `
-        Generate a one-paragraph plain-language executive summary for a Reputation Audit.
-        Total records: ${totalMentions}
-        Negative Mentions: ${negativeMentions}
-        Unfulfilled Commitments: ${unfulfilledCommitmentsCount}
-        Risk Score: ${riskScore}/10
         
-        Tone: Cold, clinical, direct. Written with the editorial discipline of an Economist leader column. 
-        Do not flatter. Do not soften findings. Focus on missed opportunities or unfulfilled duties.
-      `;
+        if (a.isCommitment) {
+          unfulfilledCommitmentsCount++;
+          weightedUnfulfilledCommitments += weight;
+          extractedCommitments.push({
+            text: a.commitmentText || 'Commitment detected',
+            status: 'pending',
+            citation: a.id,
+            platform: evt.platform,
+            date: evt.timestamp || new Date().toISOString()
+          });
+        }
+        
+        if (a.isSensitive || a.sentiment === -1) {
+           extractedFindings.push({
+             severity: a.sentiment === -1 ? 'High' : 'Medium',
+             finding: a.commitmentText || `Reputational risk in ${evt.platform}`,
+             evidence: `Source event: ${evt.id}`,
+             impact: 'Potential diligence concern.'
+           });
+        }
+      });
 
-      let summaryNarrative = await chatCompletion([
-        { role: 'system', content: 'You are a cold, clinical intelligence analyst.' },
-        { role: 'user', content: summaryPrompt }
+      const riskScore = Math.min(10, Number((( (weightedNegativeMentions * 2) + (weightedUnfulfilledCommitments * 3) ) / (weightedTotalMentions || 1) * 10).toFixed(1)));
+
+      // 4. Real Summary
+      const summaryNarrative = await chatCompletion([
+        { role: 'system', content: 'You are a clinical intelligence analyst.' },
+        { role: 'user', content: `Summarize this audit: ${events.length} records, ${negativeMentions} negative, ${unfulfilledCommitmentsCount} tasks. Risk Score: ${riskScore}/10.` }
       ]);
 
-      if (!summaryNarrative) {
-        summaryNarrative = "The subject maintains a high-velocity output across technical platforms, specifically GitHub and Notion, but exhibits critical responsiveness gaps in official communications. While the XGBoost Trading and EYES OS projects show significant progress, the failure to address faculty feedback from Ms. Vidhya presents a medium-term administrative risk. Operational discipline is strong in UI/UX domains, yet telemetry suggests high-pressure nocturnal work patterns that may be unsustainable. Immediate mitigation of the Chapter 3 communication debt is recommended to preserve institutional standing.";
-      }
+      // 5. Persist and Finalize
+      await supabase.from('reputation_audits').update({
+        status: 'completed',
+        risk_score: riskScore,
+        mentions_count: events.length,
+        commitments_count: unfulfilledCommitmentsCount,
+        summary_narrative: summaryNarrative || 'Analysis complete.',
+        connectors_covered: connectorsCovered,
+        metadata: { commitments: extractedCommitments, riskFindings: extractedFindings }
+      }).eq('id', auditId);
 
-      // Final aggregation
-      const auditMetadata = {
-        sentimentBalance: (totalMentions - negativeMentions) / (totalMentions || 1),
-        unfulfilledCommitments: unfulfilledCommitmentsCount,
-        commitments: extractedCommitments,
-        opportunities: [], // Extracted in a more advanced version
-        topEntities: Array.from(extractedEntities).slice(0, 10),
-        riskFindings: extractedFindings.slice(0, 5)
-      };
-
-      // 7. Persist Analysis Results
-      await supabase
-        .from('reputation_audits')
-        .update({
-          status: 'generating',
-          risk_score: riskScore,
-          mentions_count: totalMentions,
-          commitments_count: unfulfilledCommitmentsCount,
-          summary_narrative: summaryNarrative,
-          connectors_covered: connectorsCovered,
-          metadata: auditMetadata
-        })
-        .eq('id', auditId);
-
-      // 8. Render PDF (Step 6)
-      const reportUrl = await PDFGenerationService.generateAndUpload(
-        {
-          id: auditId,
-          status: 'generating',
-          riskScore,
-          mentionsCount: totalMentions,
-          commitmentsCount: unfulfilledCommitmentsCount,
-          summaryNarrative,
-          connectorsCovered,
-          createdAt: new Date().toISOString(),
-          reportUrl: null,
-          metadata: auditMetadata
-        } as ReputationAudit,
-        userId
-      );
-
-      // 9. Final update to completed
-      await supabase
-        .from('reputation_audits')
-        .update({
-          status: 'completed',
-          report_url: reportUrl
-        })
-        .eq('id', auditId);
-
-      return { success: true, auditId, reportUrl };
+      return { success: true, auditId };
 
     } catch (err) {
-      console.error('[Audit Pipeline] Analysis Failure:', err);
-      await supabase
-        .from('reputation_audits')
-        .update({ 
-          status: 'failed', 
-          error_message: err instanceof Error ? err.message : String(err) 
-        })
-        .eq('id', auditId);
+      console.error('[Audit Pipeline] REAL-WORLD FAILURE:', err);
+      await supabase.from('reputation_audits').update({ 
+        status: 'failed', 
+        error_message: err instanceof Error ? err.message : String(err) 
+      }).eq('id', auditId);
       throw err;
     }
   }
