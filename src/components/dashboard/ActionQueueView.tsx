@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import styles from '../MainContent.module.css';
+import styles from './ActionQueue.module.css'; // New dedicated styles
 import { ALL_POSSIBLE_PLATFORMS } from '@/config/platforms';
+import { BoltIcon } from '../common/icons/PlatformIcons';
 
 interface ActionItem {
   id: string;
@@ -23,6 +24,7 @@ export function ActionQueueView({ onBack }: ActionQueueViewProps) {
   const [actions, setActions] = useState<ActionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [logs, setLogs] = useState<string[]>(['INITIALIZING NEURAL LINK...', 'SCANNING GMAIL...', 'CHECKING GITHUB PRs...']);
 
   useEffect(() => {
     const fetchActions = async () => {
@@ -39,31 +41,37 @@ export function ActionQueueView({ onBack }: ActionQueueViewProps) {
       }
     };
     fetchActions();
+
+    // Rotate dummy logs to make it feel alive
+    const logInterval = setInterval(() => {
+      const systemLogs = [
+        'INDEXING VECTOR SPACE...',
+        'CHECKING SLACK CHANNELS...',
+        'NEURAL ENGINE IDLE...',
+        'SCRAPING DISCOURSE...',
+        'COMPILING MEMORY FRAGMENTS...',
+        'READY FOR COMMAND'
+      ];
+      setLogs(prev => [systemLogs[Math.floor(Math.random() * systemLogs.length)], ...prev.slice(0, 4)]);
+    }, 4000);
+
+    return () => clearInterval(logInterval);
   }, []);
 
   const handleApprove = async (action: ActionItem) => {
     setProcessingId(action.id);
-    
     try {
       const response = await fetch('/api/actions/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(action)
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (response.status === 403) {
-          alert(`Execution Blocked:\n\n${errorData.details}`);
-        } else {
-          alert('Failed to execute action.');
-        }
+      if (response.ok) {
+        setActions((prev) => prev.filter(a => a.id !== action.id));
       }
     } catch (e) {
       console.error(e);
-      alert('Network error while executing action.');
     } finally {
-      setActions((prev) => prev.filter(a => a.id !== action.id));
       setProcessingId(null);
     }
   };
@@ -73,86 +81,78 @@ export function ActionQueueView({ onBack }: ActionQueueViewProps) {
   };
 
   return (
-     <div className={styles.soloView}>
-       <div className={styles.viewHeader}>
-          <div className={styles.headerTop}>
-             <h1 className={styles.soloTitle}>AUTONOMOUS ACTION QUEUE</h1>
-          </div>
-       </div>
-       
-       <div className={styles.actionQueueContainer}>
-          <p className={styles.actionQueueDescription}>
-            The Neural Engine continuously scans your incoming data stream for actionable events (meetings, PRs, high-priority tasks). 
-            Approve an action below to allow The EYES to execute it autonomously.
-          </p>
+     <div className={styles.queueRoot}>
+        <header className={styles.queueHeader}>
+           <div className={styles.headerTitleGroup}>
+              <div className={styles.systemStatus}>
+                 <span className={styles.pulseDot} />
+                 NEURAL ENGINE ACTIVE
+              </div>
+              <h1 className={styles.mainTitle}>Action Command Bridge</h1>
+              <p className={styles.subtitle}>Approve autonomous actions discovered across your digital trace.</p>
+           </div>
+        </header>
 
-          {loading ? (
-             <div className={styles.loadingState}>
-                <div className={styles.loadingLogo}>
-                   EYES
-                </div>
-                <span className={styles.loadingText}>EXTRACTING ACTIONS FROM NEURAL INDEX...</span>
-             </div>
-          ) : actions.length === 0 ? (
-             <div className={styles.emptyState}>
-                <span className={styles.emptyIcon}>✨</span>
-                <h3 className={styles.emptyTitle}>Inbox Zero</h3>
-                <p className={styles.emptyDescription}>No pending automated actions required at this time.</p>
-             </div>
-          ) : (
-             <div className={styles.actionQueueList}>
-                {actions.map(action => {
-                   const platformObj = ALL_POSSIBLE_PLATFORMS.find(p => p.id === action.platform.toLowerCase());
-                   const isProcessing = processingId === action.id;
+        <div className={styles.contentGrid}>
+           <main className={styles.actionListContainer}>
+              <div className={styles.listHeader}>
+                 <span className={styles.countBadge}>{actions.length} PENDING ACTIONS</span>
+                 <div className={styles.filterChips}>
+                    <button className={styles.chipActive}>All</button>
+                    <button className={styles.chip}>Priority</button>
+                    <button className={styles.chip}>Meetings</button>
+                 </div>
+              </div>
 
-                   return (
-                     <div key={action.id} className={styles.actionQueueCard}>
-                        {isProcessing && (
-                          <div className={styles.executionOverlay}>
-                            <span>EXECUTING ACTION...</span>
-                          </div>
-                        )}
+              {loading ? (
+                 <div className={styles.loadingBox}>
+                    <div className={styles.spinner} />
+                    <span>EXTRACTING INTENT...</span>
+                 </div>
+              ) : actions.length === 0 ? (
+                 <div className={styles.emptyCard}>
+                    <div className={styles.emptyIcon}><BoltIcon size={48} /></div>
+                    <h3>Inbox Zero</h3>
+                    <p>No actionable items detected in the latest neural scan.</p>
+                    <button className={styles.refreshBtn} onClick={() => window.location.reload()}>RE-SCAN NOW</button>
+                 </div>
+              ) : (
+                 <div className={styles.cardList}>
+                    {actions.map(action => {
+                       const platformObj = ALL_POSSIBLE_PLATFORMS.find(p => p.id === action.platform.toLowerCase());
+                       const isProcessing = processingId === action.id;
 
-                        <div className={styles.actionCardMain}>
-                           <div className={styles.actionIconBox}>
-                              {platformObj?.icon ? React.cloneElement(platformObj.icon as any, { size: 28 }) : <span>{action.platform[0]?.toUpperCase()}</span>}
-                           </div>
-                           <div className={styles.actionContentBox}>
-                              <div className={styles.actionTitleRow}>
-                                 <h3 className={styles.actionTitle}>{action.title}</h3>
-                                 <span className={styles.confidenceBadge}>
-                                    {action.confidence}% CONFIDENCE
-                                 </span>
-                              </div>
-                              <p className={styles.actionDescription}>{action.description}</p>
-                              
-                              <div className={styles.proposedActionBox}>
-                                 <span className={styles.proposedLabel}>PROPOSED ACTION</span>
-                                 <span className={styles.proposedText}>{action.suggestedAction}</span>
-                              </div>
-
-                              <div className={styles.actionButtons}>
-                                 <button 
-                                   onClick={() => handleApprove(action)}
-                                   className={styles.approveBtn}
-                                 >
-                                   Approve & Execute
-                                 </button>
-                                 <button 
-                                   onClick={() => handleDismiss(action.id)}
-                                   className={styles.dismissBtn}
-                                 >
-                                   Dismiss
-                                 </button>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                   );
-                })}
-             </div>
-          )}
-       </div>
-    </div>
+                       return (
+                         <div key={action.id} className={styles.actionCard}>
+                            <div className={styles.cardMain}>
+                               <div className={styles.platformIcon}>
+                                  {platformObj?.icon ? React.cloneElement(platformObj.icon as any, { size: 24 }) : <span>{action.platform[0]}</span>}
+                               </div>
+                               <div className={styles.cardContent}>
+                                  <div className={styles.cardHead}>
+                                     <h4 className={styles.actionTitle}>{action.title}</h4>
+                                     <span className={styles.confidence}>{action.confidence}% CONFIDENCE</span>
+                                  </div>
+                                  <p className={styles.actionDesc}>{action.description}</p>
+                                  <div className={styles.suggestionBox}>
+                                     <span className={styles.suggestionLabel}>PROPOSED COMMAND</span>
+                                     <span className={styles.suggestionText}>{action.suggestedAction}</span>
+                                  </div>
+                               </div>
+                            </div>
+                            <div className={styles.cardFooter}>
+                               <button className={styles.approveBtn} onClick={() => handleApprove(action)} disabled={isProcessing}>
+                                  {isProcessing ? 'EXECUTING...' : 'APPROVE & EXECUTE'}
+                               </button>
+                               <button className={styles.dismissBtn} onClick={() => handleDismiss(action.id)}>DISMISS</button>
+                            </div>
+                         </div>
+                       );
+                    })}
+                 </div>
+              )}
+           </main>
+        </div>
+     </div>
   );
 }

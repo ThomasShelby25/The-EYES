@@ -288,12 +288,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Center vertically */
+  justify-content: center;
   max-width: 1000px;
   margin: 0 auto;
   width: 100%;
-  height: calc(100vh - 64px); /* Take full height minus header */
-  padding-bottom: 64px; /* Slight offset for better optical centering */
+  height: calc(100vh - 64px); 
+  padding-bottom: 64px;
+  background-color: var(--bg-primary); /* Balanced Base */
 }
 
 .heroContent {
@@ -344,9 +345,20 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  transition: var(--transition-main);
+  transition: all var(--transition-main);
   box-shadow: var(--shadow-md);
   width: 100%;
+}
+
+.commandInputBox:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.commandInputBox:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
 }
 
 .commandInput {
@@ -382,13 +394,24 @@
 
 .actionCard {
   background: var(--bg-card);
-  border: 1px solid var(--border-primary);
-  padding: 16px 24px;
+  border: 1px solid var(--border-subtle);
+  padding: 16px 32px;
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 14px;
-  font-weight: 700;
-  transition: var(--transition-main);
+  font-weight: 800;
+  transition: all var(--transition-main);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionCard:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  box-shadow: var(--shadow-lg);
 }
 
 /* NETWORK INTEGRITY / READINESS STYLES */
@@ -463,8 +486,43 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   transition: var(--transition-main);
+  box-shadow: var(--shadow-sm);
+}
+
+.kpiCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.kpiMainRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.kpiLabel {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.kpiValue {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text-primary);
+}
+
+.kpiDesc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 /* BUTTONS & CHIPS */

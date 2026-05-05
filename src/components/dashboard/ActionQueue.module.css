@@ -1,0 +1,335 @@
+.queueRoot {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.queueHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.systemStatus {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent-green);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent-green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.mainTitle {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin-top: 8px;
+}
+
+.telemetryBox {
+  background: #000;
+  border: 1px solid var(--border-primary);
+  padding: 12px 20px;
+  border-radius: 8px;
+  width: 280px;
+  height: 100px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.logLine {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--accent-green);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.logLine:first-child {
+  opacity: 1;
+  font-weight: 800;
+}
+
+/* CONTENT GRID */
+.contentGrid {
+  display: block;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.countBadge {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.filterChips {
+  display: flex;
+  gap: 8px;
+}
+
+.chip, .chipActive {
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-main);
+  border: 1px solid var(--border-subtle);
+}
+
+.chip {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.chipActive {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+/* CARD LIST */
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.actionCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-main);
+}
+
+.actionCard:hover {
+  border-color: var(--accent-green);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+.cardMain {
+  padding: 32px;
+  display: flex;
+  gap: 24px;
+}
+
+.platformIcon {
+  width: 48px;
+  height: 48px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-subtle);
+}
+
+.cardContent {
+  flex: 1;
+}
+
+.cardHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.actionTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.confidence {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--accent-vital);
+  background: rgba(0, 194, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.actionDesc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.suggestionBox {
+  background: var(--bg-secondary);
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid var(--accent-green);
+}
+
+.suggestionLabel {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.suggestionText {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cardFooter {
+  background: var(--bg-secondary);
+  padding: 20px 32px;
+  display: flex;
+  gap: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.approveBtn {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition-main);
+}
+
+.dismissBtn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: var(--transition-main);
+}
+
+/* SIDEBAR */
+.sidebarSection {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+}
+
+.sidebarSection h5 {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.rangeIndicator {
+  text-align: center;
+}
+
+.rangeValue {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.rangeIndicator p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.healthStat {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.healthLabel { color: var(--text-secondary); }
+.healthValue { font-weight: 700; color: var(--accent-green); }
+
+.emptyCard {
+  background: var(--bg-card);
+  border: 1px dashed var(--border-subtle);
+  padding: 60px 40px;
+  text-align: center;
+  border-radius: var(--radius-xl);
+}
+
+.emptyIcon { font-size: 48px; margin-bottom: 24px; }
+.emptyCard h3 { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+.emptyCard p { color: var(--text-secondary); margin-bottom: 24px; }
+
+.refreshBtn {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: var(--transition-main);
+}
+
+.refreshBtn:hover {
+  background: var(--bg-primary);
+  border-color: var(--text-primary);
+}
+
+@media (max-width: 900px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+  .telemetryBox {
+    display: none;
+  }
+}

@@ -78,21 +78,26 @@ export function SourceReadinessView({ platforms }: SourceReadinessViewProps) {
         </div>
       </div>
 
-      {/* Stats Summary */}
       <div className={styles.kpiGrid}>
         <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>ACTIVE SOURCES</span>
-          <span className={styles.kpiValue}>{connectedCount}</span>
+          <div className={styles.kpiMainRow}>
+            <span className={styles.kpiLabel}>Active Sources</span>
+            <span className={styles.kpiValue}>{connectedCount}</span>
+          </div>
           <span className={styles.kpiDesc}>Currently providing data to your memory.</span>
         </div>
         <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>NEURAL COVERAGE</span>
-          <span className={styles.kpiValue}>{Math.round((connectedCount / ALL_POSSIBLE_PLATFORMS.length) * 100)}%</span>
+          <div className={styles.kpiMainRow}>
+            <span className={styles.kpiLabel}>Neural Coverage</span>
+            <span className={styles.kpiValue}>{Math.round((connectedCount / ALL_POSSIBLE_PLATFORMS.length) * 100)}%</span>
+          </div>
           <span className={styles.kpiDesc}>Percentage of available ecosystem indexed.</span>
         </div>
         <div className={`${styles.kpiCard} ${styles.kpiCardFocus}`}>
-          <span className={styles.kpiLabel}>TOTAL MEMORIES</span>
-          <span className={styles.kpiValue}>{connectedList.reduce((acc, p) => acc + (p.items || 0), 0).toLocaleString()}</span>
+          <div className={styles.kpiMainRow}>
+            <span className={styles.kpiLabel}>Total Memories</span>
+            <span className={styles.kpiValue}>{connectedList.reduce((acc, p) => acc + (p.items || 0), 0).toLocaleString()}</span>
+          </div>
           <span className={styles.kpiDesc}>Total records extracted and processed.</span>
         </div>
       </div>

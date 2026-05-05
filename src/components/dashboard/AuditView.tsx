@@ -3,25 +3,34 @@
 import React, { useEffect, useState } from 'react';
 import styles from './AuditView.module.css';
 import type { ReputationAudit, AuditSummary } from '@/types/dashboard';
+import {
+  ShieldIcon,
+  PrivacyEyeIcon,
+  OperationalLinkIcon,
+  SentimentChartIcon
+} from '../common/icons/PlatformIcons';
 
 interface AuditViewProps {
   onBack: () => void;
-  summary: AuditSummary; // Legacy summary for fallback or context
 }
 
 export function AuditView({ onBack }: AuditViewProps) {
   const [activeAudit, setActiveAudit] = useState<ReputationAudit | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitiating, setIsInitiating] = useState(false);
+  const [auditMode, setAuditMode] = useState<'dashboard' | 'running' | 'completed'>('dashboard');
 
   // Fetch the latest audit on mount
   useEffect(() => {
     const fetchLatest = async () => {
       try {
-        const auditRes = await fetch('/api/audit/latest'); 
+        const auditRes = await fetch('/api/audit/latest');
         if (auditRes.ok) {
           const data = await auditRes.json();
-          setActiveAudit(data);
+          if (data && data.status === 'completed') {
+            setActiveAudit(data);
+            setAuditMode('completed');
+          }
         }
       } catch (err) {
         console.error('Failed to fetch latest audit:', err);
@@ -36,13 +45,18 @@ export function AuditView({ onBack }: AuditViewProps) {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (activeAudit && (activeAudit.status === 'pending' || activeAudit.status === 'analysis' || activeAudit.status === 'generating')) {
+      setAuditMode('running');
       interval = setInterval(async () => {
         try {
           const res = await fetch(`/api/audit/${activeAudit.id}`);
           if (res.ok) {
             const data = await res.json();
             setActiveAudit(data);
-            if (data.status === 'completed' || data.status === 'failed') {
+            if (data.status === 'completed') {
+              setAuditMode('completed');
+              clearInterval(interval);
+            } else if (data.status === 'failed') {
+              setAuditMode('dashboard'); // Fallback to dashboard on failure instead of error screen
               clearInterval(interval);
             }
           }
@@ -54,10 +68,15 @@ export function AuditView({ onBack }: AuditViewProps) {
     return () => clearInterval(interval);
   }, [activeAudit]);
 
-  const handleStartAudit = async () => {
+  const handleStartAudit = async (type: string = 'full') => {
     setIsInitiating(true);
+    setAuditMode('running');
     try {
-      const res = await fetch('/api/audit/create', { method: 'POST' });
+      const res = await fetch('/api/audit/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type })
+      });
       if (res.ok) {
         const data = await res.json();
         setActiveAudit({
@@ -79,9 +98,12 @@ export function AuditView({ onBack }: AuditViewProps) {
             riskFindings: []
           }
         });
+      } else {
+        setAuditMode('dashboard');
       }
     } catch (err) {
       console.error('Initiation failed:', err);
+      setAuditMode('dashboard');
     } finally {
       setIsInitiating(false);
     }
@@ -98,175 +120,161 @@ export function AuditView({ onBack }: AuditViewProps) {
     );
   }
 
-  // START SCREEN
-  if (!activeAudit) {
+  // 1. DASHBOARD STATE (PROACTIVE)
+  if (auditMode === 'dashboard') {
     return (
       <div className={styles.auditContainer}>
-        <div className={styles.auditHeader}>
+        <header className={styles.auditHeader}>
           <div>
-            <div className={styles.wordmark}>EYES</div>
-            <h1 className={styles.auditTitle}>Audit</h1>
+            <h1 className={styles.auditTitle}>Audit Control Center</h1>
+            <p className={styles.auditSubtitle}>Select a specialized lens for deep neural analysis.</p>
+          </div>
+        </header>
+
+        <div className={styles.auditGrid}>
+          {/* PRIMARY ACTION */}
+          <div className={styles.mainAuditCard} onClick={() => handleStartAudit('full')}>
+            <div className={styles.cardHeader}>
+              <div className={styles.cardBadge}>RECOMMENDED</div>
+              <div className={styles.cardIcon}><ShieldIcon size={32} /></div>
+            </div>
+            <div className={styles.cardBody}>
+              <h3>Full Reputation Audit</h3>
+              <p>A comprehensive 360° scan of all connected platforms to detect sentiment shifts, commitments, and privacy leaks.</p>
+            </div>
+            <button className={styles.primaryAuditBtn} disabled={isInitiating}>
+              {isInitiating ? 'INITIALIZING...' : 'START FULL SCAN'}
+            </button>
+          </div>
+
+          {/* SPECIALIZED ACTIONS */}
+          <div className={styles.secondaryAuditGrid}>
+            <div className={styles.miniAuditCard} onClick={() => handleStartAudit('privacy')}>
+              <div className={styles.miniIcon}><PrivacyEyeIcon size={24} /></div>
+              <h4>Privacy Leak Scan</h4>
+              <p>Detect leaked PII or sensitive identifiers.</p>
+            </div>
+            <div className={styles.miniAuditCard} onClick={() => handleStartAudit('commitment')}>
+              <div className={styles.miniIcon}><OperationalLinkIcon size={24} /></div>
+              <h4>Operational Audit</h4>
+              <p>Index unfulfilled promises and tasks.</p>
+            </div>
+            <div className={styles.miniAuditCard} onClick={() => handleStartAudit('sentiment')}>
+              <div className={styles.miniIcon}><SentimentChartIcon size={24} /></div>
+              <h4>Sentiment Pulse</h4>
+              <p>Track real-time emotional variance.</p>
+            </div>
           </div>
         </div>
-        
-        <div className={styles.summaryBox} style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <p className={styles.narrative}>
-            The Reputation Audit is a clinical intelligence report on your digital trace. 
-            It analyzes your active connectors to detect unfulfilled commitments, 
-            reputational risks, and operational opportunities.
-          </p>
-          <div className={styles.actionSection}>
-            <p className={styles.requirementText}>Requires active neural link with Gmail, Reddit, or LinkedIn.</p>
-            <button 
-              className={styles.downloadBtn} 
-              onClick={handleStartAudit}
-              disabled={isInitiating}
-            >
-              {isInitiating ? 'INITIATING...' : 'START PREMIUM AUDIT'}
-            </button>
+
+        <div className={styles.readinessFooter}>
+          <div className={styles.readinessStatus}>
+            <span className={styles.statusDot} />
+            SYSTEM READY: 14/14 PROBES ACTIVE
           </div>
         </div>
       </div>
     );
   }
 
-  // SCANNING / FAILED STATE
-  if (activeAudit.status !== 'completed') {
-    const isFailed = activeAudit.status === 'failed';
-
+  // 2. RUNNING STATE
+  if (auditMode === 'running') {
     return (
       <div className={styles.auditContainer}>
         <div className={styles.scanningContainer}>
-          {isFailed ? (
-            <div className={styles.errorIcon}>⚠️</div>
-          ) : (
-            <div className={styles.neuralPulse} />
-          )}
+          <div className={styles.neuralPulse} />
           <div className={styles.scanningText}>
-            {isFailed ? 'AUDIT FAILED' : 
-             activeAudit.status === 'pending' ? 'WAITING FOR QUEUE...' :
-             activeAudit.status === 'analysis' ? 'ANALYZING NEURAL TRACE...' :
-             'COMPILING REPORT...'}
+            {activeAudit?.status === 'pending' ? 'QUEUEING REQUEST...' :
+              activeAudit?.status === 'analysis' ? 'DEEP NEURAL ANALYSIS...' :
+                'FINALIZING PDF REPORT...'}
           </div>
-          {isFailed ? (
-            <div className={styles.errorDescription}>
-              <p>
-                The neural link was interrupted during analysis. This may be due to an API service interruption or connectivity issues.
-              </p>
-              <button 
-                className={styles.downloadBtn} 
-                onClick={handleStartAudit}
-                disabled={isInitiating}
-              >
-                {isInitiating ? 'INITIATING...' : 'RE-TRY AUDIT'}
-              </button>
+          <div className={styles.scanningProgress}>
+            <div className={styles.progressBar}>
+              <div className={styles.progressFill} />
             </div>
-          ) : (
-            <p className={styles.waitText}>This typically takes under 60 seconds.</p>
-          )}
+            <p>Analyzing cross-platform vectors. This usually takes 30-45 seconds.</p>
+          </div>
         </div>
       </div>
     );
   }
 
-  // COMPLETED PREVIEW
-  return (
-    <div className={styles.auditContainer}>
-      <header className={styles.auditHeader}>
-        <div>
-          <div className={styles.wordmark}>EYES</div>
-          <h1 className={styles.auditTitle}>Audit Certificate</h1>
-          <div className={styles.auditMeta}>
-            ID: {activeAudit.id.slice(0, 8).toUpperCase()} | {new Date(activeAudit.createdAt).toUTCString()}
+  // 3. COMPLETED PREVIEW
+  if (auditMode === 'completed' && activeAudit) {
+    return (
+      <div className={styles.auditContainer}>
+        <header className={styles.auditHeader}>
+          <div>
+            <div className={styles.wordmark}>EYES</div>
+            <h1 className={styles.auditTitle}>Audit Certificate</h1>
+            <div className={styles.auditMeta}>
+              ID: {activeAudit.id.slice(0, 8).toUpperCase()} | {new Date(activeAudit.createdAt).toUTCString()}
+            </div>
           </div>
-        </div>
-        <div className={styles.headerRight}>
-          <button 
-            className={styles.rerunBtn} 
-            onClick={handleStartAudit}
-            disabled={isInitiating}
-          >
-            {isInitiating ? 'INITIATING...' : 'RE-RUN AUDIT'}
-          </button>
-          <div className={styles.confidentialMark}>CONFIDENTIAL</div>
-          <div className={styles.propertyMark}>Property of Subject</div>
-        </div>
-      </header>
+          <div className={styles.headerRight}>
+            <button
+              className={styles.rerunBtn}
+              onClick={() => setAuditMode('dashboard')}
+            >
+              NEW AUDIT
+            </button>
+            <div className={styles.confidentialMark}>CONFIDENTIAL</div>
+          </div>
+        </header>
 
-      <div className={styles.grid}>
-        <div className={styles.mainContent}>
-          <section className={styles.summaryBox}>
-            <h2 className={styles.sectionHeading}>Executive Summary</h2>
-            <p className={styles.narrative}>
-              {activeAudit.summaryNarrative || 'No summary generated.'}
-            </p>
+        <div className={styles.grid}>
+          <div className={styles.mainContent}>
+            <section className={styles.summaryBox}>
+              <h2 className={styles.sectionHeading}>Executive Summary</h2>
+              <p className={styles.narrative}>
+                {activeAudit.summaryNarrative || 'No summary generated.'}
+              </p>
 
-            <div className={styles.metricsRow}>
-              <div className={styles.metricCard}>
-                <span className={styles.metricValue}>{activeAudit.mentionsCount || 0}</span>
-                <span className={styles.metricLabel}>Mentions Discovered</span>
+              <div className={styles.metricsRow}>
+                <div className={styles.metricCard}>
+                  <span className={styles.metricValue}>{activeAudit.mentionsCount || 0}</span>
+                  <span className={styles.metricLabel}>Mentions</span>
+                </div>
+                <div className={styles.metricCard}>
+                  <span className={styles.metricValue}>{((activeAudit.metadata?.sentimentBalance || 0) * 100).toFixed(0)}%</span>
+                  <span className={styles.metricLabel}>Sentiment</span>
+                </div>
+                <div className={styles.metricCard}>
+                  <span className={styles.metricValue}>{activeAudit.commitmentsCount || 0}</span>
+                  <span className={styles.metricLabel}>Commitments</span>
+                </div>
               </div>
-              <div className={styles.metricCard}>
-                <span className={styles.metricValue}>{((activeAudit.metadata?.sentimentBalance || 0) * 100).toFixed(0)}%</span>
-                <span className={styles.metricLabel}>Sentiment Balance</span>
-              </div>
-              <div className={styles.metricCard}>
-                <span className={styles.metricValue}>{activeAudit.commitmentsCount || 0}</span>
-                <span className={styles.metricLabel}>Unfulfilled Commitments</span>
+            </section>
+          </div>
+
+          <aside className={styles.sidebar}>
+            <div className={styles.riskScoreSection}>
+              <div className={styles.riskNumber}>{activeAudit.riskScore}</div>
+              <div className={styles.riskInfo}>
+                <span className={styles.riskHeadline}>RISK SCORE</span>
+                <span className={styles.riskInterpretation}>
+                  {activeAudit.riskScore > 7 ? 'CRITICAL' : activeAudit.riskScore > 4 ? 'MODERATE' : 'OPTIMAL'}
+                </span>
               </div>
             </div>
 
-            {activeAudit.metadata.unfulfilledCommitments > 0 && (
-              <div className={styles.findingTeaser}>
-                ⚠️ HEADLINE FINDING: You have {activeAudit.metadata.unfulfilledCommitments} unfulfilled commitments referenced in active communications.
-              </div>
-            )}
-          </section>
-
-          <section className={styles.summaryBox}>
-             <h2 className={styles.sectionHeading}>Methodology</h2>
-             <p className={styles.methodologyText}>
-               Risk score = ((negative_mentions × 2) + (neutral_mentions × 0.5) + (unfulfilled_commitments × 3)) ÷ total_mentions × 10.
-               Recency weighting: last 30 days (1.0), last 6 months (0.5), older (0.2).
-             </p>
-          </section>
-        </div>
-
-        <aside className={styles.sidebar}>
-          <div className={styles.riskScoreSection}>
-            <div className={styles.riskNumber}>{activeAudit.riskScore}</div>
-            <div className={styles.riskInfo}>
-              <span className={styles.riskHeadline}>RISK SCORE</span>
-              <span className={styles.riskInterpretation}>
-                {activeAudit.riskScore > 7 ? 'Critical Exposure' : activeAudit.riskScore > 4 ? 'Moderate Risk' : 'Low Trace'}
-              </span>
-            </div>
-          </div>
-
-          <div className={styles.downloadSection}>
-            <p className={styles.downloadHint}>
-              The live preview reveals summary signals only. Full citations, raw quotes, and platform breakdowns are contained in the official PDF report.
-            </p>
-            <button 
+            <button
               className={styles.downloadBtn}
               onClick={() => {
                 if (activeAudit.reportUrl) {
                   window.open(activeAudit.reportUrl, '_blank');
                 } else {
-                  // Fallback to print if URL is missing
                   window.print();
                 }
               }}
             >
-              DOWNLOAD FULL REPORT
+              DOWNLOAD FULL PDF
             </button>
-          </div>
-          
-          <div className={styles.legalNotice}>
-            This certificate is bound to the identifier above and is non-transferable.
-          </div>
-        </aside>
+          </aside>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return null;
 }

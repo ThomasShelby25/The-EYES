@@ -1,24 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Default Obsidian (Dark) Mode - True Neutral */
-  --bg-primary: #000000;
-  --bg-secondary: #0D0D0D;
-  --bg-card: #141414;
-  --bg-card-hover: #1C1C1C;
+  /* FEATURE-FIRST (Dark) - Minimalist depth */
+  --bg-primary: #080808;      
+  --bg-secondary: #0C0C0C;
+  --bg-card: rgba(255, 255, 255, 0.03); /* Translucent depth */
+  --bg-card-hover: rgba(255, 255, 255, 0.06);
 
-  --text-primary: #FFFFFF;
-  --text-secondary: #A0A0A0;
-  --text-muted: #666666;
+  --text-primary: #E0E0E0;    /* Softened white */
+  --text-secondary: #888888;
+  --text-muted: #444444;
 
-  --accent-primary: #FFFFFF; /* High-Contrast 'Salt' accent */
-  --accent-primary-soft: #E5E5E5;
-  --accent-green: #00C2FF; /* The 'Perfect' Neural Cyan - replaces stock green */
+  --accent-primary: #FFFFFF; 
+  --accent-primary-soft: #CCCCCC;
+  --accent-green: #00C2FF;
   --accent-red: #EF4444;
   --accent-vital: #00899B;
 
-  --border-primary: #262626;
-  --border-subtle: #1A1A1A;
+  --border-primary: rgba(255, 255, 255, 0.08); /* Minimalist borders */
+  --border-subtle: rgba(255, 255, 255, 0.04);
 
   --sidebar-width: 280px;
   --header-height: 64px;
@@ -27,43 +27,44 @@
   --font-serif: 'Lora', serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Global Interactive Tokens */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.24);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
   
-  --elevation-hover: 0 8px 24px rgba(0,0,0,0.32);
-  
-  --transition-main: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-main: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 [data-theme='light'] {
-  /* SALT AND PEPPER PALETTE (Refined High-Contrast) */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F2F2F2; /* Darker than #F9F9F9 for better card separation */
-  --bg-card: #FFFFFF;
-  --bg-card-hover: #FAFAFA;
+  /* FEATURE-FIRST (Light) - Airy, minimalist glass */
+  --bg-primary: #FCFCFC;      
+  --bg-secondary: #F7F8F9;
+  --bg-card: rgba(255, 255, 255, 0.8); /* Glass effect */
+  --bg-card-hover: rgba(255, 255, 255, 1);
 
-  --text-primary: #1A1A1A; /* Sharper black */
-  --text-secondary: #555555; /* Much darker than #B3B3B3 */
-  --text-muted: #888888; /* Much darker than #D4D4D4 */
+  --text-primary: #1A1A1A;    
+  --text-secondary: #666666;
+  --text-muted: #999999;
 
-  --accent-primary: #000000; /* Pure 'Pepper' for primary elements */
+  --accent-primary: #000000; 
   --accent-primary-soft: #333333;
   --accent-vital: #006272;
-  --accent-green: #006699; /* Professional Deep Cyan for Light Mode */
+  --accent-green: #006699;
   --accent-red: #DC2626;
 
-  --border-primary: #CCCCCC; /* More defined border */
-  --border-subtle: #E5E5E5;
+  --border-primary: rgba(0, 0, 0, 0.06); 
+  --border-subtle: rgba(0, 0, 0, 0.03);
 
-  --glass-blur: blur(12px); /* Reduced blur for sharper feel */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.02);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.02);
+
+  --glass-blur: blur(16px);
 }
 
 * {
@@ -73,15 +74,8 @@
 }
 
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 html,
@@ -112,7 +106,7 @@ h3,
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
