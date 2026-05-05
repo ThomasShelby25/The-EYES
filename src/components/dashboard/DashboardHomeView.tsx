@@ -42,7 +42,10 @@ export function DashboardHomeView({ platforms }: DashboardHomeViewProps) {
     ? remainingPlatforms 
     : remainingPlatforms.filter(p => (p as any).category === activeCategory);
 
-  const primaryPlatformIds = ['gmail', 'google-calendar', 'notion', 'slack', 'github', 'discord'];
+  const primaryPlatformIds = [
+    'gmail', 'google-calendar', 'notion', 'slack', 'github', 'discord', 
+    'linear', 'vercel', 'twitter', 'sentry', 'reddit', 'asana', 'clickup', 'dropbox'
+  ];
   
   const primaryRemaining = filteredRemaining.filter(p => primaryPlatformIds.includes(p.id));
   const comingSoonPlatforms = filteredRemaining.filter(p => !primaryPlatformIds.includes(p.id));
