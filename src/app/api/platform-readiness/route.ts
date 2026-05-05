@@ -113,71 +113,10 @@ const platformConfigs: Array<{
     scopes: ['read'],
   },
   {
-    id: 'netlify',
-    name: 'Netlify',
-    env: ['NETLIFY_API_TOKEN', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['read'],
-  },
-  {
-    id: 'supabase',
-    name: 'Supabase',
-    env: ['SUPABASE_ACCESS_TOKEN'],
-    scopes: ['read'],
-  },
-  {
     id: 'sentry',
     name: 'Sentry',
     env: ['SENTRY_AUTH_TOKEN'],
     scopes: ['event:read', 'project:read'],
-  },
-  {
-    id: 'posthog',
-    name: 'PostHog',
-    env: ['POSTHOG_API_KEY'],
-    scopes: ['read'],
-  },
-  {
-    id: 'webflow',
-    name: 'Webflow',
-    env: ['WEBFLOW_CLIENT_ID', 'WEBFLOW_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['read'],
-  },
-  {
-    id: 'devin',
-    name: 'Devin',
-    env: ['DEVIN_API_KEY'],
-    scopes: ['read'],
-  },
-  {
-    id: 'cursor',
-    name: 'Cursor',
-    env: ['CURSOR_API_KEY'],
-    scopes: ['read'],
-  },
-  {
-    id: 'canva',
-    name: 'Canva',
-    env: ['CANVA_CLIENT_ID', 'CANVA_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['read'],
-  },
-  {
-    id: 'strava',
-    name: 'Strava',
-    env: ['STRAVA_CLIENT_ID', 'STRAVA_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['activity:read_all'],
-  },
-  {
-    id: 'fitbit',
-    name: 'Fitbit',
-    env: ['FITBIT_CLIENT_ID', 'FITBIT_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['activity', 'heartrate', 'profile', 'sleep'],
-  },
-
-  {
-    id: 'withings',
-    name: 'Withings',
-    env: ['WITHINGS_CLIENT_ID', 'WITHINGS_CLIENT_SECRET', 'TOKEN_ENCRYPTION_KEY'],
-    scopes: ['user.metrics'],
   },
 ];
 

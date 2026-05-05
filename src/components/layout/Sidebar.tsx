@@ -40,9 +40,8 @@ export default function Sidebar() {
 
   const connectedCount = platforms.filter(p => p.connected).length;
   const coverageScore = useMemo(() => {
-    if (connectedCount === 0) return 0;
-    const readyCount = platforms.filter(p => p.connected && p.status !== 'error').length;
-    return Math.round((readyCount / connectedCount) * 100);
+    if (platforms.length === 0) return 0;
+    return Math.round((connectedCount / platforms.length) * 100);
   }, [platforms, connectedCount]);
 
   const circumference = 2 * Math.PI * 45;
