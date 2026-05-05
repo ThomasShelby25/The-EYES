@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, TaskType } from "@google/generative-ai";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from '@/utils/supabase/server';
 import crypto from 'crypto';
@@ -73,9 +73,8 @@ async function handleEmbedding(text: string) {
   try {
     const model = genAI.getGenerativeModel({ model: EMBED_MODEL });
     const result = await model.embedContent({
-      content: { parts: [{ text: text.slice(0, 8000) }] },
-      taskType: "RETRIEVAL_QUERY",
-      outputDimensionality: 768,
+      content: { role: 'user', parts: [{ text: text.slice(0, 8000) }] },
+      taskType: TaskType.RETRIEVAL_QUERY,
     });
     return { embedding: Array.from(result.embedding.values) };
   } catch (err) {
@@ -194,6 +193,21 @@ export async function invokeModelStream(options: AIInvokeOptions): Promise<Reada
       }
     }
   });
+}
+
+/**
+ * Legacy Compatibility Wrappers
+ */
+export async function generateEmbedding(text: string) {
+  return invokeModel({ capability: 'embed', messages: [{ role: 'user', content: text }] });
+}
+
+export async function chatCompletion(messages: AIHistoryMessage[]) {
+  return invokeModel({ capability: 'chat', messages });
+}
+
+export async function chatCompletionStream(messages: AIHistoryMessage[]) {
+  return invokeModelStream({ capability: 'chat', messages });
 }
 
 /**

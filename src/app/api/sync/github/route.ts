@@ -24,8 +24,9 @@ function formatDate(input: string | null) {
 }
 
 export async function POST(request: Request) {
+  let actor: any = null;
   try {
-    const actor = await resolveSyncActor(request);
+    actor = await resolveSyncActor(request);
     if ('status' in actor) {
       return NextResponse.json({ error: actor.error }, { status: actor.status });
     }
@@ -172,6 +173,7 @@ export async function POST(request: Request) {
       totalMemories: totalMemories ?? rawEvents.length,
       hasMore
     });
+  } catch (error: unknown) {
     const detail = error instanceof Error ? error.message : String(error);
     console.error('github sync error:', error);
 

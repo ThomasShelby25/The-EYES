@@ -58,8 +58,8 @@ ${memoryContext}
       console.warn('[Digest] AI response was not valid JSON, using simple parsing.');
       // Simple fallback if JSON fails
       finalDigest = response?.split('\n')
-        .filter(l => l.includes('-') || l.includes('*'))
-        .map(l => l.replace(/^[-*]\s*/, '').trim())
+        .filter((l: string) => l.includes('-') || l.includes('*'))
+        .map((l: string) => l.replace(/^[-*]\s*/, '').trim())
         .slice(0, 3) || [];
     }
 

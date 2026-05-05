@@ -23,8 +23,9 @@ function getHeader(headers: Array<{ name: string; value: string }> | undefined, 
 }
 
 export async function POST(request: Request) {
+  let actor: any = null;
   try {
-    const actor = await resolveSyncActor(request);
+    actor = await resolveSyncActor(request);
     if ('status' in actor) {
       return NextResponse.json({ error: actor.error }, { status: actor.status });
     }
