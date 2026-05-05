@@ -12,9 +12,10 @@ import {
 
 interface AuditViewProps {
   onBack: () => void;
+  summary?: AuditSummary;
 }
 
-export function AuditView({ onBack }: AuditViewProps) {
+export function AuditView({ onBack, summary }: AuditViewProps) {
   const [activeAudit, setActiveAudit] = useState<ReputationAudit | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitiating, setIsInitiating] = useState(false);
