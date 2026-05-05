@@ -27,7 +27,11 @@ export async function generateEmbedding(text: string): Promise<EmbeddingResult |
   if (!GEMINI_API_KEY) return null;
   try {
     const model = genAI.getGenerativeModel({ model: EMBED_MODEL });
-    const result = await model.embedContent(text.slice(0, 8000));
+    const result = await model.embedContent({
+      content: { parts: [{ text: text.slice(0, 8000) }] },
+      taskType: "RETRIEVAL_QUERY",
+      outputDimensionality: 768,
+    });
     return { embedding: Array.from(result.embedding.values) };
   } catch (err) {
     console.error('[AI] Embedding Error:', err);
