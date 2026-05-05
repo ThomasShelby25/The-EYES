@@ -41,16 +41,6 @@ export const ALL_POSSIBLE_PLATFORMS = [
   { id: 'linear', name: 'Linear', icon: <LinearIconOfficial />, category: 'Productivity', description: 'Sync engineering tickets, cycles, and roadmaps.', color: '#5E6AD2' },
   { id: 'clickup', name: 'ClickUp', icon: <ClickUpIconOfficial />, category: 'Productivity', description: 'Connect your all-in-one productivity workspace.', color: '#7B68EE' },
   { id: 'vercel', name: 'Vercel', icon: <VercelIconOfficial />, category: 'Development', description: 'Track deployments, logs, and project health.', color: 'var(--text-primary)' },
-  { id: 'netlify', name: 'Netlify', icon: <NetlifyIconOfficial />, category: 'Development', description: 'Index site builds and deployment history.', color: '#25C7B7' },
-  { id: 'supabase', name: 'Supabase', icon: <SupabaseIconOfficial />, category: 'Development', description: 'Connect database logs and infrastructure context.', color: '#3ECF8E' },
-  { id: 'sentry', name: 'Sentry', icon: <SentryIconOfficial />, category: 'Development', description: 'Monitor error logs and application health.', color: '#362D59' },
-  { id: 'posthog', name: 'PostHog', icon: <PostHogIconOfficial />, category: 'Development', description: 'Analyze product usage and event analytics.', color: '#F54E00' },
-  { id: 'webflow', name: 'Webflow', icon: <WebflowIconOfficial />, category: 'Creative', description: 'Index site designs and publishing history.', color: '#4353FF' },
-  { id: 'devin', name: 'Devin', icon: <DevinIconOfficial />, category: 'Development', description: 'Sync autonomous engineering agent task history.', color: 'var(--text-primary)' },
-  { id: 'cursor', name: 'Cursor', icon: <CursorIconOfficial />, category: 'Development', description: 'Track AI-assisted coding sessions and history.', color: 'var(--text-primary)' },
-  { id: 'canva', name: 'Canva', icon: <CanvaIconOfficial />, category: 'Creative', description: 'Index design projects and brand assets.', color: '#00C4CC' },
-  { id: 'strava', name: 'Strava', icon: <StravaIconOfficial />, category: 'Health', description: 'Connect athletic activities and fitness data.', color: '#FC4C02' },
-  { id: 'fitbit', name: 'Fitbit', icon: <FitbitIconOfficial />, category: 'Health', description: 'Track steps, sleep, and biometric trends.', color: '#00B0B9' },
-  { id: 'withings', name: 'Withings', icon: <WithingsIconOfficial />, category: 'Health', description: 'Monitor weight, blood pressure, and health trends.', color: '#000000' }
+  { id: 'sentry', name: 'Sentry', icon: <SentryIconOfficial />, category: 'Development', description: 'Monitor error logs and application health.', color: '#362D59' }
 ];
 
