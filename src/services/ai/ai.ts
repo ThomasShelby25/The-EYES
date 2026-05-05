@@ -21,29 +21,22 @@ export type EmbeddingResult = {
 };
 
 /**
- * Generate vector embeddings for search using Google Gemini (Free tier)
- * Note: Claude does not support embeddings natively.
+ * Generate vector embeddings for search using Google Gemini
  */
 export async function generateEmbedding(text: string): Promise<EmbeddingResult | null> {
-  if (!GEMINI_API_KEY) {
-    console.warn('[AI] GEMINI_API_KEY not configured.');
-    return null;
-  }
-
+  if (!GEMINI_API_KEY) return null;
   try {
     const model = genAI.getGenerativeModel({ model: EMBED_MODEL });
     const result = await model.embedContent(text.slice(0, 8000));
-    return {
-      embedding: Array.from(result.embedding.values)
-    };
+    return { embedding: Array.from(result.embedding.values) };
   } catch (err) {
-    console.error('[AI] Gemini Embedding Error:', err);
+    console.error('[AI] Embedding Error:', err);
     return null;
   }
 }
 
 /**
- * Standard Chat Completion (Non-streaming) using Claude with Gemini Fallback
+ * Standard Chat Completion using Claude with Gemini Fallback
  */
 export async function chatCompletion(messages: { role: string; content: string }[]): Promise<string | null> {
   const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
@@ -54,7 +47,6 @@ export async function chatCompletion(messages: { role: string; content: string }
       content: m.content 
     }));
 
-  // Try Claude First
   if (ANTHROPIC_API_KEY && ANTHROPIC_API_KEY.startsWith('sk-ant-')) {
     try {
       const response = await anthropic.messages.create({
@@ -66,40 +58,28 @@ export async function chatCompletion(messages: { role: string; content: string }
       });
 
       const contentBlock = response.content[0];
-      if (contentBlock.type === 'text') {
-        return contentBlock.text;
-      }
-      return null;
-    } catch (err: any) {
-      console.warn('[AI] Claude Chat Error, falling back to Gemini:', err.message);
-      
-      // Real Gemini Fallback
-      try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const lastMessage = history[history.length - 1]?.content || "";
-        const chatHistory = history.slice(0, -1).map(h => ({ 
-          role: h.role === 'assistant' ? 'model' : 'user', 
-          parts: [{ text: h.content }] 
-        }));
-
-        const chat = model.startChat({
-          history: chatHistory,
-          systemInstruction: systemInstruction,
-        });
-        const result = await chat.sendMessage(lastMessage);
-        return result.response.text();
-      } catch (geminiErr: any) {
-        console.error('[AI] Gemini Fallback also failed:', geminiErr.message);
-        return null;
-      }
+      if (contentBlock.type === 'text') return contentBlock.text;
+    } catch (err) {
+      console.warn('[AI] Claude failed, trying Gemini...');
     }
   }
 
-  return null;
+  // Gemini Fallback
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent({
+      contents: history.map(h => ({ role: h.role === 'assistant' ? 'model' : 'user', parts: [{ text: h.content }] })),
+      systemInstruction,
+    });
+    return result.response.text();
+  } catch (err) {
+    console.error('[AI] All models failed.');
+    return null;
+  }
 }
 
 /**
- * Streaming Chat Completion using Claude with Gemini Fallback
+ * Streaming Chat Completion
  */
 export async function chatCompletionStream(messages: { role: string; content: string }[]): Promise<ReadableStream> {
   const encoder = new TextEncoder();
@@ -111,7 +91,6 @@ export async function chatCompletionStream(messages: { role: string; content: st
       content: m.content 
     }));
 
-  // Try Claude First
   if (ANTHROPIC_API_KEY && ANTHROPIC_API_KEY.startsWith('sk-ant-')) {
     try {
       const stream = await anthropic.messages.stream({
@@ -130,38 +109,33 @@ export async function chatCompletionStream(messages: { role: string; content: st
                 controller.enqueue(encoder.encode(chunk.delta.text));
               }
             }
-            controller.close();
-          } catch (err: any) {
+          } catch (e) {
+            console.error('[AI] Stream loop error:', e);
+          } finally {
             controller.close();
           }
         }
       });
+    } catch (err) {
+      console.warn('[AI] Claude stream failed, using Gemini.');
     }
   }
 
-  // Pure Gemini Path (if Claude skipped or failed setup)
+  // Gemini Fallback Stream (Non-streaming implementation for reliability)
   return new ReadableStream({
     async start(controller) {
       try {
-        const model = genAI.getGenerativeModel({ model: GEMINI_FALLBACK_MODELS[0] });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
         const result = await model.generateContent({
           contents: history.map(h => ({ role: h.role === 'assistant' ? 'model' : 'user', parts: [{ text: h.content }] })),
-          systemInstruction: systemInstruction,
+          systemInstruction,
         });
         controller.enqueue(encoder.encode(result.response.text()));
-        controller.close();
-      } catch (geminiErr: any) {
-        console.error('[AI] Pure Gemini fallback failed:', geminiErr.message);
+      } catch (err) {
+        console.error('[AI] Gemini stream fallback failed.');
+      } finally {
         controller.close();
       }
     }
   });
-
-  return new ReadableStream({
-    start(controller) {
-      controller.close();
-    }
-  });
 }
-
-
