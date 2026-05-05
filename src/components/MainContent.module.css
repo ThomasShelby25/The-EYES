@@ -288,11 +288,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center; /* Center vertically */
   max-width: 1000px;
   margin: 0 auto;
   width: 100%;
-  min-height: calc(100vh - 144px); /* Account for header and padding */
-  padding-bottom: 100px;
+  height: calc(100vh - 64px); /* Take full height minus header */
+  padding-bottom: 64px; /* Slight offset for better optical centering */
 }
 
 .heroContent {
@@ -307,9 +308,26 @@
   font-size: 64px;
   font-weight: 800;
   letter-spacing: -2px;
-  margin-bottom: 24px;
+  margin-bottom: 32px; /* Increased margin below title */
   color: var(--text-primary);
   font-family: var(--font-serif);
+}
+
+.heroSummary {
+  display: flex;
+  flex-direction: row; /* Horizontal layout */
+  align-items: center;
+  gap: 12px; /* Spacing between icon and text */
+  margin-bottom: 48px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.shieldIcon {
+  color: var(--accent-vital);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .commandContainer {

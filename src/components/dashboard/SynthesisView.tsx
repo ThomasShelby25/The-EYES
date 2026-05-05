@@ -7,6 +7,7 @@ import {
   ArrowRightIcon, 
   ShieldIcon 
 } from '../common/icons/PlatformIcons';
+import { useRouter } from 'next/navigation';
 import { ALL_POSSIBLE_PLATFORMS } from '@/config/platforms';
 import type { Message } from '@/types/dashboard';
 
@@ -33,7 +34,7 @@ export function SynthesisView({
   totalMemories,
   platforms = []
 }: SynthesisViewProps) {
-
+  const router = useRouter();
   const connected = platforms.filter(p => p.isConnected);
   const [digest, setDigest] = React.useState<string[] | null>(null);
   const [loadingDigest, setLoadingDigest] = React.useState(true);
@@ -55,7 +56,7 @@ export function SynthesisView({
         <h1 className={styles.brandDisplayTitle}>The EYES</h1>
         
         <div className={styles.heroSummary}>
-          <div className={styles.shieldIcon}><ShieldIcon /></div>
+          <div className={styles.shieldIcon}><ShieldIcon size={18} /></div>
           <span>Indexed <strong>{totalMemories.toLocaleString()}</strong> records across your connected sources.</span>
         </div>
 
@@ -70,12 +71,20 @@ export function SynthesisView({
               placeholder="Search digital memories..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && onSubmit(query)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && query.trim()) {
+                  router.push(`/chat?q=${encodeURIComponent(query.trim())}`);
+                }
+              }}
               disabled={isStreaming}
             />
             <button 
               className={styles.commandSendBtn} 
-              onClick={() => onSubmit(query)}
+              onClick={() => {
+                if (query.trim()) {
+                  router.push(`/chat?q=${encodeURIComponent(query.trim())}`);
+                }
+              }}
               disabled={!query.trim() || isStreaming}
               aria-label="Send query"
             >

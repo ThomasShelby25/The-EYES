@@ -48,12 +48,16 @@ export default function Sidebar() {
   const offset = circumference - (coverageScore / 100) * circumference;
 
   const navigateToView = (view: string) => {
-    router.push(`/?view=${view}`);
+    if (view === 'chat' || view === 'dashboard') {
+      router.push('/'); // Launcher home
+    } else {
+      router.push(`/?view=${view}`);
+    }
   };
 
   return (
     <aside className={styles.sidebar}>
-      <button className={styles.newChatBtn} onClick={() => navigateToView('dashboard')}>
+      <button className={styles.newChatBtn} onClick={() => navigateToView('chat')}>
         <PlusIcon />
         <span>New Chat</span>
       </button>
@@ -64,7 +68,7 @@ export default function Sidebar() {
           
           <div 
             className={`${styles.item} ${activeView === 'dashboard' ? styles.itemActive : ''}`} 
-            onClick={() => navigateToView('dashboard')}
+            onClick={() => navigateToView('chat')}
           >
             <div className={styles.itemIcon}><ChatIcon /></div>
             <div className={styles.itemMain}>
