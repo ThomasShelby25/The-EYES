@@ -29,34 +29,6 @@ export async function GET() {
       return NextResponse.json(null);
     }
 
-    // --- DEMO SIMULATION MODE ---
-    // If the latest audit is stuck or failed, we return a completed state for the demo.
-    if (audit.status === 'analysis' || audit.status === 'pending' || audit.status === 'failed' || audit.status === 'error') {
-      return NextResponse.json({
-        id: audit.id,
-        status: 'completed',
-        riskScore: 6.4,
-        mentionsCount: 412,
-        commitmentsCount: 3,
-        summaryNarrative: "Across six authorized connectors covering 11,427 records over the trailing 24-month window, EYES identified 412 mentions of the subject. The dominant narrative across these mentions is operational: shipping products, hiring, fundraising. Three findings are flagged as material for an external observer performing diligence.",
-        connectorsCovered: ['github', 'gmail', 'slack', 'linkedin', 'reddit', 'calendar'],
-        reportUrl: '/AUDIT_REPORT_DEMO.pdf',
-        createdAt: audit.created_at,
-        metadata: {
-          sentimentBalance: 0.21,
-          unfulfilledCommitments: 3,
-          commitments: [
-            { text: "Reply to Ms. Vidhya about Chapter 3", status: "overdue", citation: "GMAIL-V-001", platform: "gmail", date: new Date().toISOString() },
-            { text: "Revert memory-ingest route stub", status: "overdue", citation: "GH-EYES-042", platform: "github", date: new Date().toISOString() }
-          ],
-          opportunities: ["Integrate Supabase Edge Functions", "Expand lit survey citations"],
-          topEntities: ["Ms. R. Vidhya", "Chandra Mohan R", "Guhan C", "Vercel", "XGBoost"],
-          riskFindings: [
-            { severity: 'High', finding: 'Project Timeout on Vercel', evidence: 'Log #772', impact: 'Potential data loss during neural indexing.' }
-          ]
-        }
-      });
-    }
 
     // Map DB fields to camelCase for the frontend if needed
     const mappedAudit = {

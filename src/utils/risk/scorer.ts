@@ -278,3 +278,25 @@ export async function scoreTwitterEvent(params: { text: string; reach?: number }
     exposureScore,
   });
 }
+
+export async function scoreLinearEvent(params: { title: string; description: string; label?: string }): Promise<RiskAssessment> {
+  const sourceHints: string[] = [];
+  let exposureScore = 0;
+
+  if (params.label?.toLowerCase().includes('security') || params.title.toLowerCase().includes('vulnerability')) {
+    exposureScore += 30;
+    sourceHints.push('Issue is flagged as security-related or a vulnerability');
+  }
+
+  if (params.label?.toLowerCase().includes('urgent') || params.label?.toLowerCase().includes('high priority')) {
+    exposureScore += 10;
+    sourceHints.push('Issue is marked as urgent or high priority');
+  }
+
+  return await assessBaseRisk({
+    title: params.title,
+    content: params.description,
+    sourceHints,
+    exposureScore,
+  });
+}

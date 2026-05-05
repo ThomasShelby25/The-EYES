@@ -450,3 +450,39 @@ export async function getValidSlackToken(
   if (!tokenRow) return null;
   return decryptToken(tokenRow.access_token);
 }
+
+/**
+ * Retrieves a valid Linear token. 
+ */
+export async function getValidLinearToken(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<string | null> {
+  const { data: tokenRow } = await supabase
+    .from('oauth_tokens')
+    .select('access_token')
+    .eq('user_id', userId)
+    .eq('platform', 'linear')
+    .maybeSingle();
+
+  if (!tokenRow) return null;
+  return decryptToken(tokenRow.access_token);
+}
+
+/**
+ * Retrieves a valid Vercel token.
+ */
+export async function getValidVercelToken(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<string | null> {
+  const { data: tokenRow } = await supabase
+    .from('oauth_tokens')
+    .select('access_token')
+    .eq('user_id', userId)
+    .eq('platform', 'vercel')
+    .maybeSingle();
+
+  if (!tokenRow) return null;
+  return decryptToken(tokenRow.access_token);
+}
