@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 export default function SettingsPage() {
   const router = useRouter();
   const { user, updateUser, theme, setGlobalTheme } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'tuning' | 'appearance' | 'privacy' | 'security'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'tuning' | 'privacy' | 'security'>('profile');
   const [riskSensitivity, setRiskSensitivity] = useState('MEDIUM');
   const [excludedSenders, setExcludedSenders] = useState<string[]>(['noreply@bank.com', 'promotions@spam.com']);
   const [newSender, setNewSender] = useState('');
@@ -114,12 +114,6 @@ export default function SettingsPage() {
                 Neural Tuning
               </button>
               <button 
-                className={`${styles.tabBtn} ${activeTab === 'appearance' ? styles.tabActive : ''}`}
-                onClick={() => setActiveTab('appearance')}
-              >
-                Neural Theme
-              </button>
-              <button 
                 className={`${styles.tabBtn} ${activeTab === 'privacy' ? styles.tabActive : ''}`}
                 onClick={() => setActiveTab('privacy')}
               >
@@ -205,27 +199,6 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              {activeTab === 'appearance' && (
-                <div className={styles.appearanceSection}>
-                  <div className={styles.themeGrid}>
-                    <div 
-                      className={`${styles.themeCard} ${theme === 'dark' ? styles.themeActive : ''}`}
-                      onClick={() => handleUpdateTheme('dark')}
-                    >
-                      <div className={styles.themePreviewDark} />
-                      <span>Obsidian (Dark)</span>
-                    </div>
-                    <div 
-                      className={`${styles.themeCard} ${theme === 'light' ? styles.themeActive : ''}`}
-                      onClick={() => handleUpdateTheme('light')}
-                    >
-                      <div className={styles.themePreviewLight} />
-                      <span>Crystal (Light)</span>
-                    </div>
-                  </div>
-                  <p className={styles.helpText}>Settings are applied instantly to your neural link.</p>
-                </div>
-              )}
 
               {activeTab === 'privacy' && (
                 <div className={styles.privacySection}>
