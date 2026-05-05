@@ -32,6 +32,7 @@ export interface PlatformStatus {
   connected: boolean;
   status: 'idle' | 'connecting' | 'authenticating' | 'syncing' | 'connected' | 'error';
   items: number;
+  errorMessage?: string | null;
 }
 
 export interface FeedItem {

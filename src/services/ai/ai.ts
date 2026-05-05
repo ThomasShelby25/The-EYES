@@ -1,10 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Anthropic from "@anthropic-ai/sdk";
+import { createClient } from '@/utils/supabase/server';
+import crypto from 'crypto';
 
 /**
- * AI Brain Core: Hybrid Architecture
- * Chat: Anthropic Claude (Primary) with Gemini Fallback (Free)
- * Embeddings: Google Gemini (Free, 3072 dimensions)
+ * AI Brain Core: V1 Mistral Abstraction Layer (Section 07 Specification)
+ * All model invocations must route through the unified 'invokeModel' interface.
  */
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
@@ -12,18 +13,62 @@ const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ''; 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
 const CLAUDE_MODEL = "claude-3-5-sonnet-20240620";
-const GEMINI_FALLBACK_MODELS = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+const GEMINI_CHAT_MODEL = "gemini-1.5-flash";
 const EMBED_MODEL = "gemini-embedding-001";
 
-export type EmbeddingResult = {
-  embedding: number[];
-};
+export type AIPreference = 'claude' | 'mistral' | 'openai' | 'auto';
+export type AICapability = 'chat' | 'embed' | 'classify';
+
+export interface AIHistoryMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
+export interface AIInvokeOptions {
+  capability: AICapability;
+  messages?: AIHistoryMessage[];
+  system?: string;
+  preference?: AIPreference;
+  capture?: boolean; // For future behavioral data capture (Section 07.Decision 2)
+}
 
 /**
- * Generate vector embeddings for search using Google Gemini
+ * Unified Model Invocation Interface (The Specification Requirement)
  */
-export async function generateEmbedding(text: string): Promise<EmbeddingResult | null> {
+export async function invokeModel(options: AIInvokeOptions): Promise<any> {
+  const { capability, messages = [], system = "", preference = 'auto', capture = true } = options;
+
+  if (capability === 'embed') {
+    return handleEmbedding(messages[0]?.content || "");
+  }
+
+  if (capability === 'chat' || capability === 'classify') {
+    const startedAt = Date.now();
+    const result = await handleChat(messages, system, preference);
+    
+    if (capture) {
+      void captureBehavioralData({
+        queryText: messages[messages.length - 1]?.content || "",
+        queryType: capability,
+        modelUsed: preference === 'auto' ? 'claude' : (preference || 'claude'),
+        latencyMs: Date.now() - startedAt,
+        resultCount: messages.length, // approximation
+        responseLength: result?.length || 0
+      });
+    }
+
+    return result;
+  }
+
+  throw new Error(`AI Capability ${capability} not supported.`);
+}
+
+/**
+ * Internal: Handle 768d Embeddings via Gemini (Production Standard)
+ */
+async function handleEmbedding(text: string) {
   if (!GEMINI_API_KEY) return null;
   try {
     const model = genAI.getGenerativeModel({ model: EMBED_MODEL });
@@ -34,16 +79,17 @@ export async function generateEmbedding(text: string): Promise<EmbeddingResult |
     });
     return { embedding: Array.from(result.embedding.values) };
   } catch (err) {
-    console.error('[AI] Embedding Error:', err);
+    console.error('[AI Abstraction] Embedding Error:', err);
     return null;
   }
 }
 
 /**
- * Standard Chat Completion using Claude with Gemini Fallback
+ * Internal: Handle Chat via Claude with Gemini Fallback
  */
-export async function chatCompletion(messages: { role: string; content: string }[]): Promise<string | null> {
-  const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
+async function handleChat(messages: AIHistoryMessage[], system: string, preference: AIPreference) {
+  const isClassification = system.includes('commitment') || system.includes('classify');
+  
   const history = messages
     .filter(m => m.role !== 'system')
     .map(m => ({ 
@@ -51,43 +97,49 @@ export async function chatCompletion(messages: { role: string; content: string }
       content: m.content 
     }));
 
-  if (ANTHROPIC_API_KEY && ANTHROPIC_API_KEY.startsWith('sk-ant-')) {
+  const targetProvider = (preference === 'auto' || preference === 'claude') ? 'claude' : 'gemini';
+
+  if (targetProvider === 'claude' && ANTHROPIC_API_KEY && ANTHROPIC_API_KEY.startsWith('sk-ant-')) {
     try {
       const response = await anthropic.messages.create({
         model: CLAUDE_MODEL,
-        max_tokens: 1024,
-        temperature: 0.1,
-        system: systemInstruction,
+        max_tokens: isClassification ? 500 : 1024,
+        temperature: 0, // Cold tone for classification
+        system: system,
         messages: history,
       });
 
       const contentBlock = response.content[0];
       if (contentBlock.type === 'text') return contentBlock.text;
     } catch (err) {
-      console.warn('[AI] Claude failed, trying Gemini...');
+      console.warn('[AI Abstraction] Claude failed, falling back to Gemini.');
     }
   }
 
-  // Gemini Fallback
+  // Gemini Execution (Fallback or Explicit)
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: GEMINI_CHAT_MODEL });
     const result = await model.generateContent({
-      contents: history.map(h => ({ role: h.role === 'assistant' ? 'model' : 'user', parts: [{ text: h.content }] })),
-      systemInstruction,
+      contents: history.map(h => ({ 
+        role: h.role === 'assistant' ? 'model' : 'user', 
+        parts: [{ text: h.content }] 
+      })),
+      systemInstruction: system,
     });
     return result.response.text();
   } catch (err) {
-    console.error('[AI] All models failed.');
+    console.error('[AI Abstraction] All models failed in handleChat.');
     return null;
   }
 }
 
 /**
- * Streaming Chat Completion
+ * Streaming version of the unified interface
  */
-export async function chatCompletionStream(messages: { role: string; content: string }[]): Promise<ReadableStream> {
+export async function invokeModelStream(options: AIInvokeOptions): Promise<ReadableStream> {
+  const { messages = [], system = "", preference = 'auto' } = options;
   const encoder = new TextEncoder();
-  const systemInstruction = messages.find(m => m.role === 'system')?.content || "";
+
   const history = messages
     .filter(m => m.role !== 'system')
     .map(m => ({ 
@@ -101,7 +153,7 @@ export async function chatCompletionStream(messages: { role: string; content: st
         model: CLAUDE_MODEL,
         max_tokens: 1024,
         temperature: 0.1,
-        system: systemInstruction,
+        system: system,
         messages: history,
       });
 
@@ -114,32 +166,77 @@ export async function chatCompletionStream(messages: { role: string; content: st
               }
             }
           } catch (e) {
-            console.error('[AI] Stream loop error:', e);
+            console.error('[AI Stream] Loop error:', e);
           } finally {
             controller.close();
           }
         }
       });
     } catch (err) {
-      console.warn('[AI] Claude stream failed, using Gemini.');
+      console.warn('[AI Stream] Claude failed, using Gemini.');
     }
   }
 
-  // Gemini Fallback Stream (Non-streaming implementation for reliability)
+  // Gemini Fallback Stream
   return new ReadableStream({
     async start(controller) {
       try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: GEMINI_CHAT_MODEL });
         const result = await model.generateContent({
           contents: history.map(h => ({ role: h.role === 'assistant' ? 'model' : 'user', parts: [{ text: h.content }] })),
-          systemInstruction,
+          systemInstruction: system,
         });
         controller.enqueue(encoder.encode(result.response.text()));
       } catch (err) {
-        console.error('[AI] Gemini stream fallback failed.');
+        console.error('[AI Stream] Gemini fallback failed.');
       } finally {
         controller.close();
       }
     }
   });
+}
+
+/**
+ * Section 07.Decision 2: Anonymized Behavioral Logging
+ */
+async function captureBehavioralData(data: {
+  queryText: string;
+  queryType: string;
+  modelUsed: string;
+  latencyMs: number;
+  resultCount: number;
+  responseLength: number;
+}) {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // GDPR Requirement: SHA-256 of user_id + salt
+    const salt = process.env.BEHAVIOR_SALT || 'eyes-neural-moat';
+    const userHash = crypto.createHash('sha256').update(user.id + salt).digest('hex');
+
+    await supabase.from('query_behavior').insert({
+      user_hash: userHash,
+      query_text: data.queryText,
+      query_type: data.queryType,
+      model_used: data.modelUsed,
+      latency_ms: data.latencyMs,
+      result_count: data.resultCount,
+      response_length: data.responseLength,
+      sources_used: [], // to be populated from context
+      coarse_geography: 'unknown',
+      coarse_time_bucket: getTimeBucket()
+    });
+  } catch (err) {
+    console.warn('[AI Behavioral] Logging failed:', err);
+  }
+}
+
+function getTimeBucket(): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'morning';
+  if (hour >= 12 && hour < 17) return 'afternoon';
+  if (hour >= 17 && hour < 21) return 'evening';
+  return 'night';
 }

@@ -124,7 +124,7 @@ export function SourceReadinessView({ platforms }: SourceReadinessViewProps) {
                     <div className={styles.readinessInfo}>
                       <strong>{p.name}</strong>
                       <span className={isError ? styles.errorStatusText : (isSyncing ? styles.syncStatusText : styles.readyStatusText)}>
-                        {isError ? 'Link Fractured' : (isSyncing ? 'Synchronizing Pulse...' : 'Optimal Neural Link')}
+                        {isError ? (p.errorMessage || 'Link Fractured') : (isSyncing ? 'Synchronizing Pulse...' : 'Optimal Neural Link')}
                       </span>
                     </div>
                     {isSyncing && <div className={styles.syncPulse} />}

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { generateEmbedding, chatCompletion, chatCompletionStream } from '@/services/ai/ai';
+import { generateEmbedding, chatCompletion, chatCompletionStream, invokeModel, invokeModelStream } from '@/services/ai/ai';
 
 type ChatHistoryMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 type ChatRequestBody = { message?: string; history?: ChatHistoryMessage[] };
@@ -118,9 +118,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 1. Generate real-world embedding
+    // 1. Generate real-world embedding (via abstraction)
     const retrievalStartedAt = Date.now();
-    const queryResult = await generateEmbedding(message);
+    const queryResult = await invokeModel({
+      capability: 'embed',
+      messages: [{ role: 'user', content: message }]
+    });
     
     let context = '';
     let citations: ChatCitation[] = [];
@@ -204,7 +207,12 @@ export async function POST(request: Request) {
     ];
 
     if (streamRequested) {
-      const stream = await chatCompletionStream(messages);
+      const stream = await invokeModelStream({
+        capability: 'chat',
+        messages,
+        system: systemPrompt,
+        preference: 'auto'
+      });
       const citationsHeader = citations.length > 0 ? citationsHeaderValue(citations) : '';
       return new Response(stream, {
         status: 200,
@@ -217,7 +225,12 @@ export async function POST(request: Request) {
       });
     }
 
-    const answer = await chatCompletion(messages);
+    const answer = await invokeModel({
+      capability: 'chat',
+      messages,
+      system: systemPrompt,
+      preference: 'auto'
+    });
     return NextResponse.json({
       answer: answer || 'I was unable to generate a neural response based on your memories.',
       contextUsed: citations.length > 0,

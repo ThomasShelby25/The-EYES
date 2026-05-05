@@ -198,6 +198,17 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     const detail = error instanceof Error ? error.message : String(error);
     console.error('gmail sync error:', error);
+
+    // CRITICAL: Reset status in DB so UI is not frozen
+    if (actor && 'supabase' in actor) {
+      await upsertSyncStatusSafely(actor.supabase, {
+        user_id: actor.userId,
+        platform: 'gmail',
+        status: 'error',
+        error_message: detail.slice(0, 200)
+      });
+    }
+
     return NextResponse.json({ 
       error: 'Unable to sync Gmail data.', 
       detail

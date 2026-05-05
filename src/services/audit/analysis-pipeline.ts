@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-import { chatCompletion } from '@/services/ai/ai';
+import { chatCompletion, invokeModel } from '@/services/ai/ai';
 import { Commitment, ReputationAudit } from '@/types/dashboard';
 import { PDFGenerationService } from './pdf-generator';
 
@@ -49,10 +49,12 @@ export class AuditAnalysisService {
         Return JSON ONLY: { "analysis": [ { "id": "uuid", "sentiment": -1|0|1, "isCommitment": true|false, "commitmentText": "...", "isSensitive": true|false } ] }
       `;
 
-      const analysisRaw = await chatCompletion([
-        { role: 'system', content: 'You are a clinical intelligence analyst.' },
-        { role: 'user', content: extractionPrompt }
-      ]);
+      const analysisRaw = await invokeModel({
+        capability: 'classify',
+        messages: [{ role: 'user', content: extractionPrompt }],
+        system: 'You are a clinical intelligence analyst.',
+        preference: 'claude' // Explicitly use Claude for extraction accuracy
+      });
 
       if (!analysisRaw) throw new Error('AI Analysis failed to return data.');
 
@@ -108,10 +110,12 @@ export class AuditAnalysisService {
       const riskScore = Math.min(10, Number((( (weightedNegativeMentions * 2) + (weightedUnfulfilledCommitments * 3) ) / (weightedTotalMentions || 1) * 10).toFixed(1)));
 
       // 4. Real Summary
-      const summaryNarrative = await chatCompletion([
-        { role: 'system', content: 'You are a clinical intelligence analyst.' },
-        { role: 'user', content: `Summarize this audit: ${events.length} records, ${negativeMentions} negative, ${unfulfilledCommitmentsCount} tasks. Risk Score: ${riskScore}/10.` }
-      ]);
+      const summaryNarrative = await invokeModel({
+        capability: 'chat',
+        messages: [{ role: 'user', content: `Summarize this audit: ${events.length} records, ${negativeMentions} negative, ${unfulfilledCommitmentsCount} tasks. Risk Score: ${riskScore}/10.` }],
+        system: 'You are a clinical intelligence analyst.',
+        preference: 'auto'
+      });
 
       // 5. Persist and Finalize
       await supabase.from('reputation_audits').update({

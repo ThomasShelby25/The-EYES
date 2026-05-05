@@ -112,33 +112,19 @@ export async function upsertSyncStatusSafely(supabase: SupabaseClient, syncStatu
     .from('sync_status')
     .upsert(syncStatus, { onConflict: 'user_id,platform' });
 
-  if (!upsertError) {
-    return;
-  }
+  if (!upsertError) return;
 
   if (!hasMissingConflictConstraint(upsertError)) {
+    console.error(`[DB Error] Sync status upsert failed: ${upsertError.message}`);
     throw upsertError;
   }
 
-  console.warn(
-    '[DB] sync_status upsert fallback activated because ON CONFLICT constraint is missing. Apply latest migrations.'
-  );
-
-  const { data: updatedRows, error: updateError } = await supabase
+  // Fallback for missing constraints
+  const { error: updateError } = await supabase
     .from('sync_status')
     .update(syncStatus)
     .eq('user_id', syncStatus.user_id)
-    .eq('platform', syncStatus.platform)
-    .select('id');
+    .eq('platform', syncStatus.platform);
 
-  if (updateError) {
-    throw updateError;
-  }
-
-  if (!updatedRows || updatedRows.length === 0) {
-    const { error: insertError } = await supabase.from('sync_status').insert(syncStatus);
-    if (insertError) {
-      throw insertError;
-    }
-  }
+  if (updateError) throw updateError;
 }
