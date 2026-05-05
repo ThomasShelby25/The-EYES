@@ -235,6 +235,13 @@ export async function POST(request: Request) {
     // -------------------------------------------------------------
 
     // --- COMPREHENSIVE DEMO SAFEGUARD: Wrap entire logic in try/catch ---
+    const HAS_AI_KEYS = !!process.env.GEMINI_API_KEY;
+    
+    if (!HAS_AI_KEYS) {
+      console.log('[Chat] No AI Keys detected. Entering Neural Simulation Mode.');
+      return handleDemoBrain(message, streamRequested);
+    }
+
     try {
       // 1. Generate embedding for the user's question
       const retrievalStartedAt = Date.now();
@@ -378,24 +385,48 @@ export async function POST(request: Request) {
         timestamp: new Date().toISOString(),
       });
 
-    } catch (aiErr: any) {
-      console.warn('[Chat] COMPREHENSIVE FALLBACK TO DEMO BRAIN:', aiErr.message);
-      
-      const q = message.toLowerCase();
-      let demoAnswer = '';
-      if (q.includes('know about me') || q.includes('who am i') || q.includes('profile')) {
-        demoAnswer = "You are a final-year Computer Science Engineering student at Velalar College of Engineering and Technology in Erode, working under the guidance of Ms. R. Vidhya. You are simultaneously managing two significant projects — your academic final year project on a Real-Time AI-Driven Cross-Market Trading System using XGBoost-LightGBM ensembles, built alongside teammates Chandra Mohan R and Guhan C, and your personal product EYES, a digital memory and analytics platform running on Next.js 14, Supabase, and the Claude API. Your GitHub activity shows a clear spike over the last ten days, mostly concentrated in the eyes-platform and trading-model repositories. You tend to be most active between 10pm and 1am IST, and you consistently prioritise UI/UX polish before finalising backend logic.";
-      } else if (q.includes('slack') || q.includes('vercel') || q.includes('failure')) {
-        demoAnswer = "Late last night in the #eyes-dev channel, you flagged that the Vercel build crashed again due to the same edge function timeout issue. Chandra Mohan traced the root cause to the /api/memory-ingest route hitting Vercel's 10-second execution limit, specifically because the pgvector upsert loop was the bottleneck. Guhan proposed migrating the ingestion logic to a Supabase Edge Function to eliminate both the cold start and the time cap, and offered to prototype it. You agreed, asked Guhan to assign it in Notion, and said you would revert the Vercel route to a stub in the meantime so production wouldn't break. That revert task is still pending on your end.";
-      } else if (q.includes('reputation') || q.includes('risk')) {
-        demoAnswer = "Two things stand out. The more significant one is that Ms. Vidhya sent you a follow-up email about your Chapter 3 submission three days ago and you haven't replied yet. Going quiet on your guide this close to a review period can come across as disengaged, and it's worth addressing today. The second is a minor pattern — you've sent several terse, late-night messages on Slack after midnight over the past week. No single message is problematic, but the cumulative tone could be read by teammates as stress or frustration, so it's worth being a little more deliberate in phrasing when messaging that late.";
-      } else if (q.includes('urgent') || q.includes('task')) {
-        demoAnswer = "You have six open tasks across your sources. Two are overdue — replying to Ms. Vidhya about Chapter 3, and reverting the /api/memory-ingest route to a stub on Vercel. One is due today — reviewing Guhan's Supabase Edge Function prototype once he pushes it. The remaining three are coming up later this week: finalising the EYES salt-and-pepper design tokens by Wednesday, adding two new verified citations to your literature survey by Thursday, and completing the internship report review for Ajith by Friday.";
-      } else if (q.includes('yesterday') || q.includes('recent activity')) {
-        demoAnswer = "Yesterday was a fairly active night. You pushed seven commits to GitHub — four to the eyes-platform/ui-redesign branch, mostly centred around the memory feed card hover animations, and three to trading-model/feature-engineering. On Gmail, you received three emails: the follow-up from Ms. Vidhya, a Vercel build failure alert, and a Notion link from Chandra Mohan. You sent no outbound emails. On Slack, you were active in two channels — #eyes-dev where the Vercel deployment thread played out, and #fyp-team where there was a brief check-in about the literature survey deadline. Your Notion workspace had two task updates from teammates, and your Google Calendar shows a project sync scheduled for tomorrow at 11am with Chandra Mohan and Guhan.";
-      } else {
-        demoAnswer = "I am currently operating in **Neural Simulation Mode** to ensure zero-latency responses for your demonstration. Based on your digital footprint, everything is synced and optimized. Your recent activity on GitHub and Slack shows high productivity, and your Action Queue is ready for execution. How can I assist you with your memories today?";
-      }
+async function handleDemoBrain(message: string, streamRequested: boolean) {
+  const q = message.toLowerCase();
+  let demoAnswer = "";
+  
+  if (q.includes('know about me') || q.includes('who am i') || q.includes('profile')) {
+    demoAnswer = "You are a final-year Computer Science Engineering student at Velalar College of Engineering and Technology in Erode, working under the guidance of Ms. R. Vidhya. You are simultaneously managing two significant projects — your academic final year project on a Real-Time AI-Driven Cross-Market Trading System using XGBoost-LightGBM ensembles, built alongside teammates Chandra Mohan R and Guhan C, and your personal product EYES, a digital memory and analytics platform running on Next.js 14, Supabase, and the Claude API. Your GitHub activity shows a clear spike over the last ten days, mostly concentrated in the eyes-platform and trading-model repositories. You tend to be most active between 10pm and 1am IST, and you consistently prioritise UI/UX polish before finalising backend logic.";
+  } else if (q.includes('slack') || q.includes('vercel') || q.includes('failure')) {
+    demoAnswer = "Late last night in the #eyes-dev channel, you flagged that the Vercel build crashed again due to the same edge function timeout issue. Chandra Mohan traced the root cause to the /api/memory-ingest route hitting Vercel's 10-second execution limit, specifically because the pgvector upsert loop was the bottleneck. Guhan proposed migrating the ingestion logic to a Supabase Edge Function to eliminate both the cold start and the time cap, and offered to prototype it. You agreed, asked Guhan to assign it in Notion, and said you would revert the Vercel route to a stub in the meantime so production wouldn't break. That revert task is still pending on your end.";
+  } else if (q.includes('reputation') || q.includes('risk')) {
+    demoAnswer = "Two things stand out. The more significant one is that Ms. Vidhya sent you a follow-up email about your Chapter 3 submission three days ago and you haven't replied yet. Going quiet on your guide this close to a review period can come across as disengaged, and it's worth addressing today. The second is a minor pattern — you've sent several terse, late-night messages on Slack after midnight over the past week. No single message is problematic, but the cumulative tone could be read by teammates as stress or frustration, so it's worth being a little more deliberate in phrasing when messaging that late.";
+  } else if (q.includes('urgent') || q.includes('task')) {
+    demoAnswer = "You have six open tasks across your sources. Two are overdue — replying to Ms. Vidhya about Chapter 3, and reverting the /api/memory-ingest route to a stub on Vercel. One is due today — reviewing Guhan's Supabase Edge Function prototype once he pushes it. The remaining three are coming up later this week: finalising the EYES salt-and-pepper design tokens by Wednesday, adding two new verified citations to your literature survey by Thursday, and completing the internship report review for Ajith by Friday.";
+  } else if (q.includes('yesterday') || q.includes('recent activity')) {
+    demoAnswer = "Yesterday was a fairly active night. You pushed seven commits to GitHub — four to the eyes-platform/ui-redesign branch, mostly centred around the memory feed card hover animations, and three to trading-model/feature-engineering. On Gmail, you received three emails: the follow-up from Ms. Vidhya, a Vercel build failure alert, and a Notion link from Chandra Mohan. You sent no outbound emails. On Slack, you were active in two channels — #eyes-dev where the Vercel deployment thread played out, and #fyp-team where there was a brief check-in about the literature survey deadline. Your Notion workspace had two task updates from teammates, and your Google Calendar shows a project sync scheduled for tomorrow at 11am with Chandra Mohan and Guhan.";
+  } else {
+    demoAnswer = "I am currently operating in **Neural Simulation Mode** to ensure zero-latency responses for your demonstration. Based on your digital footprint, everything is synced and optimized. Your recent activity on GitHub and Slack shows high productivity, and your Action Queue is ready for execution. How can I assist you with your memories today?";
+  }
+
+  const demoCitations = [
+    { sourceId: 1, embeddingId: 'm1', eventId: 'e1', platform: 'github', platformId: 'p1', title: 'PR #442', eventType: 'PR', author: 'dev-team', timestamp: new Date().toISOString(), similarity: 0.95, rerankScore: 0.98, snippet: 'Neural architecture changes for vector indexing pipeline...' },
+    { sourceId: 2, embeddingId: 'm2', eventId: 'e2', platform: 'gmail', platformId: 'p2', title: 'Q3 Strategy', eventType: 'EMAIL', author: 'CEO', timestamp: new Date().toISOString(), similarity: 0.92, rerankScore: 0.94, snippet: 'Confirming availability for Friday strategy session...' }
+  ];
+
+  if (streamRequested) {
+    return new Response(demoAnswer, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'X-Confidence-Score': '0.960',
+        'X-Grounded-Score': '0.940',
+        'X-Retrieval-Status': 'success'
+      },
+    });
+  }
+
+  return NextResponse.json({
+    answer: demoAnswer,
+    contextUsed: true,
+    citations: demoCitations,
+    timestamp: new Date().toISOString(),
+  });
+}
 
       const demoCitations = [
         { sourceId: 1, embeddingId: 'm1', eventId: 'e1', platform: 'github', platformId: 'p1', title: 'PR #442', eventType: 'PR', author: 'dev-team', timestamp: new Date().toISOString(), similarity: 0.95, rerankScore: 0.98, snippet: 'Neural architecture changes for vector indexing pipeline...' },

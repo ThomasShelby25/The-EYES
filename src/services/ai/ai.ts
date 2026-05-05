@@ -66,6 +66,10 @@ export async function chatCompletion(messages: { role: string; content: string }
       });
 
       const contentBlock = response.content[0];
+      if (contentBlock.type === 'text') {
+        return contentBlock.text;
+      }
+      return null;
     } catch (err: any) {
       console.warn('[AI] Claude Chat Error, falling back to Gemini:', err.message);
       
@@ -132,27 +136,26 @@ export async function chatCompletionStream(messages: { role: string; content: st
           }
         }
       });
-    } catch (err: any) {
-      console.warn('[AI] Claude Stream Setup Error, falling back to Gemini:', err.message);
-      
-      // Real Gemini Fallback (non-streaming for reliability in fallback)
-      return new ReadableStream({
-        async start(controller) {
-          try {
-            const model = genAI.getGenerativeModel({ model: GEMINI_FALLBACK_MODELS[0] });
-            const result = await model.generateContent({
-              contents: history.map(h => ({ role: h.role === 'assistant' ? 'model' : 'user', parts: [{ text: h.content }] })),
-              systemInstruction: systemInstruction,
-            });
-            controller.enqueue(encoder.encode(result.response.text()));
-            controller.close();
-          } catch (geminiErr: any) {
-            controller.close();
-          }
-        }
-      });
     }
   }
+
+  // Pure Gemini Path (if Claude skipped or failed setup)
+  return new ReadableStream({
+    async start(controller) {
+      try {
+        const model = genAI.getGenerativeModel({ model: GEMINI_FALLBACK_MODELS[0] });
+        const result = await model.generateContent({
+          contents: history.map(h => ({ role: h.role === 'assistant' ? 'model' : 'user', parts: [{ text: h.content }] })),
+          systemInstruction: systemInstruction,
+        });
+        controller.enqueue(encoder.encode(result.response.text()));
+        controller.close();
+      } catch (geminiErr: any) {
+        console.error('[AI] Pure Gemini fallback failed:', geminiErr.message);
+        controller.close();
+      }
+    }
+  });
 
   return new ReadableStream({
     start(controller) {
