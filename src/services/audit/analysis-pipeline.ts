@@ -109,34 +109,43 @@ export class AuditAnalysisService {
 
       const riskScore = Math.min(10, Number((( (weightedNegativeMentions * 2) + (weightedUnfulfilledCommitments * 3) ) / (weightedTotalMentions || 1) * 10).toFixed(1)));
 
-      // 4. Real Summary
-      const summaryNarrative = await invokeModel({
+      // 4. Real Summary & Strategic Opportunities
+      const summaryPrompt = `
+        Summarize this audit: ${events.length} records, ${negativeMentions} negative, ${unfulfilledCommitmentsCount} tasks. 
+        Risk Score: ${riskScore}/10.
+        Also, extract 3 "Opportunities" (positive trends or areas of strength) and 5 "Top Entities" (most mentioned people/projects).
+        Return JSON ONLY: { "narrative": "...", "opportunities": ["..."], "topEntities": ["..."] }
+      `;
+
+      const summaryRaw = await invokeModel({
         capability: 'chat',
-        messages: [{ role: 'user', content: `Summarize this audit: ${events.length} records, ${negativeMentions} negative, ${unfulfilledCommitmentsCount} tasks. Risk Score: ${riskScore}/10.` }],
+        messages: [{ role: 'user', content: summaryPrompt }],
         system: 'You are a clinical intelligence analyst.',
         preference: 'auto'
       });
+
+      const summaryMatch = summaryRaw?.match(/\{[\s\S]*\}/);
+      const summaryResult = summaryMatch ? JSON.parse(summaryMatch[0]) : { narrative: summaryRaw, opportunities: [], topEntities: [] };
 
       // 5. Generate PDF Certificate (Async but waited)
       let reportUrl = null;
       try {
         console.log(`[Audit] Generating PDF for ${auditId}...`);
-        // We construct a temporary object to pass to the generator
         const auditForPdf: any = {
           id: auditId,
           status: 'completed',
           riskScore: riskScore,
           mentionsCount: events.length,
           commitmentsCount: unfulfilledCommitmentsCount,
-          summaryNarrative: summaryNarrative,
+          summaryNarrative: summaryResult.narrative,
           connectorsCovered: connectorsCovered,
           createdAt: new Date().toISOString(),
           metadata: { 
             commitments: extractedCommitments, 
             riskFindings: extractedFindings,
-            topEntities: [],
-            opportunities: [],
-            sentimentBalance: (weightedNegativeMentions / (weightedTotalMentions || 1)) // rough estimate
+            topEntities: summaryResult.topEntities || [],
+            opportunities: summaryResult.opportunities || [],
+            sentimentBalance: weightedTotalMentions > 0 ? (1 - (weightedNegativeMentions / weightedTotalMentions)) : 1.0
           }
         };
         reportUrl = await PDFGenerationService.generateAndUpload(auditForPdf, userId);
@@ -150,10 +159,15 @@ export class AuditAnalysisService {
         risk_score: riskScore,
         mentions_count: events.length,
         commitments_count: unfulfilledCommitmentsCount,
-        summary_narrative: summaryNarrative || 'Analysis complete.',
+        summary_narrative: summaryResult.narrative || 'Analysis complete.',
         connectors_covered: connectorsCovered,
         report_url: reportUrl,
-        metadata: { commitments: extractedCommitments, riskFindings: extractedFindings }
+        metadata: { 
+          commitments: extractedCommitments, 
+          riskFindings: extractedFindings,
+          topEntities: summaryResult.topEntities,
+          opportunities: summaryResult.opportunities
+        }
       }).eq('id', auditId);
 
       return { success: true, auditId };
