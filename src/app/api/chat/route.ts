@@ -180,6 +180,29 @@ export async function POST(request: Request) {
           })
           .join('\n\n---\n\n');
       }
+
+      // 2.5: Intent-Based commitment retrieval (If asking about tasks/work)
+      const isTaskQuery = /work|task|pending|commitment|promise|deadline/i.test(message);
+      if (isTaskQuery) {
+        const { data: latestAudit } = await supabase
+          .from('reputation_audits')
+          .select('metadata')
+          .eq('user_id', user.id)
+          .eq('status', 'completed')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (latestAudit?.metadata?.commitments) {
+          const commitments = (latestAudit.metadata.commitments as any[])
+            .map((c, i) => `[PENDING WORK ${i + 1}] [${c.platform.toUpperCase()}] [${new Date(c.date).toLocaleDateString()}]\n${c.text}`)
+            .join('\n\n');
+          
+          if (commitments) {
+            context = `ALREADY EXTRACTED COMMITMENTS:\n${commitments}\n\nRELEVANT MEMORIES:\n${context}`;
+          }
+        }
+      }
     }
 
     const diagnostics: ChatDiagnostics = {
