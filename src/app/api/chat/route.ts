@@ -15,6 +15,13 @@ type RawEventCitationRow = {
   timestamp: string | null;
 };
 
+type HybridSearchRow = {
+  id: string;
+  content: string;
+  similarity: number;
+  combined_score: number;
+};
+
 type ChatCitation = {
   sourceId: number;
   embeddingId: string;
@@ -140,8 +147,8 @@ export async function POST(request: Request) {
 
       if (matchError) {
         retrievalError = matchError.message;
-      } else if (matches && matches.length > 0) {
-        const rerankedRows = (matches as any[]).sort((a, b) => b.combined_score - a.combined_score).slice(0, 8);
+      } else if (matches && (matches as HybridSearchRow[]).length > 0) {
+        const rerankedRows = (matches as HybridSearchRow[]).sort((a, b) => b.combined_score - a.combined_score).slice(0, 8);
         const uniqueEventIds = Array.from(new Set(rerankedRows.map(row => row.id)));
         
         let eventMap = new Map<string, RawEventCitationRow>();
@@ -194,7 +201,7 @@ export async function POST(request: Request) {
           .single();
 
         if (latestAudit?.metadata?.commitments) {
-          const commitments = (latestAudit.metadata.commitments as any[])
+          const commitments = (latestAudit.metadata.commitments as Array<{ platform: string, date: string, text: string }>)
             .map((c, i) => `[PENDING WORK ${i + 1}] [${c.platform.toUpperCase()}] [${new Date(c.date).toLocaleDateString()}]\n${c.text}`)
             .join('\n\n');
           
@@ -241,8 +248,10 @@ export async function POST(request: Request) {
         status: 200,
         headers: {
           'Content-Type': 'text/plain; charset=utf-8',
+          'X-Context-Used': (citations.length > 0).toString(),
           'X-Context-Count': diagnostics.contextCount.toString(),
           'X-Retrieval-Status': diagnostics.retrievalStatus,
+          'X-Grounded-Score': diagnostics.groundedScore.toString(),
           ...(citationsHeader ? { 'X-Citations': citationsHeader } : {}),
         },
       });

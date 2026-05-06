@@ -80,6 +80,8 @@ const hoisted = vi.hoisted(() => {
             }
             return { data: null, error: null };
           }),
+          order: vi.fn(() => builder),
+          limit: vi.fn(() => builder),
         };
 
         return builder;
@@ -104,11 +106,33 @@ const hoisted = vi.hoisted(() => {
     });
   });
 
+  const invokeModelMock = vi.fn(async (options: any) => {
+    if (options.capability === 'embed') {
+      return { embedding: [0.12, 0.44], tokens: 5 };
+    }
+    if (options.capability === 'chat') {
+      return 'Evidence located in [source:1].';
+    }
+    return null;
+  });
+
+  const invokeModelStreamMock = vi.fn(async () => {
+    const encoder = new TextEncoder();
+    return new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode('stream answer [source:1]'));
+        controller.close();
+      },
+    });
+  });
+
   return {
     createSupabase,
     generateEmbeddingMock,
     chatCompletionMock,
     chatCompletionStreamMock,
+    invokeModelMock,
+    invokeModelStreamMock,
   };
 });
 
@@ -117,6 +141,8 @@ vi.mock('@/utils/supabase/server', () => ({
 }));
 
 vi.mock('@/services/ai/ai', () => ({
+  invokeModel: hoisted.invokeModelMock,
+  invokeModelStream: hoisted.invokeModelStreamMock,
   generateEmbedding: hoisted.generateEmbeddingMock,
   chatCompletion: hoisted.chatCompletionMock,
   chatCompletionStream: hoisted.chatCompletionStreamMock,

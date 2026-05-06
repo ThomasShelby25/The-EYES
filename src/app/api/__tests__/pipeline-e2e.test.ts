@@ -155,10 +155,15 @@ const hoisted = vi.hoisted(() => {
       }),
       limit(value: number) {
         context.limitValue = value;
-        return execute();
+        return builder;
       },
       update(payload: Record<string, unknown>) {
         context.updatePayload = payload;
+        return builder;
+      },
+      order(column: string, options?: { ascending?: boolean }) {
+        void column;
+        void options;
         return builder;
       },
       insert(payload: Record<string, unknown>) {
@@ -202,7 +207,7 @@ const hoisted = vi.hoisted(() => {
 
       return {
         data: state.embeddings.slice(0, 5).map((row) => ({
-          id: row.id,
+          id: row.event_id,
           content: row.content,
           similarity: 0.82,
           combined_score: 0.82,
@@ -224,11 +229,33 @@ const hoisted = vi.hoisted(() => {
     }
   );
 
+  const invokeModelMock = vi.fn(async (options: any) => {
+    if (options.capability === 'embed') {
+      return { embedding: [0.12, 0.44], tokens: 5 };
+    }
+    if (options.capability === 'chat') {
+      return 'Pipeline response generated from indexed memory context.';
+    }
+    return null;
+  });
+
+  const invokeModelStreamMock = vi.fn(async () => {
+    const encoder = new TextEncoder();
+    return new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(encoder.encode('streamed response'));
+        controller.close();
+      },
+    });
+  });
+
   return {
     state,
     fakeSupabase,
     generateEmbeddingMock,
     chatCompletionMock,
+    invokeModelMock,
+    invokeModelStreamMock,
   };
 });
 
@@ -264,17 +291,10 @@ vi.mock('@/utils/supabase/upsert', () => ({
 }));
 
 vi.mock('@/services/ai/ai', () => ({
+  invokeModel: hoisted.invokeModelMock,
+  invokeModelStream: hoisted.invokeModelStreamMock,
   generateEmbedding: hoisted.generateEmbeddingMock,
   chatCompletion: hoisted.chatCompletionMock,
-  chatCompletionStream: vi.fn(async () => {
-    const encoder = new TextEncoder();
-    return new ReadableStream<Uint8Array>({
-      start(controller) {
-        controller.enqueue(encoder.encode('streamed response'));
-        controller.close();
-      },
-    });
-  }),
 }));
 
 import { POST as syncGithubPost } from '@/app/api/sync/github/route';
@@ -345,8 +365,8 @@ describe('pipeline flow: sync -> embeddings -> chat', () => {
     expect(chatPayload.contextUsed).toBe(true);
     expect(chatPayload.answer).toContain('Pipeline response');
 
-    const firstChatCall = hoisted.chatCompletionMock.mock.calls[0]?.[0];
-    const systemPrompt = firstChatCall?.[0]?.content || '';
+    const lastInvokeCall = hoisted.invokeModelMock.mock.calls.find(call => call[0].capability === 'chat')?.[0];
+    const systemPrompt = lastInvokeCall?.system || '';
     expect(systemPrompt).toContain('pipeline/repo');
 
     fetchMock.mockRestore();
