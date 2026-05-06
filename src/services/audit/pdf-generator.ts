@@ -9,6 +9,9 @@ import { ReputationAudit } from '@/types/dashboard';
 
 export class PDFGenerationService {
   static async generateAndUpload(audit: ReputationAudit, userId: string): Promise<string> {
+    const path = await import('path');
+    const fontPath = path.join(process.cwd(), 'public', 'fonts', 'Geist-Regular.ttf');
+
     return new Promise(async (resolve, reject) => {
       try {
         const doc = new PDFDocument({
@@ -20,6 +23,16 @@ export class PDFGenerationService {
           }
         });
 
+        // Register custom font
+        let FONT_BODY = 'Helvetica';
+        let FONT_BOLD = 'Helvetica-Bold';
+        try {
+          doc.registerFont('Geist', fontPath);
+          FONT_BODY = 'Geist';
+          FONT_BOLD = 'Geist'; // Use same for now or find bold
+        } catch (e) {
+          console.warn('[PDF] Geist font not found, falling back to Helvetica');
+        }
 
         // --- STYLING CONSTANTS (Aligned with Modern UI) ---
         const BG_WHITE = '#FFFFFF';
@@ -30,8 +43,6 @@ export class PDFGenerationService {
         const LIGHT_GRAY = '#F0F0F0';
         const BORDER_SUBTLE = 'rgba(0, 0, 0, 0.05)';
 
-        const FONT_BODY = 'Helvetica';
-        const FONT_BOLD = 'Helvetica-Bold';
         const FONT_MONO = 'Courier';
 
         const drawBackground = () => doc.rect(0, 0, doc.page.width, doc.page.height).fill(BG_WHITE);
