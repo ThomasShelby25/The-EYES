@@ -279,7 +279,9 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
                 if (activeAudit.reportUrl) {
                   window.open(activeAudit.reportUrl, '_blank');
                 } else {
-                  window.print();
+                  if (confirm("This audit was generated without a PDF link. Would you like to start a NEW Audit to generate the full 8-page report?")) {
+                    setAuditMode('dashboard');
+                  }
                 }
               }}
             >

@@ -183,35 +183,43 @@ export class PDFGenerationService {
         doc.fillColor(GRAY_FOOTER).fontSize(7).text('EYES Neural Memory OS | v1.0.4-production-hardened', 50, doc.page.height - 25);
         drawFooter(8);
 
-        // Finalize
+        // Finalize and collect chunks for upload
+        const chunks: any[] = [];
+        doc.on('data', chunk => chunks.push(chunk));
+        doc.on('end', async () => {
+          try {
+            const pdfBuffer = Buffer.concat(chunks);
+            const fileName = `audit_${audit.id}.pdf`;
+            const filePath = `${userId}/${fileName}`;
+
+            const supabase = await (await import('@/utils/supabase/server')).createClient();
+
+            const { error: uploadError } = await supabase.storage
+              .from('audit-reports')
+              .upload(filePath, pdfBuffer, {
+                contentType: 'application/pdf',
+                upsert: true
+              });
+
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = supabase.storage
+              .from('audit-reports')
+              .getPublicUrl(filePath);
+
+            resolve(urlData.publicUrl);
+          } catch (err) {
+            console.error('[PDF-Brain] Upload failed:', err);
+            resolve(null as any);
+          }
+        });
+
         doc.end();
 
       } catch (err) {
         console.error('[PDF-Brain] Generation failed:', err);
-        resolve(null as any); // Resolve with null so the audit doesn't fail
+        resolve(null as any); 
       }
     });
-  }
-
-  private static async uploadToSupabase(buffer: Buffer, auditId: string, userId: string): Promise<string> {
-    const supabase = await createClient();
-    const fileName = `audits/${userId}/${auditId}.pdf`;
-    
-    const { error } = await supabase.storage
-      .from('audits')
-      .upload(fileName, buffer, {
-        contentType: 'application/pdf',
-        upsert: true
-      });
-
-    if (error) throw new Error(`PDF Upload Failed: ${error.message}`);
-
-    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-      .from('audits')
-      .createSignedUrl(fileName, 60 * 60 * 24 * 7);
-
-    if (signedUrlError) throw new Error(`Signed URL Failed: ${signedUrlError.message}`);
-
-    return signedUrlData.signedUrl;
   }
 }
