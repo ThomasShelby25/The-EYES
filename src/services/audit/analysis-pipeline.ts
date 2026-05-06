@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient, createAdminClient } from '@/utils/supabase/server';
 import { chatCompletion, invokeModel } from '@/services/ai/ai';
 import { Commitment, ReputationAudit } from '@/types/dashboard';
 import { PDFGenerationService } from './pdf-generator';
@@ -8,7 +8,7 @@ import { PDFGenerationService } from './pdf-generator';
  */
 export class AuditAnalysisService {
   static async runAnalysis(auditId: string, userId: string) {
-    const supabase = await createClient();
+    const supabase = await createAdminClient();
     
     try {
       // 1. Data Retrieval (Real data only)

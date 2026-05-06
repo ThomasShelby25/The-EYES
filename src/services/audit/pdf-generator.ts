@@ -192,10 +192,12 @@ export class PDFGenerationService {
             const fileName = `audit_${audit.id}.pdf`;
             const filePath = `${userId}/${fileName}`;
 
-            const supabase = await (await import('@/utils/supabase/server')).createClient();
+            // Use high-privilege admin client for background storage upload
+            const { createAdminClient } = await import('@/utils/supabase/server');
+            const supabase = await createAdminClient();
 
             const { error: uploadError } = await supabase.storage
-              .from('audit-reports')
+              .from('audits')
               .upload(filePath, pdfBuffer, {
                 contentType: 'application/pdf',
                 upsert: true
@@ -204,7 +206,7 @@ export class PDFGenerationService {
             if (uploadError) throw uploadError;
 
             const { data: urlData } = supabase.storage
-              .from('audit-reports')
+              .from('audits')
               .getPublicUrl(filePath);
 
             resolve(urlData.publicUrl);
