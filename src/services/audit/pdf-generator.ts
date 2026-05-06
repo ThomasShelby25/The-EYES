@@ -20,17 +20,6 @@ export class PDFGenerationService {
           }
         });
 
-        const buffers: Buffer[] = [];
-        doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', async () => {
-          const pdfBuffer = Buffer.concat(buffers);
-          try {
-            const url = await this.uploadToSupabase(pdfBuffer, audit.id, userId);
-            resolve(url);
-          } catch (uploadErr) {
-            reject(uploadErr);
-          }
-        });
 
         // --- STYLING CONSTANTS (Aligned with Modern UI) ---
         const BG_WHITE = '#FFFFFF';
