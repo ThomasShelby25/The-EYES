@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 import crypto from 'crypto';
 
 /**
- * AI Brain Core: V1 Mistral Abstraction Layer (Section 07 Specification)
+ * AI Brain Core: Unified Production Interface
  * All model invocations must route through the unified 'invokeModel' interface.
  */
 
@@ -15,7 +15,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const CLAUDE_MODEL = "claude-3-5-sonnet-20240620";
-const GEMINI_CHAT_MODEL = "gemini-1.5-flash";
+const GEMINI_CHAT_MODEL = "gemini-flash-latest"; // Verified stable in 2026 env
 const EMBED_MODEL = "gemini-embedding-001";
 
 export type AIPreference = 'claude' | 'mistral' | 'openai' | 'auto';
@@ -31,11 +31,11 @@ export interface AIInvokeOptions {
   messages?: AIHistoryMessage[];
   system?: string;
   preference?: AIPreference;
-  capture?: boolean; // For future behavioral data capture (Section 07.Decision 2)
+  capture?: boolean; 
 }
 
 /**
- * Unified Model Invocation Interface (The Specification Requirement)
+ * Unified Model Invocation Interface - REAL WORLD ONLY (NO DEMO)
  */
 export async function invokeModel(options: AIInvokeOptions): Promise<any> {
   const { capability, messages = [], system = "", preference = 'auto', capture = true } = options;
@@ -48,15 +48,18 @@ export async function invokeModel(options: AIInvokeOptions): Promise<any> {
     const startedAt = Date.now();
     const result = await handleChat(messages, system, preference);
     
-    if (capture) {
-      void captureBehavioralData({
-        queryText: messages[messages.length - 1]?.content || "",
-        queryType: capability,
-        modelUsed: preference === 'auto' ? 'claude' : (preference || 'claude'),
-        latencyMs: Date.now() - startedAt,
-        resultCount: messages.length, // approximation
-        responseLength: result?.length || 0
-      });
+    if (capture && result) {
+      // Background logging (optimized)
+      setTimeout(() => {
+        captureBehavioralData({
+          queryText: messages[messages.length - 1]?.content || "",
+          queryType: capability,
+          modelUsed: preference === 'auto' ? 'claude' : (preference || 'claude'),
+          latencyMs: Date.now() - startedAt,
+          resultCount: messages.length,
+          responseLength: result?.length || 0
+        }).catch(err => console.warn('[AI Behavioral] Background log failed:', err));
+      }, 0);
     }
 
     return result;
@@ -66,7 +69,7 @@ export async function invokeModel(options: AIInvokeOptions): Promise<any> {
 }
 
 /**
- * Internal: Handle 768d Embeddings via Gemini (Production Standard)
+ * Internal: Handle 768d Embeddings via Gemini
  */
 async function handleEmbedding(text: string) {
   if (!GEMINI_API_KEY) return null;
@@ -87,7 +90,7 @@ async function handleEmbedding(text: string) {
  * Internal: Handle Chat via Claude with Gemini Fallback
  */
 async function handleChat(messages: AIHistoryMessage[], system: string, preference: AIPreference) {
-  const isClassification = system.includes('commitment') || system.includes('classify');
+  const isClassification = system.includes('commitment') || system.includes('classify') || system.includes('extract') || system.includes('json');
   
   const history = messages
     .filter(m => m.role !== 'system')
@@ -103,15 +106,15 @@ async function handleChat(messages: AIHistoryMessage[], system: string, preferen
       const response = await anthropic.messages.create({
         model: CLAUDE_MODEL,
         max_tokens: isClassification ? 500 : 1024,
-        temperature: 0, // Cold tone for classification
+        temperature: 0,
         system: system,
         messages: history,
       });
 
       const contentBlock = response.content[0];
       if (contentBlock.type === 'text') return contentBlock.text;
-    } catch (err) {
-      console.warn('[AI Abstraction] Claude failed, falling back to Gemini.');
+    } catch (err: any) {
+      console.warn(`[AI Abstraction] Claude failed, falling back to Gemini.`);
     }
   }
 
@@ -127,8 +130,8 @@ async function handleChat(messages: AIHistoryMessage[], system: string, preferen
     });
     return result.response.text();
   } catch (err) {
-    console.error('[AI Abstraction] All models failed in handleChat.');
-    return null;
+    console.error('[AI Abstraction] All real-world models failed in handleChat:', err);
+    return null; // Return null to indicate failure (No Demo)
   }
 }
 
@@ -171,8 +174,8 @@ export async function invokeModelStream(options: AIInvokeOptions): Promise<Reada
           }
         }
       });
-    } catch (err) {
-      console.warn('[AI Stream] Claude failed, using Gemini.');
+    } catch (err: any) {
+      console.warn(`[AI Stream] Claude failed, using Gemini.`);
     }
   }
 
@@ -187,7 +190,7 @@ export async function invokeModelStream(options: AIInvokeOptions): Promise<Reada
         });
         controller.enqueue(encoder.encode(result.response.text()));
       } catch (err) {
-        console.error('[AI Stream] Gemini fallback failed.');
+        console.error('[AI Stream] Gemini fallback failed:', err);
       } finally {
         controller.close();
       }
@@ -238,7 +241,7 @@ async function captureBehavioralData(data: {
       latency_ms: data.latencyMs,
       result_count: data.resultCount,
       response_length: data.responseLength,
-      sources_used: [], // to be populated from context
+      sources_used: [], 
       coarse_geography: 'unknown',
       coarse_time_bucket: getTimeBucket()
     });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import MainContent from '@/components/MainContent';
@@ -11,10 +11,10 @@ export default function Home() {
   const [isSystemBooting, setIsSystemBooting] = useState(true);
 
   // Synchronize loading across components
-  const handleBootComplete = () => {
+  const handleBootComplete = useCallback(() => {
     // Artificial delay for that premium 'handshake' feel
     setTimeout(() => setIsSystemBooting(false), 200);
-  };
+  }, []);
 
   return (
     <div className={styles.pageRoot}>

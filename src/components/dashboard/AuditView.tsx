@@ -28,9 +28,11 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
         const auditRes = await fetch('/api/audit/latest');
         if (auditRes.ok) {
           const data = await auditRes.json();
-          if (data && data.status === 'completed') {
+          if (data) {
             setActiveAudit(data);
-            setAuditMode('completed');
+            if (data.status === 'completed') {
+              setAuditMode('completed');
+            }
           }
         }
       } catch (err) {

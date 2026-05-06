@@ -117,7 +117,34 @@ export class AuditAnalysisService {
         preference: 'auto'
       });
 
-      // 5. Persist and Finalize
+      // 5. Generate PDF Certificate (Async but waited)
+      let reportUrl = null;
+      try {
+        console.log(`[Audit] Generating PDF for ${auditId}...`);
+        // We construct a temporary object to pass to the generator
+        const auditForPdf: any = {
+          id: auditId,
+          status: 'completed',
+          riskScore: riskScore,
+          mentionsCount: events.length,
+          commitmentsCount: unfulfilledCommitmentsCount,
+          summaryNarrative: summaryNarrative,
+          connectorsCovered: connectorsCovered,
+          createdAt: new Date().toISOString(),
+          metadata: { 
+            commitments: extractedCommitments, 
+            riskFindings: extractedFindings,
+            topEntities: [],
+            opportunities: [],
+            sentimentBalance: (weightedNegativeMentions / (weightedTotalMentions || 1)) // rough estimate
+          }
+        };
+        reportUrl = await PDFGenerationService.generateAndUpload(auditForPdf, userId);
+      } catch (pdfErr) {
+        console.warn('[Audit] PDF generation skipped due to error:', pdfErr);
+      }
+
+      // 6. Persist and Finalize
       await supabase.from('reputation_audits').update({
         status: 'completed',
         risk_score: riskScore,
@@ -125,6 +152,7 @@ export class AuditAnalysisService {
         commitments_count: unfulfilledCommitmentsCount,
         summary_narrative: summaryNarrative || 'Analysis complete.',
         connectors_covered: connectorsCovered,
+        report_url: reportUrl,
         metadata: { commitments: extractedCommitments, riskFindings: extractedFindings }
       }).eq('id', auditId);
 
