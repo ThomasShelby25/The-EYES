@@ -159,7 +159,8 @@ export class AuditAnalysisService {
       }
 
       // 6. Persist and Finalize
-      await supabase.from('reputation_audits').update({
+      console.log(`[Audit] Finalizing database record for ${auditId}...`);
+      const { error: updateError } = await supabase.from('reputation_audits').update({
         status: 'completed',
         risk_score: riskScore,
         mentions_count: events.length,
@@ -168,14 +169,16 @@ export class AuditAnalysisService {
         connectors_covered: connectorsCovered,
         report_url: reportUrl,
         metadata: { 
-          commitments: extractedCommitments, 
-          riskFindings: extractedFindings,
-          topEntities: summaryResult.topEntities,
-          opportunities: summaryResult.opportunities,
-          failureRate: (events.length > 0 ? (negativeMentions / events.length) * 100 : 0).toFixed(2),
-          complianceRate: (100 - (events.length > 0 ? (negativeMentions / events.length) * 100 : 0)).toFixed(2)
+          ...auditForPdf.metadata,
+          reportUrl: reportUrl // Redundancy backup in JSON
         }
       }).eq('id', auditId);
+
+      if (updateError) {
+        console.error(`[Audit] Database update failed for ${auditId}:`, updateError);
+      } else {
+        console.log(`[Audit] Successfully finalized ${auditId} with reportUrl: ${reportUrl}`);
+      }
 
       return { success: true, auditId };
 
