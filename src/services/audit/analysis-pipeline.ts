@@ -183,11 +183,15 @@ export class AuditAnalysisService {
       return { success: true, auditId };
 
     } catch (err) {
-      console.error('[Audit Pipeline] REAL-WORLD FAILURE:', err);
+      console.error(`[Audit] Analysis failed for ${auditId}:`, err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      
+      const supabase = await createAdminClient();
       await supabase.from('reputation_audits').update({ 
-        status: 'failed', 
-        error_message: err instanceof Error ? err.message : String(err) 
+        status: 'failed',
+        summary_narrative: `CRITICAL FAILURE: ${errorMessage}. Please check storage permissions and AI quotas.`
       }).eq('id', auditId);
+      
       throw err;
     }
   }
