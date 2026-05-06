@@ -533,20 +533,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const watchedTables = ['raw_events', 'sync_status', 'oauth_tokens', 'user_profiles', 'topics'] as const;
+    // Only watch for high-level status changes to prevent refresh spamming.
+    // 'raw_events' is removed to avoid triggering a refresh for every single new memory.
+    const watchedTables = ['sync_status', 'user_profiles', 'oauth_tokens'] as const;
     const channelName = `eyes-user-live:${user.id}`;
     let refreshTimer: ReturnType<typeof setTimeout> | undefined;
 
     const queueRefresh = () => {
-      if (refreshTimer) {
-        return;
-      }
+      if (refreshTimer) return;
 
-      // Debounce bursts from multi-row upserts into one UI refresh fan-out.
+      // Debounce bursts: Only allow UI refresh every 2 seconds to damp the pulse.
       refreshTimer = setTimeout(() => {
         refreshTimer = undefined;
         emitRealtimeRefreshEvent();
-      }, 180);
+      }, 2000);
     };
 
     let channel = supabase.channel(channelName);
