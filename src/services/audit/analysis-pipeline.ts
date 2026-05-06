@@ -21,7 +21,7 @@ export class AuditAnalysisService {
         .eq('user_id', userId)
         .gte('timestamp', twoYearsAgo.toISOString())
         .order('timestamp', { ascending: false })
-        .limit(2000);
+        .limit(500); // Optimized for speed
 
       if (fetchError || !events) {
         throw new Error(`Data retrieval failed: ${fetchError?.message}`);
@@ -33,8 +33,8 @@ export class AuditAnalysisService {
 
       const connectorsCovered = Array.from(new Set(events.map(e => e.platform)));
       
-      // 2. Real Claude Analysis
-      const significantRecords = events.slice(0, 50);
+      // 2. Real Claude Analysis (Optimized chunking)
+      const significantRecords = events.slice(0, 100);
       const analysisInput = significantRecords.map(e => ({
         id: e.id,
         date: e.timestamp,

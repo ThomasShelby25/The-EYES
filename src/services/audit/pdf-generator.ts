@@ -185,6 +185,13 @@ export class PDFGenerationService {
             const { createAdminClient } = await import('@/utils/supabase/server');
             const supabase = await createAdminClient();
 
+            // Ensure bucket exists (Safe check)
+            try {
+              await supabase.storage.createBucket('audits', { public: false });
+            } catch (e) {
+              // Ignore if already exists
+            }
+
             const { error: uploadError } = await supabase.storage
               .from('audits')
               .upload(filePath, pdfBuffer, {
@@ -194,13 +201,16 @@ export class PDFGenerationService {
 
             if (uploadError) throw uploadError;
 
-            const { data: urlData } = supabase.storage
+            // Generate a SIGNED URL (Much more reliable than Public URL)
+            const { data: signedData, error: signedError } = await supabase.storage
               .from('audits')
-              .getPublicUrl(filePath);
+              .createSignedUrl(filePath, 60 * 60 * 24 * 7); // 7 days
 
-            resolve(urlData.publicUrl);
+            if (signedError) throw signedError;
+
+            resolve(signedData.signedUrl);
           } catch (err) {
-            console.error('[PDF-Brain] Upload failed:', err);
+            console.error('[PDF-Brain] Upload/Sign failed:', err);
             resolve(null as any);
           }
         });

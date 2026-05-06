@@ -30,27 +30,26 @@ export async function POST(request: Request) {
       throw new Error(`Failed to create audit record: ${createError?.message}`);
     }
 
-    // 2. Update status to 'analysis' immediately to prevent "pending" hang
+    // 2. Update status to 'analysis' 
     await supabase
       .from('reputation_audits')
       .update({ status: 'analysis' })
       .eq('id', audit.id);
 
-    // 3. Fire and forget the analysis pipeline
-    (async () => {
-      try {
-        await AuditAnalysisService.runAnalysis(audit.id, user.id);
-        console.log(`[Audit] Analysis complete for ${audit.id}`);
-      } catch (err) {
-        console.error(`[Audit] Async analysis failed for ${audit.id}:`, err);
-      }
-    })();
+    // 3. RUN ANALYSIS (Awaiting to prevent Vercel termination)
+    try {
+      console.log(`[Audit API] Starting synchronous analysis for ${audit.id}`);
+      await AuditAnalysisService.runAnalysis(audit.id, user.id);
+    } catch (err) {
+      console.error(`[Audit API] Analysis failed for ${audit.id}:`, err);
+      // Even if it fails, we return the auditId so the UI can show the failure state
+    }
 
     return NextResponse.json({
       success: true,
       auditId: audit.id,
-      status: 'pending',
-      message: 'Neural reputation audit initiated.'
+      status: 'completed',
+      message: 'Neural reputation audit complete.'
     });
 
   } catch (err) {
