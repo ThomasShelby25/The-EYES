@@ -32,19 +32,20 @@ export class PDFGenerationService {
           }
         });
 
-        // --- STYLING CONSTANTS ---
-        const CREAM = '#FAFAF7';
-        const INK_BLACK = '#1A1A1A';
-        const FOREST_GREEN = '#1F4D3F';
-        const MUTED_RED = '#8B2E2E';
-        const GRAY_FOOTER = '#666666';
-        const LIGHT_GRAY = '#E5E5E0';
+        // --- STYLING CONSTANTS (Aligned with Modern UI) ---
+        const BG_WHITE = '#FFFFFF';
+        const INK_BLACK = '#080808';
+        const FOREST_GREEN = '#00899B'; // Using accent-vital
+        const MUTED_RED = '#EF4444';
+        const GRAY_FOOTER = '#888888';
+        const LIGHT_GRAY = '#F0F0F0';
+        const BORDER_SUBTLE = 'rgba(0, 0, 0, 0.05)';
 
         const FONT_BODY = 'Helvetica';
         const FONT_BOLD = 'Helvetica-Bold';
         const FONT_MONO = 'Courier';
 
-        const drawBackground = () => doc.rect(0, 0, doc.page.width, doc.page.height).fill(CREAM);
+        const drawBackground = () => doc.rect(0, 0, doc.page.width, doc.page.height).fill(BG_WHITE);
         const drawFooter = (pageNum: number) => {
           doc.fillColor(GRAY_FOOTER).fontSize(7).font(FONT_BODY)
              .text(`Audit ID: ${audit.id} | Page ${pageNum} of 8 | Confidential`, 50, doc.page.height - 40, { align: 'center', width: doc.page.width - 100 });
@@ -66,26 +67,33 @@ export class PDFGenerationService {
         doc.fontSize(10).font(FONT_BODY).text(audit.connectorsCovered.join(' · '), 50, 420);
         drawFooter(1);
 
-        // --- PAGE 2: EXECUTIVE SUMMARY ---
+        // --- PAGE 2: EXECUTIVE SUMMARY & CORE METRICS ---
         doc.addPage();
         drawBackground();
-        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text('Executive Summary', 50, 100);
-        doc.font(FONT_BODY).fontSize(11).lineGap(6).text(audit.summaryNarrative || 'Analysis in progress.', 50, 140, { width: 500, align: 'justify' });
+        doc.fillColor(INK_BLACK).font(FONT_BOLD).fontSize(20).text('Executive Summary', 50, 80);
+        doc.font(FONT_BODY).fontSize(11).lineGap(4).text(audit.summaryNarrative || 'Analysis in progress.', 50, 110, { width: 500, align: 'justify' });
         
+        // Key Metrics Block (Matching iiiii.pdf)
         let y = 300;
-        const colWidth = 160;
-        doc.fontSize(16).font(FONT_BOLD).text(audit.mentionsCount.toString(), 50, y);
-        doc.fontSize(8).font(FONT_BODY).text('TOTAL MENTIONS', 50, y + 20);
-        
-        doc.fontSize(16).text(`${(audit.metadata.sentimentBalance >= 0 ? '+' : '')}${audit.metadata.sentimentBalance.toFixed(2)}`, 50 + colWidth, y);
-        doc.fontSize(8).text('SENTIMENT BALANCE', 50 + colWidth, y + 20);
-        
-        doc.fontSize(16).text(audit.commitmentsCount.toString(), 50 + colWidth * 2, y);
-        doc.fontSize(8).text('UNFULFILLED COMMITMENTS', 50 + colWidth * 2, y + 20);
+        doc.moveTo(50, y).lineTo(545, y).strokeColor(BORDER_SUBTLE).lineWidth(1).stroke();
+        y += 30;
+        doc.font(FONT_BOLD).fontSize(14).text('Key Metrics', 50, y);
+        y += 30;
 
-        y = 400;
+        const renderMetric = (label: string, value: string, rowY: number) => {
+          doc.font(FONT_BODY).fontSize(10).fillColor(INK_BLACK).text(`* ${label}:`, 50, rowY);
+          doc.font(FONT_BOLD).fontSize(10).text(value, 180, rowY);
+        };
+
+        renderMetric('Total Records Audited', audit.mentionsCount.toString(), y);
+        renderMetric('Negative Findings', `${audit.metadata.riskFindings?.length || 0} (Failure Rate: ${audit.metadata.failureRate || 0}%)`, y + 20);
+        renderMetric('Compliance Rate', `${audit.metadata.complianceRate || 0}%`, y + 40);
+        renderMetric('Outstanding Remediation', `${audit.commitmentsCount} Open Tasks`, y + 60);
+        renderMetric('Risk Profile', `Maximum (${audit.riskScore}/10)`, y + 80);
+
+        y = 480;
         doc.fontSize(24).font(FONT_BOLD).text(audit.riskScore.toFixed(1), 50, y);
-        doc.fontSize(12).text('/ 10 Risk Score', 100, y + 8);
+        doc.fontSize(12).text('/ 10 Risk Score', 110, y + 8);
         doc.fontSize(9).font(FONT_BODY).text(audit.riskScore > 7 ? 'Critical Risk Identified' : audit.riskScore > 4 ? 'Moderate Surface Exposure' : 'Minimal Trace Surface', 50, y + 35);
         drawFooter(2);
 

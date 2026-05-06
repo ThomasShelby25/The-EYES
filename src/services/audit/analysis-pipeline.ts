@@ -131,6 +131,9 @@ export class AuditAnalysisService {
       let reportUrl = null;
       try {
         console.log(`[Audit] Generating PDF for ${auditId}...`);
+        const failureRate = events.length > 0 ? (negativeMentions / events.length) * 100 : 0;
+        const complianceRate = 100 - failureRate;
+
         const auditForPdf: any = {
           id: auditId,
           status: 'completed',
@@ -145,7 +148,9 @@ export class AuditAnalysisService {
             riskFindings: extractedFindings,
             topEntities: summaryResult.topEntities || [],
             opportunities: summaryResult.opportunities || [],
-            sentimentBalance: weightedTotalMentions > 0 ? (1 - (weightedNegativeMentions / weightedTotalMentions)) : 1.0
+            sentimentBalance: weightedTotalMentions > 0 ? (1 - (weightedNegativeMentions / weightedTotalMentions)) : 1.0,
+            failureRate: failureRate.toFixed(2),
+            complianceRate: complianceRate.toFixed(2)
           }
         };
         reportUrl = await PDFGenerationService.generateAndUpload(auditForPdf, userId);
@@ -166,7 +171,9 @@ export class AuditAnalysisService {
           commitments: extractedCommitments, 
           riskFindings: extractedFindings,
           topEntities: summaryResult.topEntities,
-          opportunities: summaryResult.opportunities
+          opportunities: summaryResult.opportunities,
+          failureRate: (events.length > 0 ? (negativeMentions / events.length) * 100 : 0).toFixed(2),
+          complianceRate: (100 - (events.length > 0 ? (negativeMentions / events.length) * 100 : 0)).toFixed(2)
         }
       }).eq('id', auditId);
 
