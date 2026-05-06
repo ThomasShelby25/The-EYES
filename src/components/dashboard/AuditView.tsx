@@ -41,35 +41,18 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
         setIsLoading(false);
       }
     };
+    
     fetchLatest();
-  }, []);
 
-  // Polling logic for running audits
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
+    // Auto-refresh if in progress
+    let interval: any;
     if (activeAudit && (activeAudit.status === 'pending' || activeAudit.status === 'analysis' || activeAudit.status === 'generating')) {
-      setAuditMode('running');
-      interval = setInterval(async () => {
-        try {
-          const res = await fetch(`/api/audit/${activeAudit.id}`);
-          if (res.ok) {
-            const data = await res.json();
-            setActiveAudit(data);
-            if (data.status === 'completed') {
-              setAuditMode('completed');
-              clearInterval(interval);
-            } else if (data.status === 'failed') {
-              setAuditMode('dashboard'); // Fallback to dashboard on failure instead of error screen
-              clearInterval(interval);
-            }
-          }
-        } catch (err) {
-          console.error('Polling failed:', err);
-        }
-      }, 5000);
+      interval = setInterval(fetchLatest, 5000);
     }
+    
     return () => clearInterval(interval);
-  }, [activeAudit]);
+  }, [activeAudit?.status]);
+
 
   const handleStartAudit = async (type: string = 'full') => {
     setIsInitiating(true);

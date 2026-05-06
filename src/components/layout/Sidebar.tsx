@@ -89,17 +89,6 @@ export default function Sidebar() {
           </div>
 
           <div 
-            className={`${styles.item} ${activeView === 'audit' ? styles.itemActive : ''}`} 
-            onClick={() => navigateToView('audit')}
-          >
-            <div className={styles.itemIcon}><span style={{fontSize: '18px', filter: 'grayscale(1)'}}>🛡️</span></div>
-            <div className={styles.itemMain}>
-              <span className={styles.itemLabel}>Neural Audit</span>
-              <span className={styles.itemDesc}>Deep reputation analysis</span>
-            </div>
-          </div>
-
-          <div 
             className={`${styles.item} ${activeView === 'action-queue' ? styles.itemActive : ''}`} 
             onClick={() => navigateToView('action-queue')}
           >
