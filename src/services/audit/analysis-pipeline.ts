@@ -129,11 +129,21 @@ export class AuditAnalysisService {
 
       // 5. Generate PDF Certificate (Async but waited)
       let reportUrl = null;
+      const failureRate = events.length > 0 ? (negativeMentions / events.length) * 100 : 0;
+      const complianceRate = 100 - failureRate;
+
+      const auditMetadata = { 
+        commitments: extractedCommitments, 
+        riskFindings: extractedFindings,
+        topEntities: summaryResult.topEntities || [],
+        opportunities: summaryResult.opportunities || [],
+        sentimentBalance: weightedTotalMentions > 0 ? (1 - (weightedNegativeMentions / weightedTotalMentions)) : 1.0,
+        failureRate: failureRate.toFixed(2),
+        complianceRate: complianceRate.toFixed(2)
+      };
+
       try {
         console.log(`[Audit] Generating PDF for ${auditId}...`);
-        const failureRate = events.length > 0 ? (negativeMentions / events.length) * 100 : 0;
-        const complianceRate = 100 - failureRate;
-
         const auditForPdf: any = {
           id: auditId,
           status: 'completed',
@@ -143,15 +153,7 @@ export class AuditAnalysisService {
           summaryNarrative: summaryResult.narrative,
           connectorsCovered: connectorsCovered,
           createdAt: new Date().toISOString(),
-          metadata: { 
-            commitments: extractedCommitments, 
-            riskFindings: extractedFindings,
-            topEntities: summaryResult.topEntities || [],
-            opportunities: summaryResult.opportunities || [],
-            sentimentBalance: weightedTotalMentions > 0 ? (1 - (weightedNegativeMentions / weightedTotalMentions)) : 1.0,
-            failureRate: failureRate.toFixed(2),
-            complianceRate: complianceRate.toFixed(2)
-          }
+          metadata: auditMetadata
         };
         reportUrl = await PDFGenerationService.generateAndUpload(auditForPdf, userId);
       } catch (pdfErr) {
@@ -169,7 +171,7 @@ export class AuditAnalysisService {
         connectors_covered: connectorsCovered,
         report_url: reportUrl,
         metadata: { 
-          ...auditForPdf.metadata,
+          ...auditMetadata,
           reportUrl: reportUrl // Redundancy backup in JSON
         }
       }).eq('id', auditId);
