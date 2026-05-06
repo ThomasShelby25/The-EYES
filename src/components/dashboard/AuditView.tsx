@@ -229,9 +229,21 @@ export function AuditView({ onBack, summary }: AuditViewProps) {
           <div className={styles.mainContent}>
             <section className={styles.summaryBox}>
               <h2 className={styles.sectionHeading}>Executive Summary</h2>
-              <p className={styles.narrative}>
-                {activeAudit.summaryNarrative || 'No summary generated.'}
-              </p>
+              <div className={styles.narrative}>
+                {(() => {
+                  const raw = activeAudit.summaryNarrative || 'Analysis in progress...';
+                  // Pre-process: handle headers and bolding
+                  // We split by double newlines for paragraphs, but first we normalize headers
+                  const formatted = raw
+                    .replace(/#####\s*(.*?)(?:\n|$)/g, '<h4>$1</h4>')
+                    .replace(/####\s*(.*?)(?:\n|$)/g, '<h4>$1</h4>')
+                    .replace(/###\s*(.*?)(?:\n|$)/g, '<h3>$1</h3>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/---\s*/g, '<hr style="border:0; border-top:1px solid var(--border-subtle); margin:20px 0;" />');
+
+                  return <div dangerouslySetInnerHTML={{ __html: formatted.replace(/\n/g, '<br />') }} />;
+                })()}
+              </div>
 
               <div className={styles.metricsRow}>
                 <div className={styles.metricCard}>
