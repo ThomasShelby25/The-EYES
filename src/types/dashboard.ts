@@ -100,6 +100,8 @@ export interface ReputationAudit {
     commitments: Commitment[];
     opportunities: string[];
     topEntities: string[];
+    failureRate?: string;
+    complianceRate?: string;
     riskFindings: Array<{
       severity: 'Low' | 'Medium' | 'High';
       finding: string;
