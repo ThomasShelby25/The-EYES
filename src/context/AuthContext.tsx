@@ -63,10 +63,20 @@ type SupabaseQueryLike<T> = {
 };
 
 const REALTIME_REFRESH_EVENT = 'eyes-realtime-refresh';
+const PULSE_THROTTLE_MS = 10000; // Hard 10s throttle for global stability
 const AUTO_BACKGROUND_SYNC_ENABLED = process.env.NEXT_PUBLIC_AUTO_BACKGROUND_SYNC === 'true';
 
+let lastPulseTime = 0;
 function emitRealtimeRefreshEvent() {
   if (typeof window === 'undefined') return;
+  
+  const now = Date.now();
+  if (now - lastPulseTime < PULSE_THROTTLE_MS) {
+    return;
+  }
+  
+  lastPulseTime = now;
+  console.log('[Auth] Global Neural Pulse emitted. Throttling active (10s).');
   window.dispatchEvent(new CustomEvent(REALTIME_REFRESH_EVENT));
 }
 
